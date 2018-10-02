@@ -1,0 +1,16 @@
+{
+    "name": "DistributorArea",
+    "alias": "distributorarea",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\DistributorArea\\Providers\\DistributorAreaServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}

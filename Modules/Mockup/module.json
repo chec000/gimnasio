@@ -1,0 +1,16 @@
+{
+    "name": "Mockup",
+    "alias": "mockup",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Mockup\\Providers\\MockupServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}
