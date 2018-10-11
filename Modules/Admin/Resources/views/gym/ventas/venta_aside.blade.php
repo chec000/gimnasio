@@ -32,16 +32,18 @@
                 <div class="panel-footer">
                     <div class="row text-center">
                         <div class="col-xs-6">
-                            <h4 class="text-right">Total $<strong id="total_membresia">00.00</strong></h4>
+                            <h4 class="text-right">Total $<strong id="total_membresia">{{Session::get('portal.main.gym.cliente.total_pagar')}}</strong></h4>
                         </div>
                         <div class="col-xs-6">
-                                <button type="button" class="btn btn-success btn-block next-step">
-                                Checkout
-                            </button>
+                            @if(count($membresias)>0)
+                            <button type="button" class="btn btn-success btn-block next-step" onclick="detalleVenta()">
+                                Pagar
+                            </button>                                                       
+                            @endif
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>

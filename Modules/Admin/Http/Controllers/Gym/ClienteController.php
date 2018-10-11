@@ -14,11 +14,13 @@ use Modules\Admin\Http\Controllers\gym\GymController;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade as PDF;
 use Modules\CMS\Libraries\Builder\FormMessage;
+use Illuminate\Support\Facades\Mail;
+use Modules\Admin\Entities\Gym\Articulo;
 use Validator;
 use Auth;
 
 class ClienteController extends Controller {
-
+public $total_pagar;
     public function index() {
 
         $clientes = $this->getClientes();
@@ -43,7 +45,9 @@ class ClienteController extends Controller {
             $membresia = Membresia::find($request->id_membresia);
             $membresia['cantidad'] = $request->cantidad;
             $membresia['subtotal'] = $request->cantidad * $membresia->precio;
+              $this->total_pagar=$this->total_pagar+ $membresia['subtotal'];
             session()->push('portal.main.gym.cliente.membresias', $membresia);
+           $this->cotizarMembresia();
             $view = View::make('admin::gym.ventas.add_membresia', array("membresia" => $membresia))->render();
             $array = array(
                 "data" => $view,
@@ -53,13 +57,14 @@ class ClienteController extends Controller {
         } else {
             $cantidad = $membresia_existente['cantidad'] + $request->cantidad;
             $subtotal = $membresia_existente['cantidad'] * $membresia_existente['precio'];
+            $this->total_pagar=$subtotal;
             $index = $this->getIndex($membresia_existente->id);
             $this->updateMembresiaSession($subtotal, $index, $cantidad);
             return $membresia_existente;
         }
     }
 
-    private function updateMembresiaSession($subtotal, $index, $cantidad) {
+    private function updateMembresiaSession($subtotal, $index, $cantidad) {        
         session()->get('portal.main.gym.cliente.membresias')[$index]->cantidad = $cantidad;
         session()->get('portal.main.gym.cliente.membresias')[$index]->subtotal = $subtotal;
     }
@@ -86,10 +91,12 @@ class ClienteController extends Controller {
                 $cantidad = $membresia_existente['cantidad'] + 1;
                 $subtotal = $cantidad * $membresia_existente['precio'];
                 $index = $this->getIndex($membresia_existente->id);
+                    $this->total_pagar= $this->total_pagar+$membresia_existente['precio'];                    
                 $this->updateMembresiaSession($subtotal, $index, $cantidad);
             } else {
                 $cantidad = $membresia_existente['cantidad'] - 1;
                 $subtotal = $cantidad * $membresia_existente['precio'];
+                $this->total_pagar= $this->total_pagar+$membresia_existente['precio'];
                 $index = $this->getIndex($membresia_existente->id);
                 $this->updateMembresiaSession($subtotal, $index, $cantidad);
             }
@@ -128,13 +135,95 @@ class ClienteController extends Controller {
 
         return null;
     }
+    public function getSendMail()
+    {
+        $code       = Session::get('portal.register_customer.code');
+        $customer   = Session::get('portal.register_customer.data');
+        $emailsSend = Config::get('cms.email_send');
+        $emailSend  = $emailsSend[Session::get('portal.main.country_corbiz')];
 
-    public function detalleVenta() {
-         $membresias = session()->get('portal.main.gym.cliente.membresias');        
-          $view = View::make('admin::gym.ventas.detalle_venta',["membresias"=>$membresias]);
-        $this->layoutData['content'] = $view->render();
+        Mail::send('shopping::frontend.customer.mails.code', ['customer' => $customer, 'code' => $code], function($m) use ($customer, $emailSend) {
+            $m->from($emailSend, trans('shopping::register_customer.mail_address.title'));
+            $m->to($customer['email'], $customer['name'] . ' ' . $customer['lastname'])->subject(trans('shopping::register_customer.mail_address.subject'));
+        });
+
+        return response()->json([
+            'success'   => true,
+        ]);
+    }
+    
+     public function sendEmailReminder($membresias)
+    {
+        $user = \Modules\Admin\Entities\Gym\User::find(5);
+    
+             $articulos= $this->buidCheckout($membresias,1);                                       
+        try {      
+               Mail::send('admin::gym.emails.registro', ['user' => $user,"membresias"=>$articulos,'total'=> 0], function ($m) use ($user) {
+            $m->from('sergiogalindo2010@hotmail.com', 'gym');
+
+            $m->to($user->email, $user->name)->subject('Your Reminder!');
+        });
+        } catch (Exception $ex) {
+            dd($ex);
+        } 
+        
+     
     }
 
+    
+    public function detalleVenta() {
+        
+         $membresias = session()->get('portal.main.gym.cliente.membresias');                
+//          $view = View::make('admin::gym.ventas.detalle_venta',["membresias"=>$membresias]);
+       
+         $this->sendEmailReminder($membresias);
+
+          
+//        $this->layoutData['content'] = $this->getDetalleVenta();
+    }
+
+    public function getDetalleVenta(){
+         $membresias = session()->get('portal.main.gym.cliente.membresias');     
+        $articulos= $this->buidCheckout($membresias,1);                           
+         
+          $view = View::make('admin::gym.ventas.detalle_venta',["membresias"=>$articulos,"total"=>$this->total_pagar]);
+   return $view->render();      
+    }
+    
+    private function buidCheckout($membresias,$tipo){
+    $articulos= [];
+        if($tipo==1){
+            $articulo=new Articulo();
+            $articulo->setCantidad(1);
+            $articulo->setDescripcion("Inscripcion a gimansio");
+            $articulo->setId(0);
+            $articulo->setNombre("Inscripcion");
+            $articulo->setPrecio(12);
+            $articulo->setSubtotal(12);
+            $articulo->setTipo(0);
+            $this->total_pagar= $this->total_pagar+$articulo->getPrecio();
+            $articulo->setImagen("http://www.congresouniversidad.cu/sites/default/files/bloques/inscripcion.png");
+            array_push($articulos, $articulo);
+        }
+        foreach ($membresias as $m){                 
+             $articulo=new Articulo();
+            $articulo->setNombre($m->nombre);
+            $articulo->setDescripcion($m->descripcion);
+            $articulo->setId($m->id);
+            $articulo->setPrecio($m->precio);     
+            $articulo->setSubtotal($m->subtotal);
+            $articulo->setCantidad($m->cantidad);
+            $articulo->setImagen($m->imagen);
+            $articulo->setTipo($m->tipo_id);
+            $this->total_pagar= $this->total_pagar+$articulo->getSubtotal();
+            array_push($articulos, $articulo);           
+        }
+return $articulos;
+        
+    }
+    
+    
+    
     public function generateReport() {
         /**
          * toma en cuenta que para ver los mismos 
@@ -169,7 +258,7 @@ class ClienteController extends Controller {
     public function  getCheckout(){
     $view = View::make('admin::gym.ventas.detalle_venta',["membresias"=>session()->get('portal.main.gym.cliente.membresias')]);
      return $view->render();
-    }
+    }   
 
 
     public function addClienteGet() {

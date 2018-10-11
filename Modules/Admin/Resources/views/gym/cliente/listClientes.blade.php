@@ -51,10 +51,12 @@
   </div>
 
 </div>
-    <script type="text/javascript">
+    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 
-
-        
+    <!--<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" />-->
+<script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+    <script type="text/javascript">      
 function activeDesactiveCliente (id){          
     $.ajax({
     url: route('admin.Cliente.activeInactive_cliente'),

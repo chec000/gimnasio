@@ -464,6 +464,7 @@ Route::post('/admin/cliente/add_membresia', 'gym\ClienteController@saveMembresia
 Route::get('/admin/cliente/detalle_venta', 'gym\ClienteController@detalleVenta')->name('admin.Cliente.detalle_venta');
 Route::post('/admin/cliente/add_membresia_cliente', 'gym\ClienteController@addMembresiaCliente')->name('admin.Cliente.add_less_membresia');
 
+Route::get('/admin/cliente/detalle_venta_checkout', 'gym\ClienteController@getDetalleVenta')->name('admin.Cliente.detalle_venta_checkout');
 
 
 
