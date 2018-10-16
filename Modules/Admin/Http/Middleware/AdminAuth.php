@@ -17,7 +17,7 @@ class AdminAuth
     public function handle($request, Closure $next)
     {
         $routeParts = explode('.', Request::route()->getName());
-
+        
         if (Auth::check()) {
 
             if ( empty($routeParts[0]) || $routeParts[0] != 'admin') {

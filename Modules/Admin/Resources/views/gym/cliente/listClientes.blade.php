@@ -1,6 +1,6 @@
 
 <div class="container">
-  
+
     <div class="card" >
   <div class="card-body">
             <a href="{{route('admin.Cliente.add_cliente')}}" class="small-box-footer">Agregar cliente <i class="fa fa-arrow-circle-right"></i></a>             
@@ -12,16 +12,16 @@
       <th scope="col">Apellidos</th>
       <th scope="col">Telefono</th>
        <th scope="col">Dirección</th>
-      <th scope="col">Estado</th>
       <th scope="col">Fecha inscripción</th>
+            <th scope="col">Estado</th>
        <th scope="col">Activo</th>
                <th scope="col">Acciones</th>
 
     </tr>
   </thead>
   <tbody>
-      
-      @foreach ($clientes as $c)
+        @if(count($clientes)>0)
+    @foreach ($clientes as $c)
     <tr>
       <th scope="row">{{$c->id}}</th>
       <td>{{$c->usuario->name}}</td>
@@ -46,6 +46,7 @@
                 @endif
     </tr>
     @endforeach
+      @endif  
   </tbody>
 </table>     
   </div>

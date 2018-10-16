@@ -7,16 +7,16 @@ use Eloquent;
 class DetalleVenta extends Eloquent
 {
     
- protected $table = 'users';
+ protected $table = 'gym_detalle_venta';
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'codigo', 'nombres', 'apellidos','direccion','fecha_nacimiento','email','fecha_inscripcion','estado','foto',
+        'venta_id', 'product_id', 'producto','cantidad','subtotal'
     ];
-
+ public $timestamps = false;
     /**
      * The attributes that should be hidden for arrays.
      *

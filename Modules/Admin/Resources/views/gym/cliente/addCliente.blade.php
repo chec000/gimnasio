@@ -217,35 +217,9 @@
                                                 </ul>-->
                     </div>
                     <div class="tab-pane" role="tabpanel" id="step2">
-                        <div class="panel panel-info">
-                            <div class="panel-heading">{{ __('Asignar  Membresias') }}</div>
-                            <div class="panel-body">     
-                                {!! Form::open(array('route' => 'admin.Cliente.save_cliente')) !!}
-                                <div class="row">
-                                    @foreach ($membresias as $m)        
-                                    <div class="col-sm-6 col-md-4">
-                                        <div class="thumbnail">
-                                            <img src="{{$m->imagen}}" alt="...">
-                                            <div class="caption">
-                                                <h1>Precio $ {{$m->precio}}</h1>
-                                                <h3>{{$m->nombre}}</h3>
+                                                       {!!$list_membresias!!}           
 
-
-                                                <p>{{str_limit($m->descripcion, $limit = 30, $end = '...')}}</p>
-                                                <!--<button type="button" onclick="openNav()" class="btn btn-lg btn-block btn-outline-primary">Seleccionar</button>-->
-
-                                                <button type="button" onclick="agregarMembresia({{$m->id}},'{{$m->nombre}}',{{$m->precio}})" class="btn btn-lg btn-block btn-outline-primary">Seleccionar</button>
-
-                                            </div>
-                                        </div>
-                                    </div>                     
-
-                                    @endforeach         
-                                </div>     
-                                {!! Form::close() !!}
-                            </div>
-
-                        </div>                                                
+                         
                         <ul class="list-inline pull-right">
                             <li><button type="button" class="btn btn-default prev-step">Previous</button></li>
                             <li><button type="button" class="btn btn-primary next-step">Save and continue</button></li>
@@ -401,9 +375,7 @@
 
 {!! Form::close() !!}
 
-
 {!!$venta_aside!!}
-
 
 <script type="text/javascript">
     //    $('#tbl_clientes').DataTable();
@@ -414,10 +386,35 @@
         if(data.code==100){
                     var m=$("#list_membresias");
                         m.append(data.data);
-        }        
-                
-                         
+        }                                                 
      });        
+    }
+    
+    
+
+    
+    
+    function  realizarPago(tipo){
+     $('.loader').addClass("show");
+         
+    $.ajax({
+           url : route('admin.Cliente.finalizar_compra'),
+            data :{tipo:tipo},
+            type :'POST',
+            dataType : 'json',
+            success: function (data) {
+                    $('.loader').removeClass("show");
+                    $('#primary').modal('hide');
+                    scrollTop();
+//                    location.reload();
+            },            
+                error: function(data) { 
+                   $('.loader').removeClass("show");
+                     $('#primary').modal('hide');
+//                     location.reload();
+                        scrollTop();            
+    } 
+    });    
     }
     
     
@@ -458,14 +455,21 @@
     $active.next().removeClass('disabled');
     nextTab($active);
     } else{
-    $("#dialog").dialog();
+        
+        if(data.code==300){
+             var $active = $('.wizard .nav-tabs li.active');
+            $active.next().removeClass('disabled');
+             nextTab($active);
+        }else{
+                $("#dialog").dialog();
     var mensajes = $("#cmsDefaultNotification");
     $.each(data.data, function (index, value) {
     mensajes.css('display', 'block');
     mensajes.addClass('panel panel-danger');
     $('html, body').animate({scrollTop:0}, 'slow');
     mensajes.append("  <span class='label label-danger'>" + value + "</span>");
-    });
+    });    
+    }
     }
     });
     });
@@ -520,6 +524,7 @@
     var exist_data=false;
     
     function detalleVenta(){
+        closeNav();
        if(exist_data==false){
                       $.ajax({
             url: route('admin.Cliente.detalle_venta_checkout'),
@@ -530,6 +535,10 @@
             }
     });
        } 
+    }
+    
+    function scrollTop(){
+        $('html, body').animate( { scrollTop : 0 }, 800 );
     }
     
 </script>

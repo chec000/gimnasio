@@ -27,7 +27,7 @@ class MembresiaController extends Controller
     }
     
     public function getListMembresias(){
-               $membresias= Membresia::with('tipo')->get();    
+               $membresias= Membresia::with('tipo')->where('activo','=',1)->get();    
                 return $membresias;
     }
     

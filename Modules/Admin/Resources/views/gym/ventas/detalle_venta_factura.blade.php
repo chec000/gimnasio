@@ -1,16 +1,11 @@
-<!doctype html>
-<html lang="es">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-        <link href="{!! asset('/themes/omnilife2018/css/reporte.css') !!}" rel="stylesheet">
-        <title>Laravel y data en PDF | Rimorsoft Online</title>
-    </head>
-    <body>
-        <div class="container">
+   <div class="container well">
+             <button class="btn btn-success">
+                        <a style="color:black" href="{{route('admin.venta.venta')}}">
+                            <i class="fa fa-undo"></i>
+                            Regresar</a>
+                    </button>
             <div class="row">
-                <div class="receipt-main">
+                <div class="receipt-main panel">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md6">
@@ -18,25 +13,17 @@
                                     <img class="img-responsive" alt="iamgurdeeposahan" src="{{ URL::to(config('admin.config.public')) }}/app/img/logo.png" style="width: 71px; border-radius: 43px;">
                                 </div>
                             </div>
-                            <div class="col-md-6 text-right">
-                                <div class="receipt-right">
-                                    <h5>Gym v1</h5>
-                                    <p>+91 12345-6789 <i class="fa fa-phone"></i></p>
-                                    <p>gym@gmail.com <i class="fa fa-envelope-o"></i></p>
-                                    <p>México <i class="fa fa-location-arrow"></i></p>
-                                </div>
-                            </div>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="receipt-header receipt-header-mid">
                             <div class="col-xs-8 col-sm-8 col-md-8 text-left">
                                 <div class="receipt-right">
-                                    <h5>Nombre del cliente <small>  |   Lucky Number : 156</small></h5>
-                                    <p><b>Mobile :</b> +91 12345-6789</p>
-                                    <p><b>Email :</b> info@gmail.com</p>
-                                    <p><b>Address :</b> Australia</p>
+                                    <h5>Nombre del cliente <small>  {{$venta->usuario->name.' '.$venta->usuario->apellido_paterno.' '.$venta->usuario->apellido_materno}}</small></h5>
+                                    <p><b>Telefono :</b> {{$venta->usuario->telefono}}</p>
+                                        <p><b>Telefono :</b> {{$venta->usuario->telefono_celular}}</p>
+                                    <p><b>Email :</b> {{$venta->usuario->email}}</p>
+                                    <p><b>Address :</b>  {{$venta->usuario->direccion}}</p>
                                 </div>
                             </div>
                             <div class="col-xs-4 col-sm-4 col-md-4">
@@ -47,7 +34,7 @@
                         </div>
                     </div>
 
-                    <table class="table table-bordered">
+           <table class="table table-striped table-bordered table-hover table-condensed">
                         <thead>
                             <tr>
                                 <th>Nombre</th>
@@ -56,47 +43,53 @@
                             </tr>
                         </thead>
                         <tbody>                                
-                            @foreach($membresias as $m)
+                            @foreach($venta->detalleVenta as $m)
                             <tr>
-                                <td >{{$m->nombre}}</td>
+                                <td >{{$m->producto}}</td>
                                 <td >{{$m->cantidad}}</td>
-                                <td ></i> {{$m->subtotal}}</td>
+                                <td > {{$m->subtotal}}</td>
                             </tr>
                             @endforeach                                                                                    
-<!--                            <tr>
-                                <td class="text-right"><h2><strong>Total: </strong></h2></td>
-                                <td class="text-left text-danger" ROWSPAN="2"><h2><strong> {{$total}}</strong></h2></td>
-                            </tr>-->
+
                         </tbody>
                     </table>
+                    
+
+                    
+                    
                     <div class="row">
                         <div class="col-md-6">
-                            <strong>Total: </strong>
+                            <h1>
+                                 <strong>Total: </strong>  <strong>${{$venta->total}}</strong>
+                            </h1>  
                         </div>
-                          <div class="col-md-6">
-                            <strong>{{$total}}< </strong>
-                        </div>
+                  
                     </div>
                     
                     <div class="row">
                         <div class="">
                             <div class="col-xs-8 col-sm-8 col-md-8 text-left">
                                 <div class="receipt-right">
-                                    <p><b>Fecha :</b> {{$date}} </p>
+                                    <p><b>Fecha :</b> {{$venta->fecha}} </p>
                                     <h5 style="color: rgb(140, 140, 140);">¡Gracias por su compra!</h5>
                                 </div>
                             </div>
                             <div class="col-xs-4 col-sm-4 col-md-4">
                                 <div class="receipt-left">
-                                    <h1>Gym S.A  de C.V</h1>
+                             
                                 </div>
                             </div>
                         </div>
                     </div>
+                   
+                    
+                     <div class="row">
+                         <div class="col-md-12">
+                             <!--<iframe src="{{$venta->factura}}" style="width: 100%;height: 100%;border: none;"></iframe>-->
+                                                     <embed src="{{$venta->factura}}"  type="application/pdf"   height="300px" width="100%" />
+                         </div>                       
+                      </div>
 
                 </div>    
             </div>
         </div>
-
-    </body>
-</html>

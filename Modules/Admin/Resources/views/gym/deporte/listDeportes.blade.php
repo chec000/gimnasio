@@ -1,6 +1,10 @@
-<div class="row textbox">
+<div class="panel panel-info ">
+                <div class="panel-heading">{{ trans('gum::deporte.deporte_list') }}
+                </div>
+    <div class="panel-body">
+        <div class="row textbox">
     <div class="col-sm-6">
-        <h1>{{ trans('gum::deporte.deporte_list') }}</h1>
+      
     </div>
    
     @if($can_add)   
@@ -64,7 +68,9 @@
         </tbody>
     </table>
 </div>
-
+                        
+    </div>
+</div>
 <script type="text/javascript">
     function disable_item(id) {              
     $.ajax({

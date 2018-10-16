@@ -463,11 +463,18 @@ Route::post('/admin/cliente/changeStatus', 'gym\ClienteController@deleteCliente'
 Route::post('/admin/cliente/add_membresia', 'gym\ClienteController@saveMembresia')->name('admin.Cliente.add_membresia');
 Route::get('/admin/cliente/detalle_venta', 'gym\ClienteController@detalleVenta')->name('admin.Cliente.detalle_venta');
 Route::post('/admin/cliente/add_membresia_cliente', 'gym\ClienteController@addMembresiaCliente')->name('admin.Cliente.add_less_membresia');
+Route::post('/admin/cliente/getCliente', 'gym\ClienteController@getCliente')->name('admin.Cliente.getClienteByName');
+
 
 Route::get('/admin/cliente/detalle_venta_checkout', 'gym\ClienteController@getDetalleVenta')->name('admin.Cliente.detalle_venta_checkout');
+Route::post('/admin/cliente/finalizar_compra', 'gym\ClienteController@finalizarCompra')->name('admin.Cliente.finalizar_compra');
+Route::post('/admin/membresia/membresia/view', 'gym\ClienteController@listMembresias')->name('admin.Membresia.list_view');
 
 
 
+Route::get('/admin/venta/index', 'gym\VentaController@index')->name('admin.venta.venta');
+Route::get('/admin/venta/add', 'gym\VentaController@addVenta')->name('admin.venta.add');
+Route::get('/admin/venta/detalle/{idVenta}', 'gym\VentaController@detalleVentaFactura')->name('admin.venta.detalle');
 
 //Deportes
 Route::get('/admin/deporte/add', 'gym\DeporteController@addDeporte')->name('admin.Deporte.addDeporte');
@@ -492,6 +499,10 @@ Route::get('/admin/membresia/index', 'gym\MembresiaController@index')->name('adm
 Route::post('/admin/membresia/changeStatus', 'gym\MembresiaController@activeInactiveMembresia')->name('admin.Membresia.activeInactive_membresia');
 Route::get('/admin/membresia/membresia/{id}', 'gym\MembresiaController@getMembresiaById')->name('admin.Membresia.getMembresia');
 Route::post('/admin/membresia/membresia/save', 'gym\MembresiaController@updateMembrecia')->name('admin.Membresia.editMembresia');
+
+
+
+
 
 
 

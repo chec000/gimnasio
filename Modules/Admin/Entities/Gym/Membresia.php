@@ -28,12 +28,12 @@ class Membresia extends Eloquent
             
            }
            public function  deportes(){
-                              return $this->belongsToMany('Modules\Admin\Entities\Gym\Deporte', 'membresia_deporte', 'membresia_id', 'deporte_id');
+                              return $this->belongsToMany('Modules\Admin\Entities\Gym\Deporte', 'gym_membresia_deporte', 'membresia_id', 'deporte_id');
 
            }
 
            public function  beneficios(){
-                       return $this->belongsToMany('Modules\Admin\Entities\Gym\Beneficio','beneficios_membresia','membresia_id','beneficio_id');
+                       return $this->belongsToMany('Modules\Admin\Entities\Gym\Beneficio','gym_beneficios_membresia','membresia_id','beneficio_id');
            }
 
            }

@@ -1,8 +1,8 @@
 <div class="container">
     <div class="row ">
-        <div class="col-md-8">
-            <div class="panel">
-                <div class="panel-header">{{ __('Registrar actividad') }}
+        <div class="col-md-12">
+            <div class="panel panel-info">
+                <div class="panel-heading">{{ __('Registrar actividad') }}
                 
                  <button class="btn btn-success">
               <a style="color:black" href="{{route('admin.Deporte.list_deportes')}}">
@@ -11,7 +11,7 @@
               </button>
                 </div>
 
-                <div class="card-body">
+                <div class="panel-body">
                     {!! Form::open(array('route' => 'admin.Deporte.save_deporte')) !!}
 
                         <div class="form-group row">
@@ -68,10 +68,8 @@
             </div>
             <span class="help-block">{!! FormMessage::getErrorMessage('flag') !!}</span>
         </div>
-    </div>
-                        
-                        
-                             <div class="form-group row"> 
+                    
+                                 <div class="form-group row"> 
                                   <label for="objetivos" class="col-md-4 col-form-label text-md-right">{{ __('Estatus') }}</label>
 
                             <div class="col-md-6">                                
@@ -85,6 +83,10 @@
                              
                             </div>
                         </div>
+    </div>
+                        
+                        
+                
                         
   
                             <div class="form-group row mb-0">

@@ -18,11 +18,8 @@ class Cliente extends Eloquent
         'fecha_inscripcion', 'id_usuario', 'estado',
     ];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-
-
+     public function  membresia(){
+      return $this->hasMany('Modules\Admin\Entities\Gym\Membresia');          
+    }
+    
 }

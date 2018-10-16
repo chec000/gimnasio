@@ -268,7 +268,7 @@
                             <tr>
                                 <td>
 
-                                    <h1>!Hola ! {{$user->name}}  gracias por inscribirte!</h1>
+                                    <h1>!Hola ! {{$user->nombre}}  gracias por inscribirte!</h1>
                                     <p class="lead">Estamos muy contentos de que te hayas inscrito  a ::, disfruta de nuetros servicios y promociones </p>
 
                                     <!-- A Real Hero (and a real human being) -->
