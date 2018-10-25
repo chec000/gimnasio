@@ -27,17 +27,18 @@ class BrandMiddleware
         //compare last domain
         $urlHost = parse_url($url, PHP_URL_HOST);
         $domain = preg_replace('/^www\./', '', $urlHost);
-        $share = $request->input('share');
+
+        $share = $request->input('share');;
         if (isset($share)) {
             $this->share($share, $url);
         }
-
         if (Session::get('portal.main.domain') != $domain) {
             //set new domain
             $this->setBrandSession($domain);
+           
             Session::put('portal.main.domain', $domain);
         }
-
+        
         if (\Session::has('portal.main.app_locale')) {
              \App::setLocale(\Session::get('portal.main.app_locale'));
         }
@@ -45,7 +46,7 @@ class BrandMiddleware
         // if it's home route don't redirect
         $urlStart = url('/start');
         // check session country
-
+        
         if ($url !== $urlStart) {
             $countries = Session::get('portal.main.brand.countries');
             $brandInCountry = false;
@@ -107,7 +108,7 @@ class BrandMiddleware
 
     public function setBrandSession($domain)
     {
-        $brand = Brand::where('domain', 'like', '%'.$domain.'%')->where('active', 1)->first();
+        $brand = Brand::where('domain', 'like', '%'.$domain.'%')->where('active', 1)->first();        
         if ($brand == null) {
             $brand = Brand::where('is_main', 1)->where('active', 1)->first();
         }

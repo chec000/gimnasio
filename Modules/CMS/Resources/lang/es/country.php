@@ -18,7 +18,7 @@ return [
     'language_default' => 'Idioma/Language',
     'zip_placeholder' => 'CP / Zip Code',
     'go_button' => 'IR / GO',
-    'title_master' =>'OMNILIFE',
+    'title_master' =>'GYM',
     'title_seytu' => 'SEYTÚ',
     'title_nfuerza' => 'NFUERZA',
     'title_message_error' => 'Se produjo uno o varios problemas',

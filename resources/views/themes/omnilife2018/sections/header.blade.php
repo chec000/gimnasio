@@ -61,7 +61,7 @@
                                 <li class="nav-item"><a href="{{session()->get('portal.main.varsMenu.parentBrands.0.domain')}}/{{ \App\Helpers\TranslatableUrlPrefix::getTranslatablePrefixByIndexAndLang('products', session()->get('portal.main.app_locale')) }}"> @lang('cms::header.products')</a></li>
                         @endif
                     @else
-                    <li class="nav-item"><a href="{{ route(\App\Helpers\TranslatableUrlPrefix::getRouteName(session()->get('portal.main.app_locale'), ['products', 'index'])) }}"> @lang('cms::header.products')</a></li>
+                    <!--<li class="nav-item"><a href="{{ route(\App\Helpers\TranslatableUrlPrefix::getRouteName(session()->get('portal.main.app_locale'), ['products', 'index'])) }}"> @lang('cms::header.products')</a></li>-->
                     @endif
                     {!! PageBuilder::menu('main_menu',['view' =>'main_menu']) !!}
                 </ul>
@@ -94,9 +94,6 @@
                         </ul>
                     </li>
                     @endif
-                    <li class="nav-item">
-                        <a @if(\App\Helpers\SessionHdl::isDistributorAreaActive()) href="{{ url('/distributorarea') }}" @else href="{{ 'https://www.omnilife.com/'.\App\Helpers\SessionHdl::getLocale().'/login/?ref=zona-de-empresarios' }}" target="_blank" @endif>@lang('cms::header.businessmen_zone')</a>
-                    </li>
                     @if(config('settings::frontend.webservices') == 1 && session()->get('portal.main.inscription_active') == 1 && !session()->has('portal.eo'))
                     <li class="nav-item desk bold">
                         <a href="{{route('register')}}">@lang('cms::header.register')</a>

@@ -30,4 +30,8 @@ class UsuarioCliente extends Eloquent
                               return $this->hasMany('Modules\Admin\Entities\Gym\Venta','id_cliente','id_usuario');
            }
            
+           public  function compraMembresia(){
+                         return $this->hasMany('Modules\Admin\Entities\Gym\ClienteMembresia','cliente_id','id');              
+           }
+                                 
 }

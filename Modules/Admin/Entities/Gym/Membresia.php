@@ -15,7 +15,7 @@ class Membresia extends Eloquent
      * @var array
      */
     protected $fillable = [
-        'tipo_id', 'nombre', 'precio','descripcion','duracion','activo','imagen'
+        'tipo_id', 'nombre', 'precio','descripcion','duracion_meses','activo','imagen'
     ];
 
     /**

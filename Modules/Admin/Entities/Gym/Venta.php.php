@@ -15,7 +15,7 @@ class Venta extends Eloquent
      * @var array
      */
     protected $fillable = [
-        'fecha', 'id_cliente', 'id_empleado','tipo_pago','total','estatus','descuento_id','factura'
+        'fecha', 'id_cliente', 'id_empleado','tipo_pago','total','estatus','descuento_id','factura','diferencia'
     ];
  protected $table = 'gym_venta';
     /**

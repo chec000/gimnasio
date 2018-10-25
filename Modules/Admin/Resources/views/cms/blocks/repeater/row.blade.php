@@ -8,7 +8,7 @@
             $id = $repeater_id.'-'.$row_id;
         @endphp
         <div id="accordion-{{ $id }}" class="accordion" role="panel-group">
-            <div class="panel panel-default" style="border: 0;">
+            <div class="panel panel-primary" style="border: 0;">
                 <div class="panel-heading" role="tab">
                     <h4 class="panel-title">
                         <a href="#repeater-row-{{ $id }}" data-parent="#accordion-{{ $id }}" data-toggle="collapse"

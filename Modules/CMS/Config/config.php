@@ -45,7 +45,7 @@ return [
         'aviary' => ''
     ],
     'site' => [
-        'name' => 'Omnilife CMS',
+        'name' => 'Gym CMS',
         'email' => 'info@example.com',
         'version' => 'v1.0.0',
         'pages' => '0',

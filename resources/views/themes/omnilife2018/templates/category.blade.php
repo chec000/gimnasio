@@ -5,8 +5,7 @@
 <section id="sec1">
     <div class="container">
 
-        {!! PageBuilder::breadcrumb() !!}
-  
+   
         <div class="row">
             <div class="col-sm-12">
                 <h1>{!! PageBuilder::block('title') !!}</h1>

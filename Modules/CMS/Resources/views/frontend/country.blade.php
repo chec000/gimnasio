@@ -50,8 +50,9 @@
     <body>
         @include('themes.omnilife2018.sections.loader')
         <div class="overlay"></div>
-        <div class="select-country" style="background: url('{{ asset('themes/omnilife2018/images/country-'.$brandName.'.jpg') }}'); background-size: cover;">
-            <img src="{{ asset($brand['logo']) }}" alt="" class="brand-country">
+        <!--<div class="select-country" style="background: url('{{ asset('themes/omnilife2018/images/country-'.$brandName.'.jpg') }}'); background-size: cover;">-->        
+            <div class="select-country" style="background: url('https://hdqwalls.com/download/gym-women-image-1920x1080.jpg'); background-size: cover;">                                                
+                <img src="{{ asset($brand['logo']) }}" alt="" class="brand-country">
             <div class="select-countries--start sistem has-dropdown">
                 <div id="productsCategory" class="select-country--form wrapper">
                     <h1 class="products-desc__title">

@@ -80,9 +80,16 @@
                             </div>
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="duracion" class="col-form-label text-md-right">{{ __('Duración') }}</label>
-                            <input id="duracion" type="date" class="form-control{{ $errors->has('duracion') ? ' is-invalid' : '' }}" name="duracion" value="{{ old('duracion') }}" required>
-
+                            <label for="duracion" class="col-form-label text-md-right">{{ __('Periodicidad de pago') }}</label>
+                            <select name="duracion" class="form-control">  
+                                @for ($i = 1; $i <= 12; $i++)                           
+                                @if($i==1)
+                                <option value="{{$i}}"> {{$i}} Mes</option> 
+                                @else
+                                <option value="{{$i}}"> {{$i}} Meses</option> 
+                                @endif
+                                @endfor                             
+                            </select>                           
                             @if ($errors->has('duracion'))
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $errors->first('duracion') }}</strong>

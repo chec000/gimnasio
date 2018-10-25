@@ -7,7 +7,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>Gym</title>
 
-        <link rel="stylesheet" type="text/css" href="stylesheets/email.css" >
+<!--        <link rel="stylesheet" type="text/css" href="stylesheets/email.css" >-->
             <style>
 
                 * { 
@@ -268,7 +268,7 @@
                             <tr>
                                 <td>
 
-                                    <h1>!Hola ! {{$user->nombre}}  gracias por inscribirte!</h1>
+                                    <h1>!Hola! {{$user->name.' '.$user->apellido_paterno}}  gracias por inscribirte!</h1>
                                     <p class="lead">Estamos muy contentos de que te hayas inscrito  a ::, disfruta de nuetros servicios y promociones </p>
 
                                     <!-- A Real Hero (and a real human being) -->

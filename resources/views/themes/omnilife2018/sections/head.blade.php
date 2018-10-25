@@ -9,19 +9,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>{!! isset($title) ? $title : PageBuilder::block('meta_title', ['meta' => true]) !!}</title>
+    <!--<title>{!! isset($title) ? $title : PageBuilder::block('meta_title', ['meta' => true]) !!}</title>-->
     <meta name="description" content="{!! PageBuilder::block('meta_description', ['meta' => true]) !!}">
     <meta name="keywords" content="{!! PageBuilder::block('meta_keywords', ['meta' => true]) !!}">
     <meta itemprop="name" content="{!! PageBuilder::block('meta_title', ['meta' => true]) !!}">
     <meta itemprop="description" content="{!! PageBuilder::block('meta_description', ['meta' => true]) !!}">
-    <script async src="https://www.googletagmanager.com/gtag/js?id={!!config('cms.analytics.'.session()->get('portal.main.brand.id'));!!}"></script>
+<!--    <script async src="https://www.googletagmanager.com/gtag/js?id={!!config('cms.analytics.'.session()->get('portal.main.brand.id'));!!}"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
   gtag('config', '{!!config('cms.analytics.'.session()->get('portal.main.brand.id'))!!}');
-</script>
+</script>-->
 
 
 

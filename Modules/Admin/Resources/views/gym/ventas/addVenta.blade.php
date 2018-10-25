@@ -6,7 +6,7 @@
                 <div class="col-md-6">
                     <div id="custom-search-input">
                         <div class="input-group">
-                            <input type="text" class="  search-query form-control" placeholder="Buscar" id="cliente" />
+                            <input type="text" class="  search-query form-control" placeholder="Buscar" id="cliente"  onkeyup = "if(event.keyCode == 13) searchCustomer()" />
                             <span class="input-group-btn">
                                 <button class="btn btn-danger" type="button" onclick="searchCustomer()">
                                     <span class=" glyphicon glyphicon-search"></span>
@@ -16,8 +16,8 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <button class="btn btn-danger" type="button">
-                        <a style="color:black" href="{{route('admin.Cliente.add_cliente')}}">
+                    <button class="btn btn-success" type="button">
+                        <a style="color:white" href="{{route('admin.Cliente.add_cliente')}}">
                             <i class="fa fa-undo"></i>
                             Nuevo cliente</a>
                     </button>
@@ -28,19 +28,20 @@
             <div class="panel panel-info ">
                 <div class="panel-heading">{{ __('Registrar venta') }}
                     <button class="btn btn-success">
-                        <a style="color:black" href="{{route('admin.Deporte.list_deportes')}}">
+                        <a style="color:white" href="{{route('admin.Deporte.list_deportes')}}">
                             <i class="fa fa-undo"></i>
                             Regresar</a>
                     </button>
                 </div>
                 <div class="panel-body">
-                    {!! Form::open(array('route' => 'admin.Deporte.save_deporte')) !!}
-
-                    <div class="form-group row">
-                        <label for="name" class="col-md-4 col-form-label text-md-right">{{ __('Cliente') }}</label>
-
+                
+                    <div class="row">
                         <div class="col-md-6">
-                            <input id="name" type="text" class="form-control{{ $errors->has('name') ? ' is-invalid' : '' }}" name="name" value="{{ old('name') }}" required autofocus>
+                                             <div class="form-group row">
+                        <label for="name" class="col-md-4 col-form-label text-md-right">{{ __('Cliente') }}</label>
+                        <input type="hidden" name="id">
+                        <div class="col-md-6">
+                            <input id="name"  disabled type="text" class="form-control{{ $errors->has('name') ? ' is-invalid' : '' }}" name="name" value="{{ old('name') }}" required autofocus>
                             @if ($errors->has('name'))
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $errors->first('name') }}</strong>
@@ -48,70 +49,96 @@
                             @endif
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <label for="servicio" class="col-md-4 col-form-label text-md-right">{{ __('Servicio') }}</label>
 
+                </div>
+                         
                         <div class="col-md-6">
-                            <input id="servicio" type="text" class="form-control{{ $errors->has('servicio') ? ' is-invalid' : '' }}" name="descripcion" value="{{ old('descripcion') }}" required>
-
-                            @if ($errors->has('apellido_paterno'))
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $errors->first('descripcion') }}</strong>
-                            </span>
-                            @endif
+                        <div id="membresias-compradas"></div>
+                        
+                        
+                    </div>       
+                            
                         </div>
-                    </div>
-                    <div class="form-group row"> 
-                        <label for="objetivos" class="col-md-4 col-form-label text-md-right">{{ __('Forma de pago') }}</label>
-
-                        <div class="col-md-6">                                
-                            <select class="form-control form-control-lg" name="category" id="validationCustom03" onchange="ChangecatList()" required>
-                                <option value="">Elegir </option>
-                                <option value="Classroom Instruction and Assessment">Renovación</option>
-                                <option value="Curriculum Development and Alignment">Compra de membresia</option>
-
-                            </select>
-                        </div>
-                    </div>
-
-
-                    <div class="form-group row"> 
-                        <label for="objetivos" class="col-md-4 col-form-label text-md-right">{{ __('Forma de pago') }}</label>
-
-                        <div class="col-md-6">                                
-                            <select class="form-control form-control-lg" name="category" id="validationCustom03" onchange="ChangecatList()" required>
-                                <option value="">Choose... </option>
-                                <option value="Classroom Instruction and Assessment">Classroom Instruction and Assessment</option>
-                                <option value="Curriculum Development and Alignment">Curriculum Development and Alignment</option>
-                                <option value="District Committee">District Committee</option>
-                                <option value="Meeting">Meeting</option>
-                                <option value="Other Category">Other Category</option>
-                                <option value="Professional Conference">Professional Conference</option>
-                                <option value="Professional Workshop / Training">Professional Workshop / Training</option>
-                                <option value="Pupil Services">Pupil Services</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group row mb-0">
-                    <div class="col-md-6 offset-md-4">
-                        <button ype="submit" class="btn btn-primary">
-                            {{ __('Register') }}
-                        </button>                                 
+            
 
                     </div>
-                </div>
+   
 
-                {!! Form::close() !!}
             </div>
         </div>
     </div>
 
 
 </div>
+{!!$modal !!}
 
+
+<div class="modal fade" id="success" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header modal-header-success">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h1 style="color: white!important;"><i  style="color: white!important;" class="glyphicon glyphicon-thumbs-up"></i> Mensaje</h1>
+            </div>
+            <div class="modal-body">
+                <div id="mensaje_final"></div>
+
+                <h1 id="pago_realizado"><span id="mensaje">Su pago fue de: $</span> <span id="cantidad_pagar"></span></h1>
+                <h1 id="restante"><span >Restante: $</span> <span id="cantidad_restante"></span></h1>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-left" data-dismiss="modal" onclick="reload()">Cerrar</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 <script>
+    
+     var tipo_pago = "";
+                    function tipoPago(tipo, element) {
+                        tipo_pago = tipo;
+                        var tarjetas = $('.searchable-container').find('label');
+                        if (element.id === "pago_efectivo") {
+                            $("#pago_con_efectivo").css('display', 'block');
+                        } else {
+                            $("#pago_con_efectivo").css('display', 'none');
+                        }
+                        $.each(tarjetas, function (index, value) {
+                            if (value.id !== element.id) {
+                                value.classList.remove('active');
+                            }
+                        });
+                    }
+    
+    
+function removarMembresia(nombre,precio,id){
+    
+    $("#nombre_membresia").text(nombre);
+    $("#precio_membresia").text(precio);     
+    $("#primary").modal("show");
+}
+
+function generarVenta(){
+            if (cliente !== "") {
+            $.ajax({
+                url: route('admin.Cliente.getClienteByName'),
+                type: 'POST',
+                data: {cliente: cliente},
+                success: function (data) {
+             if(data.code===200){
+                 $("#id").val(data.data.id);
+                 $("#name").val(data.data.name+" "+data.data.apellido_paterno);
+                  $("#membresias-compradas").append(data.membresias_actuales);
+        }
+                }
+
+            });
+        }
+}
+
+
 
     function searchCustomer() {
         var cliente = $('#cliente').val();
@@ -122,7 +149,11 @@
                 type: 'POST',
                 data: {cliente: cliente},
                 success: function (data) {
-                    console.log(data);
+             if(data.code===200){
+                 $("#id").val(data.data.id);
+                 $("#name").val(data.data.name+" "+data.data.apellido_paterno);
+                  $("#membresias-compradas").append(data.membresias_actuales);
+        }
                 }
 
             });

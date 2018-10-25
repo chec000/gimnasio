@@ -3,10 +3,21 @@
         <div class="modal-content">
             <div class="modal-header modal-header-primary">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h1 style="color:white!important"><i class="glyphicon glyphicon-thumbs-up"></i> Confirmar pago</h1>
+                <h1 style="color:white!important"><i class="glyphicon glyphicon-thumbs-up"></i> Actualizar membresia</h1>
             </div>
             <div class="modal-body">     
-                <h1>Cantidad a pagar: $<strong id="total_pagar_cliente">${{session()->get('portal.main.gym.cliente.total_pagar')}}</strong></h1>
+                <div class="row">
+                    <div class="form-group">
+                        <p style="font-size: 27px;">
+                                 <span>Membresia: </span><strong id="nombre_membresia"></strong>
+                        </p>
+                        <p style="font-size: 27px;">
+                                 <span>Precio: $</span><strong id="precio_membresia"></strong>
+                        </p>
+                        
+                    </div>
+                </div>
+                
                 <div class="row">
                     <div class="form-group">
                         <div class="searchable-container">
@@ -15,8 +26,8 @@
                                     <div class="square-box pull-left">
                                         <span class="glyphicon glyphicon-tags glyphicon-lg"></span>
                                     </div>
-                                    <div data-toggle="buttons" class="btn-group bizmoduleselect" id="efectivo">
-                                        <label class="btn btn-default" onclick="tipoPago('efectivo',this)" id="pago_efectivo" style="border-radius:3px;">
+                                    <div data-toggle="buttons" class="btn-group bizmoduleselect" >
+                                        <label id="pago_efectivo" class="btn btn-default" style="border-radius:3px;" onclick="tipoPago('pago_efectivo', this)">
                                             <div class="bizcontent">
                                                 <input type="checkbox" name="var_id[]" autocomplete="off" value="">
                                                 <span class="glyphicon glyphicon-ok glyphicon-lg"></span>
@@ -31,8 +42,8 @@
                                     <div class="square-box pull-left">
                                         <span class="glyphicon glyphicon-tags glyphicon-lg"></span>
                                     </div>
-                                    <div data-toggle="buttons" class="btn-group bizmoduleselect" id="tarjeta" >
-                                        <label class="btn btn-default" style="border-radius:3px;" onclick="tipoPago('tarjeta',this)" id="pago_tarjeta">
+                                    <div data-toggle="buttons" class="btn-group bizmoduleselect"  >
+                                        <label  id="tarjeta" class="btn btn-default" style="border-radius:3px;" onclick="tipoPago('tarjeta', this)">
                                             <div class="bizcontent">
                                                 <input type="checkbox" name="var_id[]" autocomplete="off" value="">
                                                 <span class="glyphicon glyphicon-ok glyphicon-lg"></span>
@@ -47,8 +58,8 @@
                                     <div class="square-box pull-left">
                                         <span class="glyphicon glyphicon-tags glyphicon-lg"></span>
                                     </div>
-                                    <div data-toggle="buttons" class="btn-group bizmoduleselect" id="otro">
-                                        <label class="btn btn-default" style="border-radius:3px;" onclick="tipoPago('otro',this)" id="pago_otro">
+                                    <div data-toggle="buttons" class="btn-group bizmoduleselect" >
+                                        <label id="otro" class="btn btn-default" style="border-radius:3px;" onclick="tipoPago('otro', this)">
                                             <div class="bizcontent">
                                                 <input type="checkbox" name="var_id[]" autocomplete="off" value="">
                                                 <span class="glyphicon glyphicon-ok glyphicon-lg"></span>
@@ -60,7 +71,8 @@
                             </div>
                         </div>
                     </div>
-                </div>    
+                </div>  
+                
                 <br>
                 <div class="row" id="pago_con_efectivo" style="display: none">
                     <div class="col-md-12">
@@ -70,12 +82,15 @@
                                 </div>
                     </div>
                 </div>
+                
             </div>
             <div class="modal-footer">
                 <div class="row">
                                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
                                     <button onclick="realizarPago()" type="button" class="btn btn-success pull-rigth" >Confirmar</button>                                    
-                </div>                                
+                </div>
+                
+                
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->

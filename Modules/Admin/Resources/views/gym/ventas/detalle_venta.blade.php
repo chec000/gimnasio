@@ -62,7 +62,7 @@
                             <h4 class="text-right">Total $<strong id="total_membresia">{{$total}}</strong></h4>
                         </div>
                         <div class="col-xs-6">
-                            <button type="button"  href="#primary" data-toggle="modal" class="btn btn-success btn-block next-step">
+                            <button type="button"  onclick="showModalPago()"class="btn btn-success btn-block next-step">
                                 Pagar
                             </button>
                         </div>

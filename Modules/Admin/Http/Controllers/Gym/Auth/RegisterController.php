@@ -92,7 +92,7 @@ class RegisterController extends Controller
 public function createUser(array $data)
 {
     
-    $user = User::create([
+    $user = User::firstOrCreate([
      'name' => $data['name'],
         'email' => $data['email'],
         'apellido_paterno'=>$data['apellido_paterno'],

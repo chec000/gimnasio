@@ -8,12 +8,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
 use Request;
 use Response;
-use Illuminate\Http\Request as rqs;
-use Modules\Admin\Entities\Language; 
-use Modules\Admin\Entities\LanguageTranslation;
-use Modules\Admin\Entities\Brand;
-use Modules\Admin\Entities\BrandTranslation;
-use Modules\Admin\Entities\CountryTranslation;
+//use Illuminate\Http\Request as rqs;
+//use Modules\Admin\Entities\Language; 
+//use Modules\Admin\Entities\LanguageTranslation;
+//use Modules\Admin\Entities\Brand;
+//use Modules\Admin\Entities\BrandTranslation;
+//use Modules\Admin\Entities\CountryTranslation;
 use View;
 
 
@@ -44,7 +44,7 @@ class AdminController extends Controller
         $this->layout = 'admin::template.main';      
         $this->layoutData = [
             'site_name' => config('cms.site.name'),
-            'title' => ucwords(Request::segment(2)),
+            'title' =>ucwords(Request::segment(2)),
             'modals' => '',
             'content' => '',
             'alerts' => []

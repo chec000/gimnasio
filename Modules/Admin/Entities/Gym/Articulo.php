@@ -21,8 +21,16 @@ class Articulo {
     public $descripcion;
     public $cantidad;
     public $subtotal;
-    
-    public  $imagen;
+    public $duracion_meses;
+    function getDuracion_meses() {
+        return $this->duracion_meses;
+    }
+
+    function setDuracion_meses($duracion_meses) {
+        $this->duracion_meses = $duracion_meses;
+    }
+
+        public  $imagen;
     function getImagen() {
         return $this->imagen;
     }
