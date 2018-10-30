@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <link href="{!! asset('/themes/omnilife2018/css/reporte.css') !!}" rel="stylesheet">
-        <title>Laravel y data en PDF | Rimorsoft Online</title>
+        <title>Factura</title>
     </head>
     <body>
         <div class="container">

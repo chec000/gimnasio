@@ -176,14 +176,12 @@ class ClienteController extends Controller {
     }
 
     public function sendEmailReminder($membresias, $usuario, $asunto, $rutaArchivo) {
-//         dd($rutaArchivo);
-//        dd($usuario);
         ini_set('max_execution_time', 300);
         $articulos = $membresias;
         try {
             Mail::send('admin::gym.emails.registro', ['user' => $usuario, "membresias" => $articulos, 'total' => 0], function ($m) use ($usuario, $asunto, $rutaArchivo) {
                 $m->attach($rutaArchivo, array(
-                    'as' => 'factura' . $usuario->name . '.pdf',
+                    'as' => 'factura-' . $usuario->name . '.pdf',
                     'mime' => 'application/pdf')
                 );
                 $m->to($usuario->email, $usuario->name)->subject($asunto);
@@ -198,6 +196,28 @@ class ClienteController extends Controller {
         }
     }
 
+    
+    public function sendEmailFill($membresias, $usuario, $asunto, $rutaArchivo) {
+        ini_set('max_execution_time', 300);
+        $articulos = $membresias;
+        try {
+            Mail::send('admin::gym.emails.factura_renovacion', ['user' => $usuario, "membresias" => $articulos, 'total' => 0], function ($m) use ($usuario, $asunto, $rutaArchivo) {
+                $m->attach($rutaArchivo, array(
+                    'as' => 'factura-' . $usuario->name . '.pdf',
+                    'mime' => 'application/pdf')
+                );
+                $m->to($usuario->email, $usuario->name)->subject($asunto);
+            });
+            if (count(Mail::failures()) > 0) {
+                return false;
+            } else {
+                return true;
+            }
+        } catch (Exception $ex) {
+            return $ex->getText;
+        }
+    }
+    
 
     public function getDetalleVenta() {
         $membresias = session()->get('portal.main.gym.cliente.membresias');
@@ -406,7 +426,8 @@ class ClienteController extends Controller {
                 $cm->cliente_id = $user->id;
                 $cm->membresia_id = $m->id;
                 $cm->nombre_membresia = $m->nombre;
-               $cm->precio = $m->precio;   
+               $cm->precio = $m->precio;  
+                 $cm->compra_id = $venta->id;   
                 $cm->fecha_compra = $actual;
                 $cm->fecha_proximo_pago = $date->addMonth($m->duracion_meses);
                 $cm->save();

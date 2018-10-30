@@ -28,7 +28,7 @@
 
             <td data-lid="{!! $m->id !!}">
                 <span id="renovar({{$m->id}})" >
-                    <button class="btn btn-success" onclick="removarMembresia('{{$m->nombre_membresia}}',{{$m->precio}},{{$m->id}})">
+                    <button class="btn btn-success" onclick="removarMembresia('{{$m->nombre_membresia}}',{{$m->precio}},{{$m->membresia_id}},{{$m->id}})">
                         <i class="glyphicon glyphicon-play itemTooltip  " title="Renovar membresia" ></i>
                     </button>
                 </span>

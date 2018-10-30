@@ -39,7 +39,7 @@
                         <div class="col-md-6">
                                              <div class="form-group row">
                         <label for="name" class="col-md-4 col-form-label text-md-right">{{ __('Cliente') }}</label>
-                        <input type="hidden" name="id">
+                        <input type="hidden" name="id_cliente" id="id_cliente">
                         <div class="col-md-6">
                             <input id="name"  disabled type="text" class="form-control{{ $errors->has('name') ? ' is-invalid' : '' }}" name="name" value="{{ old('name') }}" required autofocus>
                             @if ($errors->has('name'))
@@ -97,6 +97,8 @@
 <script>
     
      var tipo_pago = "";
+     var id_membresia;
+     var id_cliente_membresia;
                     function tipoPago(tipo, element) {
                         tipo_pago = tipo;
                         var tarjetas = $('.searchable-container').find('label');
@@ -113,36 +115,41 @@
                     }
     
     
-function removarMembresia(nombre,precio,id){
-    
+function removarMembresia(nombre,precio,membresia_id,cliente_membresia){    
     $("#nombre_membresia").text(nombre);
-    $("#precio_membresia").text(precio);     
+    $("#precio_membresia").text(precio);
+        id_membresia=membresia_id;
+        id_cliente_membresia=cliente_membresia;
     $("#primary").modal("show");
 }
 
-function generarVenta(){
-            if (cliente !== "") {
-            $.ajax({
-                url: route('admin.Cliente.getClienteByName'),
+function actualizarMembresia(){
+    $('.loader').addClass("show");
+    let id_cliente=$("#id_cliente").val();
+    let pago_cliente=$("#pago_cliente").val();
+    if(id_membresia>0){
+         $.ajax({
+                url: route('admin.venta.addPago'),
                 type: 'POST',
-                data: {cliente: cliente},
+                data: {cliente_id: id_cliente,membresia_id:id_membresia,cliente_membresia:id_cliente_membresia,tipo_pago:tipo_pago,pago_cliente:pago_cliente},
                 success: function (data) {
-             if(data.code===200){
-                 $("#id").val(data.data.id);
-                 $("#name").val(data.data.name+" "+data.data.apellido_paterno);
-                  $("#membresias-compradas").append(data.membresias_actuales);
-        }
+                $("#primary").modal("hide");
+                $('.loader').removeClass("show");
+                                    $("#cantidad_pagar").text(data.total);
+                                    $("#cantidad_restante").text(data.diferencia);                                  
+                                    $("#mensaje_final").append("<span class='label label-success'>" + data.data + "</span>");                                                             
+                                 $("#success").modal('show');
+                                    
                 }
-
-            });
-        }
+                
+            });        
+    }
 }
 
 
 
     function searchCustomer() {
         var cliente = $('#cliente').val();
-
         if (cliente !== "") {
             $.ajax({
                 url: route('admin.Cliente.getClienteByName'),
@@ -150,9 +157,10 @@ function generarVenta(){
                 data: {cliente: cliente},
                 success: function (data) {
              if(data.code===200){
-                 $("#id").val(data.data.id);
+                 $("#id_cliente").val(data.data.id);
                  $("#name").val(data.data.name+" "+data.data.apellido_paterno);
-                  $("#membresias-compradas").append(data.membresias_actuales);
+                 $("#membresias-compradas").empty();  
+                 $("#membresias-compradas").append(data.membresias_actuales);
         }
                 }
 

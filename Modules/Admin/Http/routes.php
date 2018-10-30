@@ -475,6 +475,7 @@ Route::post('/admin/membresia/membresia/view', 'gym\ClienteController@listMembre
 Route::get('/admin/venta/index', 'gym\VentaController@index')->name('admin.venta.venta');
 Route::get('/admin/venta/add', 'gym\VentaController@addVenta')->name('admin.venta.add');
 Route::get('/admin/venta/detalle/{idVenta}', 'gym\VentaController@detalleVentaFactura')->name('admin.venta.detalle');
+Route::post('/admin/venta/addPago', 'gym\VentaController@updateMembresiaClienteVenta')->name('admin.venta.addPago');
 
 //Deportes
 Route::get('/admin/deporte/add', 'gym\DeporteController@addDeporte')->name('admin.Deporte.addDeporte');
@@ -500,8 +501,10 @@ Route::post('/admin/membresia/changeStatus', 'gym\MembresiaController@activeInac
 Route::get('/admin/membresia/membresia/{id}', 'gym\MembresiaController@getMembresiaById')->name('admin.Membresia.getMembresia');
 Route::post('/admin/membresia/membresia/save', 'gym\MembresiaController@updateMembrecia')->name('admin.Membresia.editMembresia');
 
-
-
+//gastos
+ Route::get('admin/expenses/index',['uses'=>'gym\GastoController@index', 'as' => 'admin.Gasto.index']);
+ Route::get('admin/expenses/add',['uses'=>'gym\GastoController@getAdd', 'as' => 'admin.Gasto.add']);
+Route::post('admin/expenses/saveAdd', 'gym\GastoController@postAdd')->name('admin.Gasto.addCosto');
 
 
 

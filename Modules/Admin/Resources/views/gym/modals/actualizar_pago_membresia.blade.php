@@ -87,7 +87,7 @@
             <div class="modal-footer">
                 <div class="row">
                                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
-                                    <button onclick="realizarPago()" type="button" class="btn btn-success pull-rigth" >Confirmar</button>                                    
+                                    <button onclick="actualizarMembresia()" type="button" class="btn btn-success pull-rigth" >Confirmar</button>                                    
                 </div>
                 
                 

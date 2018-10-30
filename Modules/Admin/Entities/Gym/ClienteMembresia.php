@@ -14,7 +14,7 @@ class ClienteMembresia extends Eloquent
      * @var array
      */
     protected $fillable = [
-        'cliente_id', 'membresia_id','nombre_membresia', 'precio','compra_id','fecha_compra','fecha_proximo_pago','estatus'
+        'cliente_id', 'membresia_id','nombre_membresia', 'precio','venta_id','fecha_compra','fecha_proximo_pago','estatus'
     ];
 
     

@@ -268,7 +268,7 @@
                             <tr>
                                 <td>
 
-                                    <h1>!Hola! {{$user->name.' '.$user->apellido_paterno}}  gracias por inscribirte!</h1>
+                                    <h1>!Hola! {{$user->name.' '.$user->apellido_paterno}}  gracias por su pago!</h1>
                                     <p class="lead">Estamos muy contentos de que te hayas inscrito  a ::, disfruta de nuetros servicios y promociones </p>
 
                                     <!-- A Real Hero (and a real human being) -->
@@ -285,7 +285,9 @@
                     <div class="content"><table bgcolor="">
                             <tr>
                                 <td class="small" width="20%" style="vertical-align: top; padding-right:10px;">
-                                    <img src="http://placehold.it/75x75" /></td>
+                                                                    <img src="http://placehold.it/75x75" /></td>
+
+                                </td>
                                 <td>
                                     <h4>{{$m->nombre}}<small>{{$m->precio}}</small></h4>
                                     <p class="">{{$m->descripcion}}</p>
