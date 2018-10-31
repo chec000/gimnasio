@@ -18,10 +18,7 @@ class HomeController extends Controller
 
     public function getIndex()
     {        
-        $requests = PagePublishRequests::can_moderate(['status' => 'awaiting'], 10);       
-        if ($requests->isEmpty()) {
-            $requests = 'sergio ';
-        }
+        $requests = PagePublishRequests::can_moderate(['status' => 'awaiting'], 10);         
         $requests_table = View::make('admin::cms.partials.tabs.publish_requests.table', array('show' => ['page' => true, 'status' => false, 'requested_by' => true], 'requests' => $requests))->render();
       
         $any_requests = config('admin.config.publishing') && !PagePublishRequests::can_moderate([], 1)->isEmpty();

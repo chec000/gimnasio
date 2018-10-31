@@ -13,8 +13,10 @@
  */
 namespace Modules\Admin\Http\Controllers\gym;
 use Modules\Admin\Http\Controllers\AdminController as Controller;
+use Modules\CMS\Libraries\Builder\FormMessage;
 use Modules\Admin\Entities\Gym\Gasto;
 use Illuminate\Http\Request;
+use Validator;
 use View;
 
 class GastoController extends Controller {
@@ -36,21 +38,38 @@ class GastoController extends Controller {
     }
     
     public function postAdd(Request $request){        
+            $v = Validator::make($request->all(), array(
+                       'code_product'=>'required',
+                        'nombre' => 'required',
+                        'descripcion' => 'required',
+                        'valor_costo' => 'required',
+                        'cantidad' => 'required',
+                        'valor_total' => 'required',
+                        'fecha_compra' => 'required',
+                )
+            );
+            if ($v->passes()) {            
         try {
         $gasto= new Gasto();
         $gasto->nombre=$request->nombre;
         $gasto->cod_producto=$request->code_product;
         $gasto->descripcion=$request->descripcion;
-        $gasto->valor_costo=$request->valo_costo;
+        $gasto->valor_costo=$request->valor_costo;
         $gasto->cantidad=$request->cantidad;
         $gasto->valor_total=$request->valor_total;
         $gasto->fecha_compra=$request->fecha_compra;
         $gasto->save();
         return $this->getAdd();
-        } catch (Exception $ex) {
+                
             
+        } catch (Exception $ex) {         
+                    FormMessage::set($v->messages());
+                    $this->getAdd();   
         }
-        
+            }else{
+                    FormMessage::set($v->messages());
+                    $this->getAdd();  
+            }
     }
     
 }

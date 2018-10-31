@@ -56,12 +56,12 @@
                             @endif
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="valo_costo" class="col-md-4 col-form-label text-md-right">{{ __('Costo unitario') }}</label>
+                            <label for="valor_costo" class="col-md-4 col-form-label text-md-right">{{ __('Costo unitario') }}</label>
 
-                            <input  type="number" min="1" name="valo_costo" class="form-control{{ $errors->has('valo_costo') ? ' is-invalid' : '' }}" >                            
+                            <input  type="number" min="1" name="valor_costo" class="form-control{{ $errors->has('valor_costo') ? ' is-invalid' : '' }}" >                            
                             @if ($errors->has('valo_costo'))
                             <span class="invalid-feedback" role="alert">
-                                <strong>{{ $errors->first('valo_costo') }}</strong>
+                                <strong>{{ $errors->first('valor_costo') }}</strong>
                             </span>
                             @endif
                         </div>
