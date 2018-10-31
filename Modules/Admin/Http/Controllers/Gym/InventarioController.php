@@ -17,8 +17,12 @@ class InventarioController  extends Controller{
     //put your code here
     
     public function  index(){
-        
-    }
+        $gastos= Gasto::get();
+         $view = View::make('admin::gym.gastos.gastos', array('gastos' => $gastos,
+        ));
+        $this->layoutData['content'] = $view->render();
     
-                                
+    }
+
+                                        
 }
