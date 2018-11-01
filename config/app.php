@@ -186,6 +186,7 @@ return [
         Torann\Currency\CurrencyServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
          Barryvdh\DomPDF\ServiceProvider::class,
+        MaddHatter\LaravelFullcalendar\ServiceProvider::class,
     ],
 
     /*
@@ -241,6 +242,7 @@ return [
         'ShoppingCart' => App\Helpers\ShoppingCart::class,
         'BlockFormatter' => Modules\CMS\Helpers\BlockFormatter::class,
          'PDF' => Barryvdh\DomPDF\Facade::class,
+        'Calendar' => MaddHatter\LaravelFullcalendar\Facades\Calendar::class,
     ],
 
 ];
