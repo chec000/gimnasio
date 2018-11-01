@@ -31,7 +31,7 @@
                         <input type="hidden"  name="id" value="{{$deporte->id}}" >
                         
                           <div class="form-group row">
-                            <label for="apellido_paterno" class="col-md-4 col-form-label text-md-right">{{ __('Descripción') }}</label>
+                            <label for="descripcion" class="col-md-4 col-form-label text-md-right">{{ __('Descripción') }}</label>
 
                             <div class="col-md-6">
                                 <textarea id="descripcion" type="text" class="form-control{{ $errors->has('descripcion') ? ' is-invalid' : '' }}" name="descripcion"  required>
@@ -45,6 +45,18 @@
                                 @endif
                             </div>
                         </div>
+                                            <div class="form-group row">
+                        <label for="precio" class="col-md-4 col-form-label text-md-right">{{ __('Precio') }}</label>
+                        <div class="col-md-6">
+                            <input id="precio" type="number" min="1" class="form-control{{ $errors->has('precio') ? ' is-invalid' : '' }}" name="precio" value="{{ $deporte->precio }}" required autofocus>
+                            @if ($errors->has('precio'))
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $errors->first('precio') }}</strong>
+                            </span>
+                            @endif
+                        </div>
+                    </div>
+
                              <div class="form-group row">
                             <label for="objetivos" class="col-md-4 col-form-label text-md-right">{{ __('Objetivos') }}</label>
 
@@ -63,7 +75,21 @@
                             </div>
                         </div>
                         
-                        
+                               <div class="row">
+                        <div class="col-md-4">
+                        <label class="control-label">{{ trans('admin::brand.form_add.favicon') }}</label>
+                        </div>                        
+                        <div class="col-md-6 {!! FormMessage::getErrorClass('imagen') !!}" >
+                                  <div class="input-group">
+                            <input id="flag" class="img_src form-control" name="imagen" value="{{ $deporte->foto }}" type="text">
+                            <span class="input-group-btn">
+                                <a href="{!! URL::to(config('admin.config.public').'/filemanager/dialog.php?type=1&field_id=flag') !!}" class="btn btn-default iframe-btn">{{ trans('admin::countries.add_btn_image') }}</a>
+                            </span>
+                        </div>
+                        <span class="help-block">{!! FormMessage::getErrorMessage('flag') !!}</span>
+                  
+                        </div>
+                    </div>
                         
                         
                              <div class="form-group row"> 

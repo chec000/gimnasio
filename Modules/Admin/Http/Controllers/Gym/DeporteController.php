@@ -36,7 +36,8 @@ class DeporteController extends Controller {
             $deporte->nombre = $request->name;
             $deporte->descripcion = $request->descripcion;
             $deporte->activo = ($request->has('activo')) ? 1 : 0;
-            $deporte->foto = "test";
+             $deporte->foto = $request->imagen;
+            $deporte->precio = $request->precio;
             $deporte->save();
             $deporte->objetivos()->detach();
             $deporte->objetivos()->attach($request->objetivos);
@@ -67,7 +68,8 @@ class DeporteController extends Controller {
             $deporte->nombre = $request->name;
             $deporte->descripcion = $request->descripcion;
             $deporte->activo = ($request->has('activo')) ? 1 : 0;
-            $deporte->foto = "test";
+            $deporte->foto = $request->imagen;
+            $deporte->precio = $request->precio;
             $deporte->save();
             $deporte->objetivos()->attach($request->objetivos);
         } catch (Exception $ex) {

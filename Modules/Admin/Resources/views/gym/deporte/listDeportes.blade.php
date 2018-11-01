@@ -1,5 +1,5 @@
 <div class="panel panel-info ">
-                <div class="panel-heading">{{ trans('gum::deporte.deporte_list') }}
+                <div class="panel-heading">{{ 'Lista de Actividades' }}
                 </div>
     <div class="panel-body">
         <div class="row textbox">
@@ -10,7 +10,7 @@
     @if($can_add)   
     <div class="col-sm-6 text-right">     
         <a href="{{ route('admin.Deporte.addDeporte') }}" class="btn btn-warning addButton"><i class="fa fa-plus"></i> &nbsp;
-            {{ trans('admin::deporte.add_deporte') }}</a>
+            {{ 'Agregar' }}</a>
     </div>
     @endif
 </div>
@@ -25,14 +25,15 @@
     <table class="table table-striped" id="tbl_table">
         <thead>
             <tr>
-                  <th>{{ trans('gym::deporte.deporte') }}</th>
-                <th>{{ trans('gym::deporte.descripcion') }}</th>
+                 <th>{{ 'Imagen' }}</th>
+                  <th>{{ 'Nombre' }}</th>
+                <th>{{ 'Descripción' }}</th>
                 <!--<th>{{ trans('admin::form_add.lang_list_name') }}</th>-->
-                <th>{{ trans('admin::deporte.objetivos') }}</th>
+                <th>{{'Objetivos'}}</th>
                 
-                <th>{{ trans('admin::brand.form_add.status') }}</th>
+                <th>{{'Estatus' }}</th>
                 @if ($can_edit || $can_delete)
-                <th>{{ trans('admin::brand.form_add.actions') }}</th>
+                <th>{{ 'Acciones' }}</th>
 
                 @endif
             </tr>
@@ -40,8 +41,11 @@
         <tbody>
             @foreach ($deportes as $m)
             <tr id="menu_{!! $m->id !!}">
+                 <td>
+                     <img src="{!! $m->foto !!}" class="rounded img-fluid" style="height: 74px;" >                                      
+                 </td>
                 <td>{!! $m->nombre !!}</td>
-                <td>{!! $m->descripcion !!}</td>       
+                <td>{{ str_limit($m->descripcion, $limit = 80, $end = '...') }} </td>       
                 @if(count($m->objetivos)>0)
              <td>
                   @foreach ($m->objetivos as $o)
@@ -71,6 +75,9 @@
                         
     </div>
 </div>
+    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+
 <script type="text/javascript">
     function disable_item(id) {              
     $.ajax({

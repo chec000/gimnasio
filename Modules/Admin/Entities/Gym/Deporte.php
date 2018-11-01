@@ -15,7 +15,7 @@ class Deporte extends Eloquent
      * @var array
      */
     protected $fillable = [
-         'nombre', 'descripcion','active','foto',
+         'nombre', 'descripcion','active','foto','precio',
     ];
 
     /**
