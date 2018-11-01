@@ -104,6 +104,7 @@ public function createUser(array $data)
         'estado'=>$data['estado'], 
         'ciudad'=>$data['estado'],
         'direccion'=>$data['direccion'],
+        'foto'=>$data['flag'],
         'pais'=>$data['pais'],           
         'latitud'=>$data['lat'],
         'longitud'=>$data['lon'],

@@ -8,6 +8,7 @@
   <thead>
     <tr>
       <th scope="col">id</th>
+            <th scope="col">Foto</th>
       <th scope="col">Nombre</th>
       <th scope="col">Apellidos</th>
       <th scope="col">Telefono</th>
@@ -24,6 +25,7 @@
     @foreach ($clientes as $c)
     <tr>
       <th scope="row">{{$c->id}}</th>
+      <td> <img style="height: 100px" src="{{$c->usuario->foto}}"></td>
       <td>{{$c->usuario->name}}</td>
       <td>{{$c->usuario->apellido_paterno.' '.$c->usuario->apellido_materno}}</td>
       <td>{{$c->usuario->telefono}}</td>

@@ -115,9 +115,14 @@
                                         </div>
                                     </div>               
                                     <div class="row">
+                                                                                
                                         <div class="form-group col-md-6">
-                                            <label for="estado_civil" class="col-md-4 col-form-label text-md-right">{{ __('Estado civil') }}</label>
-                                            <input id="estado_civil" type="text" class="form-control{{ $errors->has('estado_civil') ? ' is-invalid' : '' }}" name="estado_civil" value="{{( $cliente!=null)?$cliente['estado_civil']:""}}" required>
+                                            <label for="estado_civil" class="col-md-4 col-form-label text-md-right">{{ __('Estado civil') }}</label>                                        
+                                               <select value="{{( $cliente!=null)?$cliente['estado_civil']:""}}"  name="estado_civil" class="form-control{{ $errors->has('estado_civil') ? ' is-invalid' : '' }}">
+                                          <option value="" selected>Selecciona una opción</option>
+                                          <option value="Soltero">Soltero</option>
+                                          <option value="Casado">Casado</option>
+                                               </select>                                            
                                             @if ($errors->has('fecha_nacimiento'))
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $errors->first('estado_civil') }}</strong>
@@ -469,9 +474,3 @@
                     }
 
 </script>
-
-
-
-
-
-
