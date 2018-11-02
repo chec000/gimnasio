@@ -143,5 +143,18 @@ class MembresiaController extends Controller {
             }
         }
     }
+public function  detailMembresia($id){
+                $membresia = Membresia::find($id);
 
+                if($membresia!=null){
+     $view = View::make('admin::gym.membresia.detalle_membresia', array(
+                    "membresia" => $membresia,
+        ));
+        $this->layoutData['content'] = $view->render();                       
+                }else{
+                    $this->layoutData['content']="";
+                }
+                
+}
+    
 }

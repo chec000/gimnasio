@@ -15,7 +15,7 @@ class UsuarioCliente extends Eloquent
      * @var array
      */
     protected $fillable = [
-        'fecha_inscripcion', 'id_usuario', 'estado',
+        'fecha_inscripcion','codigo_cliente','id_usuario', 'estado',
     ];
   public function usuario()
     {

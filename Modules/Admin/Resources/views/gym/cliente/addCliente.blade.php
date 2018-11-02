@@ -65,7 +65,7 @@
                                             @endif                          
                                         </div>
                                         <div class="form-group col-md-6">
-                                            <label for="apellido_paterno" class="col-md-4 col-form-label text-md-right">{{ __('Apellido paterno') }}</label>                   
+                                            <label for="apellido_paterno" class="col-md-4 col-form-label text-md-right">{{ __('Apellidos') }}</label>                   
                                             <input id="apellido_paterno" type="text" class="form-control{{ $errors->has('apellido_paterno') ? ' is-invalid' : '' }}" name="apellido_paterno" value="{{( $cliente!=null)?$cliente['apellido_paterno']:""}}" required>                               
                                             @if ($errors->has('apellido_paterno'))
                                             <span class="invalid-feedback" role="alert">
@@ -75,15 +75,17 @@
                                         </div>
                                     </div>                                      
                                     <div class="row">
-                                        <div class="form-group col-md-6">
-                                            <label for="apellido_materno" class="col-form-label text-md-right">{{ __('Apellido materno') }}</label>          
-                                            <input id="apellido_materno" type="text" class="form-control{{ $errors->has('apellido_materno') ? ' is-invalid' : '' }}" name="apellido_materno" value="{{( $cliente!=null)?$cliente['apellido_materno']:""}}" required>
-                                            @if ($errors->has('apellido_materno'))
+
+                        <div class="form-group col-md-6">
+                                           <label for="clave_unica" class="col-form-label text-md-right">{{ __('Clave unica de identificación') }}</label>          
+                                            <input id="clave_unica" type="text" class="form-control{{ $errors->has('clave_unica') ? ' is-invalid' : '' }}" name="clave_unica" value="{{( $cliente!=null)?$cliente['clave_unica']:""}}" required>
+                                            @if ($errors->has('clave_unica'))
                                             <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $errors->first('apellido_materno') }}</strong>
+                                                <strong>{{ $errors->first('clave_unica') }}</strong>
                                             </span>
                                             @endif                          
-                                        </div>
+                                        </div>  
+                                   
                                         <div class="form-group col-md-6 ">
                                             <label for="telefono" class=" col-form-label text-md-right">{{ __('Teléfono') }}</label>                       
                                             <input id="telefono" type="tel" class="form-control{{ $errors->has('telefono') ? ' is-invalid' : '' }}" name="telefono" value="{{( $cliente!=null)?$cliente['telefono']:""}}" required >
@@ -93,7 +95,7 @@
                                             </span>
                                             @endif                      
                                         </div>
-                                    </div>                       
+                                    </div>
                                     <div class="row">
                                         <div class="form-group col-md-6">
                                             <label for="telefono_celular" class="col-md-4 col-form-label text-md-right">{{ __('Teléfono celular') }}</label>
@@ -164,10 +166,10 @@
                                             </span>
                                             @endif                           
                                         </div>
-                                    </div>                              
+                                    </div>    
                                     <div class="row">
                                         <div class="form-group col-md-6">
-                                            <label for="email" class="col-md-4 col-form-label text-md-right">{{ __('E-Mail Address') }}</label>
+                                            <label for="email" class="col-md-4 col-form-label text-md-right">{{ __('Correo electrónico') }}</label>
 
                                             <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{( $cliente!=null)?$cliente['email']:""}}" required >
 
@@ -392,6 +394,14 @@
                                         var $active = $('.wizard .nav-tabs li.active');
                                         $active.next().removeClass('disabled');
                                         nextTab($active);
+                                    }else if(data.code===600){
+                                        $("#dialog").dialog();
+                                        var mensajes = $("#cmsDefaultNotification");
+                                            mensajes.css('display', 'block');
+                                            mensajes.addClass('panel panel-danger');
+                                            $('html, body').animate({scrollTop: 0}, 'slow');
+                                            mensajes.append("  <span class='label label-danger'>" + data.data + "</span>");
+                                        
                                     } else {
                                         $("#dialog").dialog();
                                         var mensajes = $("#cmsDefaultNotification");

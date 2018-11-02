@@ -8,6 +8,8 @@ use Modules\Admin\Http\Controllers\AdminController as Controller;
 use Modules\Admin\Entities\Gym\Venta;
 use Modules\Admin\Entities\Gym\DetalleVenta;
 use Modules\Admin\Http\Controllers\gym\ClienteController;
+use Modules\Admin\Http\Controllers\gym\DeporteController;
+
 use Modules\Admin\Entities\Gym\User;
 use Modules\Admin\Entities\Gym\Membresia;
 use Modules\Admin\Entities\Gym\ClienteMembresia;
@@ -128,4 +130,29 @@ class VentaController extends Controller {
         
     }
 
-}
+    public function shoppMembresia($idCliente){
+   $mc= new ClienteController();
+    $membresias=$mc->listMembresias();   
+        $modal = View::make('admin::gym.modals.actualizar_pago_membresia')->render();    
+        $view = View::make('admin::gym.ventas.venta_cliente_membresia', array(
+                    'membresias'=>$membresias,
+                    'modal' => $modal,
+                    'cliente_id'=>$idCliente
+        ));
+        $this->layoutData['content'] = $view->render();
+           
+    }
+    public function shoppActividad($idCliente){
+        $modal = View::make('admin::gym.modals.actualizar_pago_membresia')->render();
+       $dc= new DeporteController();        
+         $list_deportes=     View::make('admin::gym.deporte.list_item_deporte',array('deportes'=>$dc->getListDeportes()))->render();     
+         $view = View::make('admin::gym.ventas.venta_evento', array(            
+           'actividades'=>$list_deportes,
+            'modal' => $modal,
+            'cliente_id'=>$idCliente
+
+        ));
+        $this->layoutData['content'] = $view->render();                   
+    }
+    
+    }

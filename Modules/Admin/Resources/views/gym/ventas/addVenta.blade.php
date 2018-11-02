@@ -6,7 +6,10 @@
                 <div class="col-md-6">
                     <div id="custom-search-input">
                         <div class="input-group">
-                            <input type="text" class="  search-query form-control" placeholder="Buscar" id="cliente"  onkeyup = "if(event.keyCode == 13) searchCustomer()" />
+                            <!--<input type="text" class="  search-query form-control" placeholder="Buscar" id="cliente"  onkeyup = "if(event.keyCode == 13) searchCustomer()" />-->
+                                                       <input type="text" class="  search-query form-control" placeholder="Buscar" id="cliente" />
+                                                               <div id="clienteList">
+                                                                </div> 
                             <span class="input-group-btn">
                                 <button class="btn btn-danger" type="button" onclick="searchCustomer()">
                                     <span class=" glyphicon glyphicon-search"></span>
@@ -34,7 +37,13 @@
                     </button>
                 </div>
                 <div class="panel-body">
-                
+                    <div id="productos_venta" style="display: none">
+                    <a class="btn btn-success" id="add_membresia_cliente"  href="{{ route('admin.Cliente.edit_cliente', ['id' => 1]) }}" title="{{ trans('admin::action.edit_action') }}">Membresia</a>
+                    <a class="btn btn-success" id="add_actividad_cliente" href="{{ route('admin.Cliente.edit_cliente', ['id' => 3]) }}" title="{{ trans('admin::action.edit_action') }}">Actividad</a>                                                       
+                                           
+                    </div>
+
+                    <hr>
                     <div class="row">
                         <div class="col-md-6">
                                              <div class="form-group row">
@@ -93,9 +102,38 @@
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-
+ <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
-    
+ $(document).ready(function(){
+
+ $('#cliente').keyup(function(){ 
+        var query = $(this).val();
+        if(query != '')
+        {
+         var _token = $('input[name="_token"]').val();
+         $.ajax({
+          url:"{{ route('admin.Cliente.getListClientes') }}",
+          method:"POST",
+          data:{campo:query, _token:_token},
+          success:function(data){
+           $('#clienteList').fadeIn();  
+                    $('#clienteList').html(data);
+          }
+         });
+        }
+    });
+
+    $(document).on('click', 'li', function(){  
+        $('#cliente').val($(this).text());     
+        var cliente=$(this);
+       $('#clienteList').fadeOut();
+        searchCustomer( cliente[0].dataset.key);
+    });  
+
+});
+ 
+
      var tipo_pago = "";
      var id_membresia;
      var id_cliente_membresia;
@@ -148,15 +186,24 @@ function actualizarMembresia(){
 
 
 
-    function searchCustomer() {
-        var cliente = $('#cliente').val();
+    function searchCustomer(id=0) {
+     var isId=false;
+        if(id===0){
+                var cliente = $('#cliente').val();
+                isId=true;
+    }else{
+        cliente=id;
+    }
         if (cliente !== "") {
             $.ajax({
                 url: route('admin.Cliente.getClienteByName'),
                 type: 'POST',
-                data: {cliente: cliente},
+                data: {cliente: cliente,isId:isId},
                 success: function (data) {
              if(data.code===200){
+                 $("#productos_venta").css('display','block');
+                 $("#add_membresia_cliente").attr('href',data.url_membresia);
+                  $("#add_actividad_cliente").attr('href',data.url_add_actividad);
                  $("#id_cliente").val(data.data.id);
                  $("#name").val(data.data.name+" "+data.data.apellido_paterno);
                  $("#membresias-compradas").empty();  

@@ -23,6 +23,7 @@ use Modules\Admin\Entities\Gym\ClienteMembresia;
 use Validator;
 use Auth;
 use Carbon\Carbon;
+
 class ClienteController extends Controller {
 
     public $total_pagar;
@@ -55,18 +56,22 @@ class ClienteController extends Controller {
 
     public function getCliente(Request $request) {
 
-
-        $cliente = User::where('name', 'like', $request->cliente)->first();
+        if($request->isId==true){
+                    $cliente = User::find($request->cliente);
+        }else{
+                    $cliente = User::where('name', '=',$request->cliente)->first();
+        }
+        
         if ($cliente != null) {
-             
             $membresias = UsuarioCliente::find($cliente->id)->compraMembresia()->get();
-           $view = View::make('admin::gym.membresia.list_membresias_compradas', 
-                   array('membresias' => $membresias))->render();
-           
+            $view = View::make('admin::gym.membresia.list_membresias_compradas', array('membresias' => $membresias))->render();
+
             return array(
                 "data" => $cliente,
                 "code" => 200,
-                'membresias_actuales' => $view,              
+                'membresias_actuales' => $view,
+                'url_membresia'=>route('admin.venta.addMembresia', ['id' => $cliente->id]),
+                'url_add_actividad'=>route('admin.venta.addActividad',['id' => $cliente->id])
             );
         } else {
             return array(
@@ -196,7 +201,6 @@ class ClienteController extends Controller {
         }
     }
 
-    
     public function sendEmailFill($membresias, $usuario, $asunto, $rutaArchivo) {
         ini_set('max_execution_time', 300);
         $articulos = $membresias;
@@ -217,7 +221,6 @@ class ClienteController extends Controller {
             return $ex->getText;
         }
     }
-    
 
     public function getDetalleVenta() {
         $membresias = session()->get('portal.main.gym.cliente.membresias');
@@ -300,9 +303,28 @@ class ClienteController extends Controller {
         return $cliente;
     }
 
-    private function getUsers() {
-        $clientes = User::where('activo', '=', 1)->get();
-        return $clientes;
+    public function getUsersAsCliente(Request $request) {
+
+        $clientes = User::where('name', 'like', "%{$request->campo}%")->orWhere('apellido_paterno','like',"%{$request->campo}%"
+        )->orWhere('clave_unica','like', "%{$request->campo}%")->get();        
+        $uc=false;
+     if(!count($clientes)>0){
+                $clientes = UsuarioCliente::where('codigo_cliente', 'like',"%{$request->campo}%")->get(); 
+     $uc=true;
+     }
+        $output = '<ul class="dropdown-menu" style="display:block; position:relative">';
+        if (count($clientes) > 0) {
+            foreach ($clientes as $row) {
+                if($uc){
+                $output .= '</li><li data-key='.$row->usuario->id.'><a href="#">' . $row->usuario->name. ' ' . $row->usuario->apellido_paterno . '</a></li>';                    
+                }else{
+                $output .= '</li><li data-key='.$row->id.'><a href="#">' . $row->name . ' ' . $row->apellido_paterno . '</a></li>';                    
+                }
+            }
+            $output .= '</ul>';
+        }
+
+        return $output;
     }
 
     public function getCheckout() {
@@ -340,7 +362,7 @@ class ClienteController extends Controller {
     }
 
     public function getClienteUsuario(Request $request) {
-        $users = User::where('nombre', 'like', $request->nombre)->get();
+        $users = User::where('nombre', 'like',"%{$request->nombre}%" )->get();
         if (count($users) > 0) {
             return $users;
         } else {
@@ -349,61 +371,71 @@ class ClienteController extends Controller {
     }
 
     public function saveCliente(Request $request) {
-        if (!session()->has('portal.main.gym.cliente')) {
-            $v = Validator::make($request->all(), array(
-                        'name' => 'required',
-                        'apellido_paterno' => 'required',
-                        'apellido_materno' => 'required',
-                        'telefono' => 'required|numeric|min:9',
-                        'telefono_celular' => 'required|numeric|min:9',
-                        'fecha_nacimiento' => 'required',
-                        'estado_civil' => 'required',
-                        'pais' => 'required',
-                        'estado' => 'required',
-                        'direccion' => 'required',
-                        'email' => 'required|email',
-                        'password' => 'required'
-                            )
-            );
 
-            if ($v->passes()) {
-                $cliente = $this->confirmarGuardado($request);
-                session()->put('portal.main.gym.cliente', $request->all());
-                session()->put('portal.main.gym.cliente.id', $cliente->id);
-
-                $result = array(
-                    "status" => true,
-                    "code" => 200,
-                    'data' => session()->get('portal.main.gym.cliente')
+        if (!User::where('clave_unica', '=', $request->clave_unica)->count() > 0) {
+            if (!session()->has('portal.main.gym.cliente')) {
+                $v = Validator::make($request->all(), array(
+                            'name' => 'required',
+                            'apellido_paterno' => 'required',
+                            'telefono' => 'required|numeric|min:9',
+                            'telefono_celular' => 'required|numeric|min:9',
+                            'fecha_nacimiento' => 'required',
+                            'estado_civil' => 'required',
+                            'pais' => 'required',
+                            'estado' => 'required',
+                            'direccion' => 'required',
+                            'email' => 'required|email',
+                            'password' => 'required'
+                                )
                 );
+
+                if ($v->passes()) {
+                    $cliente = $this->confirmarGuardado($request);
+                    session()->put('portal.main.gym.cliente', $request->all());
+                    session()->put('portal.main.gym.cliente.id', $cliente->id);
+
+                    $result = array(
+                        "status" => true,
+                        "code" => 200,
+                        'data' => session()->get('portal.main.gym.cliente')
+                    );
+                } else {
+                    $result = array(
+                        "status" => false,
+                        "code" => 500,
+                        'data' => $v->messages()
+                    );
+                }
+                return $result;
             } else {
                 $result = array(
                     "status" => false,
-                    "code" => 500,
-                    'data' => $v->messages()
+                    "code" => 300,
+                    'data' => "Hay un cliente en proceso de inscripción"
                 );
             }
-            return $result;
         } else {
             $result = array(
                 "status" => false,
-                "code" => 300,
-                'data' => "Hay un cliente en proceso de inscripción"
+                "code" => 600,
+                'data' => "Ya existe un usuario con la clave unica "
             );
         }
+
+
         return $result;
     }
 
     public function finalizarCompra(Request $request) {
 //        $date = new \DateTime();
-         $date = Carbon::now();
-       
-         try {
-            $diferencia=0;
+        $date = Carbon::now();
+
+        try {
+            $diferencia = 0;
             DB::beginTransaction();
             $membresias = $this->buidCheckout(session()->get('portal.main.gym.cliente.membresias'), 1);
             $user = UsuarioCliente::find(session()->get('portal.main.gym.cliente.id'));
-             $actual=$date->format('Y-m-d');
+            $actual = $date->format('Y-m-d');
             $venta = new Venta();
             $venta->fecha = $actual;
             $venta->id_cliente = session()->get('portal.main.gym.cliente.id');
@@ -414,11 +446,11 @@ class ClienteController extends Controller {
             $venta->diferencia = $diferencia;
             $venta->descuento_id = 2;
             $venta->save();
-            
-            if($request->tipo_pago=='efectivo'){
-                    if(session()->get('portal.main.gym.cliente.total_pagar')>=$request->dinero_cliente){
-                        $diferencia=$request->pago_cliente-$venta->total;
-                    }
+
+            if ($request->tipo_pago == 'efectivo') {
+                if (session()->get('portal.main.gym.cliente.total_pagar') >= $request->dinero_cliente) {
+                    $diferencia = $request->pago_cliente - $venta->total;
+                }
             }
             foreach ($membresias as $m) {
                 $user->membresias()->attach($m->id);
@@ -426,8 +458,8 @@ class ClienteController extends Controller {
                 $cm->cliente_id = $user->id;
                 $cm->membresia_id = $m->id;
                 $cm->nombre_membresia = $m->nombre;
-               $cm->precio = $m->precio;  
-                 $cm->compra_id = $venta->id;   
+                $cm->precio = $m->precio;
+                $cm->compra_id = $venta->id;
                 $cm->fecha_compra = $actual;
                 $cm->fecha_proximo_pago = $date->addMonth($m->duracion_meses);
                 $cm->save();
@@ -453,8 +485,8 @@ class ClienteController extends Controller {
             return array(
                 "data" => "Compra finalizada con exito",
                 'code' => 200,
-                'total'=>$venta->total,
-                'diferencia'=>$diferencia
+                'total' => $venta->total,
+                'diferencia' => $diferencia
             );
         } catch (Exception $ex) {
             DB::rollback();
@@ -472,7 +504,6 @@ class ClienteController extends Controller {
 
         if ($request->tipo_inscripcion == 1) {
             $userController = new RegisterController();
-
             $user = $userController->createUser($request->all());
 
             if ($user != null) {
@@ -480,6 +511,7 @@ class ClienteController extends Controller {
                 $cliente->fecha_inscripcion = $date;
                 $cliente->id_usuario = $user->id;
                 $cliente->estado_cliente = "Al dia";
+                $cliente->codigo_cliente = "CL" . strtoupper(substr($user->name, 0, 1)) . strtoupper(substr($user->apellido_paterno, 0, 1)) . '-' . $user->id;
                 $cliente->activo = 1;
                 $cliente->save();
                 return $cliente;
@@ -531,24 +563,32 @@ class ClienteController extends Controller {
 
     public function saveUpdateCliente(Request $request) {
 
-        try {
-            DB::beginTransaction();
-            $cliente = UsuarioCliente::find($request->cliente_id);
-            $cliente->usuario->name = $request->name;
-            $cliente->usuario->apellido_paterno = $request->apellido_paterno;
-            $cliente->usuario->apellido_materno = $request->apellido_materno;
-            $cliente->usuario->telefono = $request->telefono;
-            $cliente->usuario->telefono_celular = $request->telefono_celular;
-            $cliente->usuario->estado_civil = $request->estado_civil;
-            $cliente->usuario->direccion = $request->direccion;
-            $cliente->usuario->email = $request->email;
-            $cliente->usuario->save();
-            $cliente->usuario->activo = ($request->has('activo')) ? 1 : 0;
-            $cliente->save();
-            DB::commit();
-            return redirect()->back();
-        } catch (Exception $e) {
-            
+        if (User::where([['clave_unica', '=', $request->clave_unica], ['id', '!=', $request->cliente_id]])->count() == 0) {
+
+            try {
+                DB::beginTransaction();
+                $cliente = UsuarioCliente::find($request->cliente_id);
+                $cliente->usuario->name = $request->name;
+                $cliente->usuario->apellido_paterno = $request->apellido_paterno;
+//            $cliente->usuario->apellido_materno = $request->apellido_materno;
+                $cliente->usuario->telefono = $request->telefono;
+                $cliente->usuario->telefono_celular = $request->telefono_celular;
+                $cliente->usuario->estado_civil = $request->estado_civil;
+                $cliente->usuario->direccion = $request->direccion;
+                $cliente->usuario->email = $request->email;
+                $cliente->usuario->foto = $request->flag;
+                $cliente->usuario->clave_unica = $request->clave_unica;
+                $cliente->usuario->save();
+                $cliente->usuario->activo = ($request->has('activo')) ? 1 : 0;
+                $cliente->save();
+                DB::commit();
+                $this->updateCliente($request->cliente_id);
+            } catch (Exception $e) {
+                return $this->updateCliente($request->cliente_id);
+            }
+        } else {
+            $this->addAlert('danget', "Ya existe un usuario con esta clave");
+            return $this->updateCliente($request->cliente_id);
         }
     }
 

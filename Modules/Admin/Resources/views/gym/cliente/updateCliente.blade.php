@@ -61,20 +61,17 @@
 
 
                             <div class="form-group row">
-                                <label for="apellido_materno" class="col-md-4 col-form-label text-md-right">{{ __('Apellido materno') }}</label>
-
-                                <div class="col-md-6">
-                                    <input id="apellido_materno" type="text" class="form-control{{ $errors->has('apellido_materno') ? ' is-invalid' : '' }}" name="apellido_materno" value="{{ $cliente->usuario->apellido_materno }}" required>
-
-                                    @if ($errors->has('apellido_materno'))
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $errors->first('apellido_materno') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
+                               <label for="clave_unica" class="col-md-4 col-form-label text-md-right">{{ __('Clave unica de identificación') }}</label>          
+                            <div class="col-md-6">
+                                            <input id="clave_unica" type="text" class="form-control{{ $errors->has('clave_unica') ? ' is-invalid' : '' }}" name="clave_unica" value="{{ $cliente->usuario->clave_unica }}"  required>
+                                            @if ($errors->has('clave_unica'))
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('clave_unica') }}</strong>
+                                            </span>
+                                            @endif                          
+                                        </div>                                     
                             </div>
-
-
+                            
                             <div class="form-group row">
                                 <label for="telefono" class="col-md-4 col-form-label text-md-right">{{ __('Teléfono') }}</label>
 
@@ -177,8 +174,23 @@
                                 </div>
                             </div>
 
+                            
                             <div class="form-group row">
-                                <label for="email" class="col-md-4 col-form-label text-md-right">{{ __('E-Mail Address') }}</label>
+                               <label class="col-md-4 col-form-label text-md-right">{{ trans('admin::countries.add_flag') }}</label>
+                                <div class="col-md-6">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input id="flag" class="img_src form-control" name="flag"  type="text"  value="{{$cliente->usuario->foto}}">                                            
+                                                    <span class="input-group-btn">
+                                                        <a href="{!! URL::to(config('admin.config.public').'/filemanager/dialog.php?type=1&field_id=flag') !!}" class="btn btn-default iframe-btn">{{ trans('admin::countries.add_btn_image') }}</a>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>                                
+                            </div>
+                            
+                            <div class="form-group row">
+                                <label for="email" class="col-md-4 col-form-label text-md-right">{{ __('Correo electrónico') }}</label>
 
                                 <div class="col-md-6">
                                     <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ $cliente->usuario->email }}" required>

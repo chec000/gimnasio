@@ -7,6 +7,8 @@ namespace Modules\Admin\Http\Controllers\gym;
 use Illuminate\Http\Request;
 use Modules\Admin\Entities\Gym\Deporte;
 use Modules\Admin\Entities\Gym\ObjetivosDeporte;
+use Modules\Admin\Entities\Gym\Articulo;
+
 use Modules\Admin\Http\Controllers\AdminController as Controller;
 use Auth;
 use View;
@@ -14,7 +16,7 @@ use View;
 class DeporteController extends Controller {
 
     public function index() {        
-        $deportes = Deporte::with('objetivos')->get();
+     $deportes= $this->getListDeportes();
         $view= View::make('admin::gym.deporte.listDeportes', array('deportes' => $deportes,
                      'can_add' => Auth::action('brand.add'),
                     'can_delete' => Auth::action('bread.activeBrand'),
@@ -23,6 +25,33 @@ class DeporteController extends Controller {
             ));      
         $this->layoutData['content']=$view->render();
  }
+ 
+ public function getListDeportes(){
+        $deportes = Deporte::with('objetivos')->get();
+     if(count($deportes)>0){
+         return $deportes;                 
+     }else{
+         return array();
+     }
+ }
+ 
+public function detailActividad($id){     
+          $deporte= Deporte::find($id); 
+          $this->layoutData['content']=View::make('admin::gym.deporte.detalle_deporte', 
+                  array('deporte' => $deporte))->render();         
+}
+
+private function deporteAsProducto($deporte){
+            $articulo= new Articulo;
+       if($deporte!=null){
+        $articulo->setDescripcion($deporte->descripcion);
+        $articulo->setId($deporte->id);
+        $articulo->setNombre($deporte->nombre);
+        $articulo->setImagen($deporte->foto);
+        $articulo->setPrecio($deporte->precio);
+       }       
+ 
+}
 
     public function addDeporte() {
         $objetivos = ObjetivosDeporte::where('activo', '=', 1)->get();
