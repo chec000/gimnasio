@@ -2,12 +2,10 @@
     <div class="row">
         <div class="col-md-12">
             
-               <button class="btn btn-success">
-                        <a style="color:black" href="{{route('admin.venta.add')}}">
+                   <a class="btn btn-success" style="color:black" href="{{route('admin.venta.add')}}">
                             <i class="fa fa-undo"></i>
                             Registrar venta
                         </a>
-                    </button>
             <div class="panel panel-primary">
                 <div class="panel-heading">
                     <h3 class="panel-title">Ventas</h3>

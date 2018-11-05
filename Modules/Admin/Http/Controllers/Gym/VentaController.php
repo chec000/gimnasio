@@ -141,7 +141,7 @@ class VentaController extends Controller {
         ));
         $this->layoutData['content'] = $view->render();
            
-    }
+    }    
     public function shoppActividad($idCliente){
         $modal = View::make('admin::gym.modals.actualizar_pago_membresia')->render();
        $dc= new DeporteController();        

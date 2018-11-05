@@ -9,10 +9,11 @@
   </div>
   <div class="panel-body">
    
-    <table class="table table-hover" id="tbl_membresia">
+    <table class="table table-hover" id="tbl_table">
   <thead>
     <tr>
-      <th scope="col">id</th>
+      <!--<th scope="col">id</th>-->
+       <th scope="col">Imágen</th>
       <th scope="col">Nombre</th>
       <th scope="col">Tipo</th>
       <th scope="col">Precio</th>
@@ -24,8 +25,10 @@
   <tbody>
       
       @foreach ($membresias as $m)      
-    <tr>
-      <th scope="row">{{$m->id}}</th>
+      <tr id="columna-{{$m->id}}}">
+      <!--<th scope="row">{{$m->id}}</th>-->
+          <td><img height="100px" src="{{$m->imagen}}"></td>
+
       <td>{{$m->nombre}}</td>
       <td>{{$m->tipo->nombre}}</td>
       <td>{{$m->precio}}</td>
@@ -39,8 +42,11 @@
                     </span>
                     <span onclick="activeMembresia({{$m->id}})" id='inactiveBrand{{$m->id}}' class="{{$m->activo ? 'hide' : ''}}">                                
                         <i class="glyphicon glyphicon-stop  itemTooltip "  title="{{ trans('admin::action.enable_action') }}"></i>                            
-                    </span>                                
+                    </span>                                                
                     <a class="glyphicon glyphicon-pencil itemTooltip" href="{{ route('admin.Membresia.getMembresia', ['id' => $m->id]) }}" title="{{ trans('admin::action.edit_action') }}"></a>
+                 <span onclick="activeDesactiveCliente({{$m->id}})" >                                
+                               <i class="glyphicon glyphicon-trash  itemTooltip "  title="{{ trans('admin::action.enable_action') }}"></i>                            
+                            </span>            
                 </td>
                 @endif
     </tr>
@@ -51,6 +57,10 @@
 </div>
 
 </div>
+
+    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+
 <script type="text/javascript">
     function activeMembresia(id) {         
     $.ajax({
@@ -81,5 +91,13 @@
 
     });
     }
+
+                        $('#tbl_table').DataTable({
+                        "responsive": true,
+                                "ordering": false,
+                                "language": {
+                                "url": "{{ trans('admin::datatables.lang') }}"
+                                }
+                        });
 
 </script>

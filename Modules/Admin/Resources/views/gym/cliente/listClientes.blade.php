@@ -46,7 +46,7 @@
                             </span>
                             <span onclick="activeDesactiveCliente({{$c->id}})" id='inactiveBrand{{$c->id}}' class="{{$c->activo ? 'hide' : ''}}">                                
                                 <i class="glyphicon glyphicon-stop  itemTooltip "  title="{{ trans('admin::action.enable_action') }}"></i>                            
-                            </span>                                
+                            </span>                                                                                                         
                             <a class="glyphicon glyphicon-pencil itemTooltip" href="{{ route('admin.Cliente.edit_cliente', ['id' => $c->id]) }}" title="{{ trans('admin::action.edit_action') }}"></a>
                         </td>
                         @endif
