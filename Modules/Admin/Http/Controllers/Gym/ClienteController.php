@@ -30,7 +30,7 @@ class ClienteController extends Controller {
 
     public function index() {
 
-        $clientes = $this->getClientes();
+        $clientes = $this->getClientes();    
         $view = View::make('admin::gym.cliente.listClientes', array('clientes' => $clientes,
                     'can_add' => Auth::action('brand.add'),
                     'can_delete' => Auth::action('bread.activeBrand'),
@@ -439,7 +439,8 @@ class ClienteController extends Controller {
             $venta = new Venta();
             $venta->fecha = $actual;
             $venta->id_cliente = session()->get('portal.main.gym.cliente.id');
-            $venta->id_empleado = 1;
+            $venta->nombre_cliente=session()->get('portal.main.gym.cliente.name').' '.session()->get('portal.main.gym.cliente.apellido_paterno');
+            $venta->id_empleado = Auth::user()->id;
             $venta->tipo_pago = $request->tipo_pago;
             $venta->total = session()->get('portal.main.gym.cliente.total_pagar');
             $venta->estatus = "terminado";
@@ -592,4 +593,24 @@ class ClienteController extends Controller {
         }
     }
 
+        public function eraseCliente($id){
+    
+        $usr=User::find($id);
+        if($usr!=null){
+        $cliente= UsuarioCliente::where('id_usuario','=',$usr->id)->first();
+        $cliente->membresias()->detach();
+        $cliente->delete();
+        $usr->delete();    
+        }else {
+        $cliente= UsuarioCliente::where('id_usuario','=',$id)->first();
+        $cliente->membresias()->delete();
+        $cliente->delete();
+            
+        }
+        
+        return \redirect()->route('admin.Cliente.list_clientes')->with(['resultSaved' => 
+                            array('success' => true, 'type_alert' =>'success',
+                                'message_alert' => 'Eliminado correctamente')]);
+        
+    }
 }

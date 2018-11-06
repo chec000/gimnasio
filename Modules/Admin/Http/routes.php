@@ -459,6 +459,8 @@ Route::get('admin/clientes/list', 'Gym\ClienteController@index')->name('admin.Cl
 Route::get('/admin/clientes/edit/{id}', 'gym\ClienteController@updateCliente')->name('admin.Cliente.edit_cliente');
 Route::post('/admin/clientes/edit', 'gym\ClienteController@saveUpdateCliente')->name('admin.Cliente.update_cliente');
 Route::post('/admin/cliente/changeStatus', 'gym\ClienteController@deleteCliente')->name('admin.Cliente.activeInactive_cliente');
+Route::get('/admin/clientes/delete/{id}', 'gym\ClienteController@eraseCliente')->name('admin.Cliente.delete_cliente');
+
 
 Route::post('/admin/cliente/add_membresia', 'gym\ClienteController@saveMembresia')->name('admin.Cliente.add_membresia');
 Route::get('/admin/cliente/detalle_venta', 'gym\ClienteController@detalleVenta')->name('admin.Cliente.detalle_venta');
@@ -490,8 +492,11 @@ Route::get('/admin/deporte/list', 'Gym\DeporteController@index')->name('admin.De
 Route::get('/admin/deporte/edit/{id}', 'gym\DeporteController@getDeporte')->name('admin.Deporte.get_deporte');
 Route::post('/admin/deporte/update', 'gym\DeporteController@updateDeporte')->name('admin.Deporte.edit_deporte');
 Route::post('/admin/deporte/changeStatus', 'gym\DeporteController@deleteDeporte')->name('admin.Deporte.active_inactive');
-
 Route::get('/admin/deporte/detalle/{id}', 'gym\DeporteController@detailActividad')->name('admin.Deporte.detail');
+Route::get('/admin/deporte/delete/{id}', 'gym\DeporteController@eraseDeporte')->name('admin.Deporte.delete_deporte');
+
+
+
 
 
 

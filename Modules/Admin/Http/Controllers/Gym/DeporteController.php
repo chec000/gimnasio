@@ -124,4 +124,13 @@ private function deporteAsProducto($deporte){
     
     }
 
+    public function eraseDeporte($id){
+    
+        $deporte= Deporte::find($id);
+        $deporte->delete();
+        return \redirect()->route('admin.Deporte.list_deportes')->with(['resultSaved' => 
+                            array('success' => true, 'type_alert' =>'success',
+                                'message_alert' => 'Eliminado correctamente')]);
+        
+    }
 }

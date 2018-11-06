@@ -20,8 +20,8 @@ use Auth;
 class VentaController extends Controller {
 
     public function index() {
-
-        $ventas = Venta::with('usuario')->with('detalleVenta')->get();
+       
+        $ventas = Venta::with('usuario')->with('detalleVenta')->get();       
         $view = View::make('admin::gym.ventas.listVentas', array('ventas' => $ventas,
                     'can_add' => Auth::action('brand.add'),
                     'can_delete' => Auth::action('bread.activeBrand'),
@@ -55,14 +55,15 @@ class VentaController extends Controller {
 
     public function updateMembresiaClienteVenta(Request $request) {
         try {
-            
+            $usr= User::find($request->cliente_id);
         $membresia = Membresia::find($request->membresia_id);
         $date = Carbon::now();
         $actual = $date->format('Y-m-d');
        $venta = new Venta();
         $venta->fecha = $actual;
         $venta->id_cliente = $request->cliente_id;
-        $venta->id_empleado = 1;
+        $venta->id_empleado = Auth::user()->id;
+        $venta->nombre_cliente=$usr->name.' '.$usr->apellido_paterno;
         $venta->tipo_pago = $request->tipo_pago;
         $venta->total = $membresia->precio;
         $venta->estatus = "Renovado";

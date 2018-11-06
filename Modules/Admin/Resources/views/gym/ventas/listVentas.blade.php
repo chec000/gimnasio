@@ -31,7 +31,9 @@
                         @if(count($ventas)>0)
                                      @foreach($ventas as $v)
                       <tr>
-                             <td>{{$v->usuario->name.' '.$v->usuario->apellido_paterno}}</td>
+                             <td>
+                               {{$v->nombre_cliente}}                                                      
+                             </td>
                             <td>{{$v->fecha}}</td>
                             <td>{{$v->tipo_pago}}</td>
                             <td>${{$v->total}}</td>

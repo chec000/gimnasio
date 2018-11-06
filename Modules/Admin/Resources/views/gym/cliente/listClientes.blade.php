@@ -26,14 +26,24 @@
                     @if(count($clientes)>0)
                     @foreach ($clientes as $c)
                     <tr>
-      <th scope="row">{{$c->id}}</th>
-                    <td> <img style="height: 100px" src="{{$c->usuario->foto}}"></td>
+                        <th scope="row">{{$c->id}}</th>
+                        @if($c->usuario!=null)            
+                        <td><img style="height: 100px" src="{{$c->usuario->foto}}"></td>
                         <td>{{$c->usuario->clave_unica}}</td>
                         <td>{{$c->usuario->name}}</td>
                         <td>{{$c->codigo_cliente}}</td>
                         <td>{{$c->usuario->apellido_paterno.' '.$c->usuario->apellido_materno}}</td>
                         <td>{{$c->usuario->telefono}}</td>
                         <td>{{$c->usuario->direccion}}</td>
+                        @else
+                        <td>NA</td>
+                        <td>NA</td>
+                        <td>NA</td>
+                        <td>NA</td>
+                        <td>NA</td>
+                        <td>NA</td>
+                        <td>NA</td>           
+                        @endif
                         <td>{{$c->fecha_inscripcion}}</td>
                         <td>{{$c->estado_cliente}}</td>                     
 
@@ -46,7 +56,8 @@
                             </span>
                             <span onclick="activeDesactiveCliente({{$c->id}})" id='inactiveBrand{{$c->id}}' class="{{$c->activo ? 'hide' : ''}}">                                
                                 <i class="glyphicon glyphicon-stop  itemTooltip "  title="{{ trans('admin::action.enable_action') }}"></i>                            
-                            </span>                                                                                                         
+                            </span>                                              
+                            <a class="glyphicon glyphicon-trash itemTooltip" href="{{ route('admin.Cliente.delete_cliente', ['id' => $c->id]) }}" title="{{ trans('admin::action.edit_action') }}"></a>
                             <a class="glyphicon glyphicon-pencil itemTooltip" href="{{ route('admin.Cliente.edit_cliente', ['id' => $c->id]) }}" title="{{ trans('admin::action.edit_action') }}"></a>
                         </td>
                         @endif
@@ -64,40 +75,40 @@
     <script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
     <!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
     <script type="text/javascript">
-                        function activeDesactiveCliente (id){
-                        $.ajax({
-                        url: route('admin.Cliente.activeInactive_cliente'),
-                                type: 'POST',
-                                data: {id: id},
-                                success: function (data) {
-                                console.log(data);
-                                let label = $("#status" + id);
-                                let iconActive = $("#activeBrand" + id);
-                                let iconInactive = $("#inactiveBrand" + id);
-                                if (data === "0") {
-                                iconActive.addClass('hide');
-                                iconInactive.removeClass('hide');
-                                label.removeClass('label-success').addClass('label-default');
-                                label.text("Inactivo");
-                                }
-                                else {
-                                iconActive.removeClass('hide');
-                                iconInactive.addClass('hide');
-                                label.removeClass('label-default').addClass('label-success');
-                                label.text("Activo");
-                                }
+                                function activeDesactiveCliente (id){
+                                $.ajax({
+                                url: route('admin.Cliente.activeInactive_cliente'),
+                                        type: 'POST',
+                                        data: {id: id},
+                                        success: function (data) {
+                                        console.log(data);
+                                        let label = $("#status" + id);
+                                        let iconActive = $("#activeBrand" + id);
+                                        let iconInactive = $("#inactiveBrand" + id);
+                                        if (data === "0") {
+                                        iconActive.addClass('hide');
+                                        iconInactive.removeClass('hide');
+                                        label.removeClass('label-success').addClass('label-default');
+                                        label.text("Inactivo");
+                                        }
+                                        else {
+                                        iconActive.removeClass('hide');
+                                        iconInactive.addClass('hide');
+                                        label.removeClass('label-default').addClass('label-success');
+                                        label.text("Activo");
+                                        }
+                                        }
+
+                                });
                                 }
 
-                        });
-                        }
-
-                        $('#tbl_table').DataTable({
-                        "responsive": true,
-                                "ordering": false,
-                                "language": {
-                                "url": "{{ trans('admin::datatables.lang') }}"
-                                }
-                        });
+                                $('#tbl_table').DataTable({
+                                "responsive": true,
+                                        "ordering": false,
+                                        "language": {
+                                        "url": "{{ trans('admin::datatables.lang') }}"
+                                        }
+                                });
 
     </script>
 </div>

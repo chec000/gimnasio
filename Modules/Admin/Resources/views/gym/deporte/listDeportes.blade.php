@@ -58,6 +58,7 @@
                 <td><span id="status{{$m->id}}"  class="label  {{$m->activo ? 'label-success' : 'label-default'}} ">{!! $m->activo== 0 ?  trans('admin::language.lang_list_st_inactive')  : trans('admin::language.lang_list_st_active')  !!}</span></td>
                 @if ($can_edit || $can_delete)
                 <td data-lid="{!! $m->id !!}">
+                    <div>
                     <span onclick="disable_item({{$m->id}})" id='activeBrand{{$m->id}}' class="{{$m->activo ? '' : 'hide'}}">
                         <i class="glyphicon glyphicon-play itemTooltip  " title="{{ trans('admin::action.disable_action') }}" ></i>
                     </span>
@@ -65,6 +66,11 @@
                         <i class="glyphicon glyphicon-stop  itemTooltip "  title="{{ trans('admin::action.enable_action') }}"></i>                            
                     </span>                                
                     <a class="glyphicon glyphicon-pencil itemTooltip" href="{{ route('admin.Deporte.get_deporte', ['id' => $m->id]) }}" title="{{ trans('admin::action.edit_action') }}"></a>
+   
+                    <a href="{{ route('admin.Deporte.delete_deporte',['id'=>$m->id]) }}" class="glyphicon glyphicon-trash itemTooltip">                                                         
+                    </a>        
+                    </div>
+                    
                 </td>
                 @endif
             </tr>
