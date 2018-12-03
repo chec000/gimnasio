@@ -6,10 +6,11 @@
     <div class="cart__confirm-icon"></div>
     {{--<p>Tu pedido llegará en 10 días hábiles.</p>--}}
     <div class="cart__confirm-info">
-        <p>@lang('shopping::checkout.confirmation.success.order_number'): {{ $order->order_number }}</p>
-        <p>@lang('shopping::checkout.confirmation.success.corbiz_number'): {{ $order->corbiz_order_number }}</p>
-        <p>@lang('shopping::checkout.confirmation.success.pay_with_'.strtolower($order->payment_brand)): {{ $order->bank_authorization }}</p>
-        <p class="bold">@lang('shopping::checkout.confirmation.success.total'): {{ currency_format($order->total, \App\Helpers\SessionHdl::getCurrencyKey()) }}</p>
+        <p>@lang('shopping::checkout.confirmation.success.order_number'): <b>{{ $order->order_number }}</b></p>
+        <p>@lang('shopping::checkout.confirmation.success.corbiz_order'): <b>{{ $order->corbiz_order_number }}</b></p>
+        <p>@lang('shopping::checkout.confirmation.success.pay_with_'.strtolower($order->payment_brand))</p>
+        <p>@lang('shopping::checkout.confirmation.success.pay_auth'): <b>{{ $order->bank_authorization }}</b></p>
+        <p class="bold">@lang('shopping::checkout.confirmation.success.total'): <b>{{ currency_format($order->total, \App\Helpers\SessionHdl::getCurrencyKey()) }}</b></p>
         <p>@lang('shopping::checkout.confirmation.success.send_to') {{ "{$shipping->address}, {$shipping->suburb}. {$shipping->city_name}, {$shipping->state}" }}</p>
     </div>
     <ul class="cart__confirm-items list-nostyle mul">
@@ -27,7 +28,7 @@
         @endif
     </ul>
     <div class="cart__confirm-banners">
-        @if (isset($banners))
+        @if (isset($banners) && !empty($banners))
             @foreach ($banners as $banner)
                 @if (!empty($banner->link))<a target="_blank" href="{{ $banner->link }}">@endif
                     <figure class="cart__confirm-banner">

@@ -1,9 +1,5 @@
 {!! PageBuilder::section('head', [
-    'shoppingCart' => $shoppingCart,
-    'currency'     => $currency,
-    'subtotal'     => $subtotal,
-    'points'       => $points,
-    'title'        => trans('shopping::products.products')
+    'title' => trans('shopping::products.products')
 ]) !!}
 
 <div class="products-page general">
@@ -29,7 +25,7 @@
                 <div class="products slider" id="products-slider{{ $i }}">
                     <div class="products__wrap slider__wrap">
                         @foreach ($products[$category->id] as $countryProduct)
-                            @if ($countryProduct->product->is_kit == 0 and (($isShoppingActive and $isWSActive and $countryProduct->belongsToWarehouse(\App\Helpers\SessionHdl::getWarehouse())) xor (!$isShoppingActive or !$isWSActive)))
+                            @if (($countryProduct->product->is_kit == 0 && showCountryProduct($countryProduct)) || showCountryProductByIP($countryProduct))
                                 <div class="product slider__item">
                                     @php
                                         $productRoute = '#';
@@ -45,15 +41,17 @@
                                         </figure>
                                         <p class="product__description">{{ str_limit2($countryProduct->description, 74) }}</p>
                                         <span class="product__nums">
-                                            @if (!hide_price())
+                                            @if (show_price())
                                                 <span class="product__price">{{ currency_format($countryProduct->price, $currency) }}</span>
                                             @endif
-                                            @if ($isWSActive && !hide_price() && \App\Helpers\SessionHdl::hasEo())
+
+                                            @if (show_points())
                                                 <span class="product__pts">{{ $countryProduct->points }} @lang('shopping::products.pts')</span>
                                             @endif
                                         </span>
                                     </a>
-                                    @if (($isShoppingActive && $isWSActive) && !hide_price())
+
+                                    @if (show_add_to_car())
                                         <footer class="product__f">
                                             <div class="product__sep"></div>
                                             <button class="button clean" type="button" onclick="ShoppingCart.add('{{ $countryProduct->id }}', 1)">@lang('shopping::products.add_to_car')</button>
@@ -62,6 +60,14 @@
                                 </div>
                             @endif
                         @endforeach
+
+                        @if (show_disclaimer())
+                            @if (\App\Helpers\SessionHdl::hasEo())
+                                <p class="disclaimer theme--white">@lang('shopping::products.disclaimer_eo')</p>
+                            @else
+                                <p class="disclaimer theme--white">@lang('shopping::products.disclaimer')</p>
+                            @endif
+                        @endif
                     </div>
                 </div>
             </div>
@@ -73,7 +79,9 @@
         @if ($systems->count() > 0)
             <!-- system -->
             @if ($systems->first() != null)
-                @php $hasFirstProduct = false; @endphp
+                @php
+                    $hasFirstProduct = false;
+                @endphp
                 @foreach ($systems as $system)
                     @php
                         if ($system->hasProducts && !$hasFirstProduct) {
@@ -121,11 +129,20 @@
 
                         <div class="product product-sale banner">
                             <p id="benefits" class="product-sale__text">{{ $benefits }}</p>
-                            @if (!hide_price())
+                            @if (show_price())
                                 <p class="product-sale__price">@lang('shopping::products.systems.system_price'): <span id="price">{{ currency_format($price, $currency) }}</span></p>
                             @endif
-                            @if (($isShoppingActive && $isWSActive) && !hide_price())
+
+                            @if (show_add_to_car())
                                 <button onclick="ShoppingCart.add_system('{{ $systemId }}')" class="button small button--products" type="button">@lang('shopping::products.systems.buy')</button>
+                            @endif
+
+                            @if (show_disclaimer())
+                                @if (\App\Helpers\SessionHdl::hasEo())
+                                    <p class="disclaimer theme--purple">@lang('shopping::products.disclaimer_eo')</p>
+                                @else
+                                    <p class="disclaimer theme--purple">@lang('shopping::products.disclaimer')</p>
+                                @endif
                             @endif
                         </div>
                     </div>
@@ -139,7 +156,6 @@
 
 {!! PageBuilder::section('footer') !!}
 <input type="hidden" id="shop_secret" value="{{ csrf_token() }}">
-<script src="{{ PageBuilder::js('shopping_cart_old_browsers') }}"></script>
 <script type="application/javascript">
     $(document).ready(function () {
         var products;
@@ -166,13 +182,6 @@
             @endforeach
         @endif
 
-        var shopping_cart = {!! ShoppingCart::sessionToJson(session()->get('portal.main.country_corbiz')) !!};
-        if (shopping_cart.constructor === Array && shopping_cart.length == 0) {
-            shopping_cart = {};
-        }
-        document.shopping_cart = shopping_cart;
-
-
         $('[name=system]').change(function () {
             var id = $('[name=system]').find(':selected').data('id');
 
@@ -186,7 +195,7 @@
                 if (response.status) {
                     $('#description').text(response.data.description);
                     $('#benefits').text(response.data.benefits);
-                    @if (!hide_price())
+                    @if (show_price())
                         $('#price').text(response.data.total_price);
                     @endif
 
@@ -204,8 +213,6 @@
                 console.log(response, textStatus, errorThrown);
             });
         });
-
-        ShoppingCart.update_items();
     });
 </script>
 {{-- <script src="{{ PageBuilder::js('inactivity') }}"></script> --}}

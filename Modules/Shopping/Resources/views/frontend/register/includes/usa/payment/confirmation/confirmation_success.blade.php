@@ -11,19 +11,20 @@
         @endif
     </header>
 
-    <h3>@lang('shopping::checkout.confirmation.success.message_inscription')</h3>
-    <p>@lang('shopping::checkout.confirmation.success.Eonumber'): {{ $shipping->eo_number }}</p>
-    <p>@lang('shopping::checkout.confirmation.success.secretquestion'): {{ $dataeo['question']}}</p>
-    <p>@lang('shopping::checkout.confirmation.success.password'): {{ $dataeo['password']}}</p>
+
+    <h3>@lang('shopping::checkout.confirmation.success.message_inscription') {{strtoupper(Session::get('portal.main.brand.name'))}}</h3>
+    <p>@lang('shopping::checkout.confirmation.success.Eonumber'):<strong> {{ $shipping->eo_number }} </strong></p>
+    <p>@lang('shopping::checkout.confirmation.success.secretquestion'): <strong> {{ $question}} </strong></p>
+    <p>@lang('shopping::checkout.confirmation.success.password'): <strong> {{ $password}} </strong></p>
     <div class="cart__confirm-icon"></div>
     {{--<p>Tu pedido llegará en 10 días hábiles.</p>--}}
     <div class="cart__confirm-info">
-        <p>@lang('shopping::checkout.confirmation.success.order_number'): {{ $order->order_number }}</p>
-        <p>@lang('shopping::checkout.confirmation.success.corbiz_order'): {{ $order->corbiz_order_number }}</p>
+        <p>@lang('shopping::checkout.confirmation.success.order_number'): <strong> {{ $order->order_number }} </strong></p>
+        <p>@lang('shopping::checkout.confirmation.success.corbiz_order'):<strong> {{ $order->corbiz_order_number }} </strong></p>
         <p>@lang('shopping::checkout.confirmation.success.pay_with_'.strtolower($order->payment_brand))</p>
-        <p>@lang('shopping::checkout.confirmation.success.pay_auth'): {{ $order->bank_authorization }}</p>
-        <p class="bold">@lang('shopping::checkout.confirmation.success.total'): {{ currency_format($order->total, \App\Helpers\SessionHdl::getCurrencyKey()) }}</p>
-        <p>@lang('shopping::checkout.confirmation.success.send_to') {{ "{$shipping->address}, {$shipping->suburb}. {$shipping->city_name}, {$shipping->state}" }}</p>
+        <p>@lang('shopping::checkout.confirmation.success.pay_auth'): <strong> {{ $order->bank_authorization }} </strong></p>
+        <p class="bold">@lang('shopping::checkout.confirmation.success.total'): <strong> {{ currency_format($order->total, \App\Helpers\SessionHdl::getCurrencyKey()) }} </strong></p>
+        <p>@lang('shopping::checkout.confirmation.success.send_to') <strong> {{ "{$shipping->address}, {$shipping->suburb}. {$shipping->city_name}, {$shipping->state}" }} </strong></p>
     </div>
     <ul class="cart__confirm-items list-nostyle mul">
 

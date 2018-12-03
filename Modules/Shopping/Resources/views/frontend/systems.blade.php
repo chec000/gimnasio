@@ -1,9 +1,5 @@
 {!! PageBuilder::section('head', [
-    'shoppingCart' => $shoppingCart,
-    'currency'     => $currency,
-    'subtotal'     => $subtotal,
-    'points'       => $points,
-    'title'        => $system->name
+    'title' => $system->name
 ]) !!}
 
 @php
@@ -42,13 +38,52 @@
             <div class="products-desc wrapper">
                 <h1 class="products-desc__title purple">{{ $system->name }}</h1>
                 <p class="products-desc__description visible">{{ $system->description }}</p>
-                <div class="products-filter">
-                    @if (!hide_price())
+
+                <div class="products-filter flex-column">
+                    @if (show_price())
                         <h2 class="products-filter__title">@lang('shopping::products.systems.total'): <span>{{ currency_format($system->systemPrice, $currency) }}</span></h2>
                     @endif
-                        @if (($isShoppingActive && $isWSActive) && !hide_price())
+
+                    @if (show_add_to_car())
                         <button onclick="ShoppingCart.add_system('{{ $system->id }}')" class="button" type="button">@lang('shopping::products.systems.buy_system')</button>
                     @endif
+                </div>
+
+                @if (show_disclaimer())
+                    @if (\App\Helpers\SessionHdl::hasEo())
+                        <p class="disclaimer" style="order: 10;">@lang('shopping::products.disclaimer_eo')</p>
+                    @else
+                        <p class="disclaimer" style="order: 10;">@lang('shopping::products.disclaimer')</p>
+                    @endif
+                @endif
+
+                <div style="order: 12" class="products-filter">
+                    <h2 class="products-filter__title">@lang('shopping::products.systems.other'):</h2>
+                    <ul class="products-filter__list list-nostyle">
+                        @foreach ($systems as $s)
+                            @if ($s->id != $system->id)
+                                <li class="products-filter__item active">
+                                    <a href="{{ route(\App\Helpers\TranslatableUrlPrefix::getRouteName(session()->get('portal.main.app_locale'), ['products', 'system']), $s->slug) }}">{{ $s->name }}</a>
+                                </li>
+                            @endif
+                        @endforeach
+                    </ul>
+                    <div class="products-filter__dropdown dropdown light">
+                        <span class="dropdown-toggle products-filter__dropdown">{{ $system->name }}
+                            <div class="dropdown-list">
+                                <ul class="list-nostyle">
+                                    <li class="dropdown-item">
+                                        <a href="#">{{ $system->name }}</a>
+                                    </li>
+                                    @foreach ($systems as $s)
+                                        @if ($s->id != $system->id)
+                                            <li class="dropdown-item"><a href="{{ route(\App\Helpers\TranslatableUrlPrefix::getRouteName(session()->get('portal.main.app_locale'), ['products', 'system']), $s->slug) }}">{{ $s->name }}</a></li>
+                                        @endif
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -93,20 +128,11 @@
 
 {!! PageBuilder::section('footer') !!}
 <input type="hidden" id="shop_secret" value="{{ csrf_token() }}">
-<script src="{{ PageBuilder::js('shopping_cart_old_browsers') }}"></script>
 <script>
     $(document).ready(function () {
         document.products = {!! ShoppingCart::productsToJson(collect($products->items())) !!};
 
-        var shopping_cart = {!! ShoppingCart::sessionToJson(session()->get('portal.main.country_corbiz')) !!};
-        if (shopping_cart.constructor === Array && shopping_cart.length == 0) {
-            shopping_cart = {};
-        }
-        document.shopping_cart = shopping_cart;
-
         document.systems = {};
         document.systems['{{ $system->id }}'] = {!! ShoppingCart::productsToJson($system->groupProducts->where('active', 1)) !!};
-
-        ShoppingCart.update_items();
     });
 </script>

@@ -14,9 +14,11 @@ use App\Helpers\SessionHdl;
 use App\Helpers\SessionRegisterHdl;
 use App\Helpers\ShoppingCart;
 use Doctrine\DBAL\Query\QueryException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Config;
 use Modules\Admin\Entities\Language;
 use Modules\Shopping\Entities\ConfirmationBanner;
 use Modules\Shopping\Entities\CountryProduct;
@@ -81,6 +83,7 @@ trait Register {
                             'state' => isset($shippingAddress['state']) ? $shippingAddress['state'] : '',
                             'city' => isset($shippingAddress['city']) ? $shippingAddress['city'] : '',
                             'county' => isset($shippingAddress['suburb']) ? $shippingAddress['suburb'] : '',
+                            'shipping_company' => isset($order['shipping_company']) ? $order['shipping_company'] : '',
                             'zipcode' => isset($shippingAddress['zip_code']) ? $shippingAddress['zip_code'] : '',
                             'email' => isset($shippingAddress['email']) ? $shippingAddress['email'] : '',
                             'sex' => isset($shippingAddress['gender']) ? $shippingAddress['gender'] : '',
@@ -93,7 +96,7 @@ trait Register {
                             'zsource' => 'WEB',
                             'zcreate' => $generateOrder,
                             'lang' => $lanDefault->corbiz_key,
-                            'pool' => isset($shippingAddress['ispool']) == 1 ? true : false,
+                            'pool' => isset($shippingAddress['is_pool']) == 1 ? true : false,
                             'client_type' => ''
              ];
         }
@@ -105,7 +108,7 @@ trait Register {
                 $formEntepreneur = [
                     'countrysale' => SessionRegisterHdl::getCorbizCountryKey(),
                     'idtransaction' => SessionRegisterHdl::hasTransaction() ? SessionRegisterHdl::getTransaction() : '',
-                    'sponsor' => $steps['invited'] == "1" ? $steps['register-code']: $steps['distributor_code'],
+                    'sponsor' => $steps['invited'] == "1" ? $steps['register-code'] : $steps['distributor_code'],
                     'lastnamef' => $steps['lastname'],
                     'lastnamem' => $steps['lastname2'],
                     'names' => $steps['name'],
@@ -120,12 +123,13 @@ trait Register {
                     'state' => $steps['state_hidden'],
                     'city' => $steps['city_hidden'],
                     'county' => $steps['colony'],
+                    'shipping_company' => config('shopping.defaultValidationForm.'.SessionRegisterHdl::getCorbizCountryKey().'.shipping_way'),//Default del pais
                     'zipcode' => $steps['zip'],
                     'email' => $steps['email'],
                     'sex' => $steps['sex'],
                     'idcenter' =>  isset($steps['distCenter']) ? $steps['distCenter'] : config('shopping.defaultValidationForm.' . SessionRegisterHdl::getCorbizCountryKey() . '.idcenter'),
                     'warehouse' => isset($steps['warehouse']) ? $steps['warehouse']   : config('shopping.defaultValidationForm.' . SessionRegisterHdl::getCorbizCountryKey() . '.warehouse'),
-                    'iditem' =>    isset($steps['kitselected']) ? $steps['kitselected']   : config('shopping.defaultValidationForm.' . SessionRegisterHdl::getCorbizCountryKey() . '.kit'),//Kit fijo para validar el formulario,
+                    'iditem' =>    isset($steps['kitselected']) ? $steps['kitselected'] : config('shopping.defaultValidationForm.' . SessionRegisterHdl::getCorbizCountryKey() . '.kit'),//Kit fijo para validar el formulario,
                     'questions' => $steps['secret-question'],
                     'answer' => $steps['response-question'],
                     'receive_adversiting' => isset($steps['terms3']) == 'on' ? true : false,
@@ -159,7 +163,7 @@ trait Register {
 
     private function obtainProductInfo($orderid,$productid){
         $productInfo = [];
-        $prods = OrderDetail::where(['order_id' => $orderid,'product_id' => $productid])->first();
+        $prods = OrderDetail::where(['order_id' => $orderid])->first();
 
         if ($prods->is_promo == 1) {
             $promoProduct = PromoProd::find($prods->promo_prod_id);
@@ -175,6 +179,7 @@ trait Register {
         } else if ($prods->is_special == 1) {
             $sku  = $prods->product_code;
             $listPrice = 0;
+
         } else {
             $countryProduct = CountryProduct::find($prods->product_id);
             $sku  = $countryProduct->product->sku;
@@ -216,7 +221,7 @@ trait Register {
                     }
                 }else{
 
-                    $docsEntepreneur[] = ['order_id' => '','document_name' => '','document_number' => '','document_expiration' => ''];
+                        $docsEntepreneur[] = ['order_id' => '','document_name' => '','document_number' => '','document_expiration' => ''];
 
                 }
 
@@ -296,7 +301,7 @@ trait Register {
             $salesWeb = [
                 'countrysale'     => isset($order->country->corbiz_key) ? $order->country->corbiz_key : '',
                 'no_trans'        => isset($order['corbiz_transaction']) ? $order['corbiz_transaction'] : '',//Default para validar el fomulario,
-                'distributor'     => $eonumber,
+                'distributor'     => $eonumber,//'',
                 'amount'          => isset($order['total']) ? $order['total'] : '',
                 'receiver'        => $shippingAddress['eo_name'].' '.$shippingAddress['eo_lastname'],
                 'address'         => isset($shippingAddress['address']) ? $shippingAddress['address'] : '',
@@ -311,6 +316,7 @@ trait Register {
                 'altAddress'      => 0,
                 'email'           => isset($shippingAddress['email']) ? $shippingAddress['email'] : '',
                 'phone'           => isset($shippingAddress['telephone']) ? $shippingAddress['telephone'] : '',
+                'cellphone'           => isset($shippingAddress['cellphone']) ? $shippingAddress['cellphone'] : '',
                 'previousperiod' => false,
                 'source'         => 'WEB',
                 'type_mov'=> 'INGRESA',
@@ -340,7 +346,8 @@ trait Register {
                     'shippingcompany' => isset($steps['shipping_way']) ? $steps['shipping_way'] : '',//Default para validar el fomulario,
                     'altAddress'      => 0,
                     'email'           => $steps['email'],
-                    'phone'           => $steps['tel'],
+                    'phone'             => (Config::get('shopping.register.validate_form.' . Session::get('portal.register.country_corbiz') . '.tel')) ? (!empty($steps['tel']) ? $steps['tel'] : '') : '',
+                    'cellphone'         => (Config::get('shopping.register.validate_form.' . Session::get('portal.register.country_corbiz') . '.cel')) ? (!empty($steps['cel']) ? $steps['cel'] : '') : '',
                     'previousperiod' => false,
                     'type_mov'=> 'INGRESA',
                     'source' => 'WEB'
@@ -377,19 +384,42 @@ trait Register {
 
             $order = $orderInfo['order'];
             $orderDetail = $orderInfo['orderDetail'];
-            foreach ($orderDetail as $i => $item){
 
-                $prodInfo = $this->obtainProductInfo($order['id'],$item['product_id']);
+
+            foreach ($orderDetail as $key => $value)
+            {
+                $sku = '';
+
+                if ($value->is_promo == 1)
+                {
+                    if ($value->promo_prod_id > 0)
+                    {
+                        $sku = $value->productSkuPromo->clv_producto;
+                    }
+                    else if ($value->promo_prod_id == 0)
+                    {
+                        $sku = $value->product_code;
+                    }
+                }
+                else if ($value->is_special == 1)
+                {
+                    $sku = $value->product_code;
+                }
+                else
+                {
+                    $sku = $value->countryProduct->product->sku;
+                }
 
                 $salesWebItems[] = [
-                    'numline'     => $i+1,
+                    'numline' => $key + 1,
                     'countrysale' => $order->country->corbiz_key,
-                    'item'        => $prodInfo['sku'],
-                    'quantity '   => $item['quantity'],
-                    'listPrice'   => $prodInfo['listPrice'],
-                    'discPrice'   => $item['final_price'],
-                    'points'      => $item['points'],
-                    'promo'       => $item['is_promo'] == 1 ? true : false,
+                    'item' => $sku,
+                    'quantity ' => $value->quantity,
+                    'listPrice' => $value->list_price,
+                    'discPrice' => $value->final_price,
+                    'points' => $value->points,
+                    'promo' => ($value->is_promo == 0) ? false : true,
+                    'kitinsc' => ($value->is_kit == 1) ? 'yes' : ''
                 ];
             }
 
@@ -397,6 +427,7 @@ trait Register {
 
         }else{
             $quotation     = SessionRegisterHdl::getRegisterQuotation();
+
             foreach ($quotation['items'] as $i => $item) {
                 $salesWebItems[] = [
                     'numline'     => $i+1,
@@ -493,6 +524,7 @@ trait Register {
         $salesWeb  = $this->getWSSalesWeb();
         $steps = SessionRegisterHdl::getSteps();
         $source    = Source::where('source_name', 'web')->first();
+        $date      = new \DateTime('now', new \DateTimeZone(SessionHdl::getTimeZone()));
         $order = [
             'country_id'          => SessionRegisterHdl::getCountryID(),
             'distributor_number'  => '',
@@ -517,7 +549,10 @@ trait Register {
             'source_id'           => $source->id,
             'terms_checked'       => Session::get('portal.register.hour_terms1'),
             'policies_checked'    => Session::get('portal.register.hour_terms2'),
-            'advertise_checked'   => Session::get('portal.register.hour_terms3')
+            'advertise_checked'   => Session::get('portal.register.hour_terms3'),
+            'last_modifier_id'     => 1,
+            'created_at'          => $date->format('Y-m-d H:i:s'),
+            'updated_at'          => $date->format('Y-m-d H:i:s'),
         ];
 
         $order = array_merge($order, $aditionalData);
@@ -586,7 +621,7 @@ trait Register {
 
     private function getOrderShippingAddressFromQuotation($orderId) {
         $steps = SessionRegisterHdl::getSteps();
-
+        $date      = new \DateTime('now', new \DateTimeZone(SessionHdl::getTimeZone()));
 
         $orderShipping = [
             'order_id'             => $orderId,
@@ -605,21 +640,24 @@ trait Register {
             'suburb'               => $steps['colony'], # OBLIGATORIO
             'zip_code'             => $steps['zip'], # OBLIGATORIO
             'city'                 => $steps['city_hidden'], # OBLIGATORIO
-            'city_name'            => $steps['city_hidden'], # OBLIGATORIO
+            'city_name'            => $steps['city_name'], # OBLIGATORIO
             'state'                => $steps['state_hidden'], # OBLIGATORIO
             'county'               => $steps['colony'], # OBLIGATORIO
             'email'                => $steps['email'], # OBLIGATORIO
             'telephone'            => $steps['tel'], # OBLIGATORIO
             'cellphone'            => $steps['cel'],
             'gender'               => $steps['sex'],
-            'registration_reference_id' => $steps['references'],
+            'registration_reference_id' => isset($steps['references']) ? $steps['references'] : '',
             'security_question_id' => $steps['secret-question'],
             'answer'               => $steps['response-question'],
             'kit_type'             => '',
             'order_document_id'    => '',
             'birthdate'            => $steps['year']."-".$steps['month']."-".$steps['day'],
             'is_pool'              => $steps['ispool'],
+            'public_ip'            => \Request::getClientIp(true),
             'last_modifier_id'     => 1,
+            'created_at'          => $date->format('Y-m-d H:i:s'),
+            'updated_at'          => $date->format('Y-m-d H:i:s'),
         ];
 
         if (isset($steps['cpf'])) {
@@ -656,12 +694,26 @@ trait Register {
      * @param $countryID        ID del país
      * @return mixed
      */
-    private function getBanners($type, $purpose, $countryID) {
-        return ConfirmationBanner::whereHas('type', function ($q) use ($type) {
+    private function getBanners($type, $purpose, $countryID,$brandID) {
+
+        $banners = ConfirmationBanner::whereHas('type', function ($q) use ($type) {
             $q->where('type', $type);
         })->whereHas('purpose', function ($q) use ($purpose) {
             $q->where('purpose', $purpose);
-        })->where('country_id', $countryID)->where('active', 1)->where('delete', 0)->get();
+        })->where('country_id', $countryID)->where('brand_id', $brandID)->where('active', 1)->where('delete', 0)->get();
+
+        if (!$banners) {
+            $banners = ConfirmationBanner::where([
+                'country_id'    => Session::get('portal.main.country_id'),
+                'brand_id'      => 1,
+                'purpose_id'    => 3,
+                'type_id'       => 1,
+                'active'        => 1,
+                'delete'        => 0])
+                ->first();
+        }
+
+        return $banners;
     }
 
 
@@ -672,6 +724,7 @@ trait Register {
         //Prearmado de la cotizacion para guardar en session
         $sessionCheckout = [
             'subtotal' => $arrayData['Subtotal'],
+            'discount' => $arrayData['Discount'],
             'handling' => $arrayData['Handling'],
             'taxes' => $arrayData['Taxes'],
             'total' => $arrayData['Total'],
@@ -691,7 +744,7 @@ trait Register {
             if($it['promo']){
                 $dataItemPromo = PromoProd::where('clv_producto','=',$it['item'])->first();
                 //dd($dataItemPromo);
-                $itemCart['image'] = "";
+                $itemCart['image'] = ShoppingCart::getImagePromoSpecial($it['item'], "promotions"); //Por definir imagen DEFAULT
                 if($dataItemPromo != null){
                     //dd($dataItemPromo);
                     $itemCart['id'] = $dataItemPromo->id;
@@ -728,23 +781,40 @@ trait Register {
                         $itemCart['id'] = 0;
                         $itemCart['name'] = $it['itemName'];
                         $itemCart['description'] = $it['itemName'];
-                        $itemCart['image'] = '';
+                        $itemCart['image'] = ShoppingCart::getImagePromoSpecial($it['item'],"specials");; //Por definir imagen DEFAULT
                         $itemCart['iskit'] = false;
                         $itemCart['is_special'] = true;
                     }
                 }
 
                 if(!empty($sessionInscription)){
-                    for ($i = 0; $i < sizeof($sessionInscription['items']); $i++) {
-                        if($sessionInscription['items']['kit'] == $it['item'] ) {
-                            $itemCart['id'] = $sessionInscription['items']['kitid'];
-                            $itemCart['description'] = '';
-                            $itemCart['image'] = '';
-                            $itemCart['iskit'] = $sessionInscription['items']['iskit'];
-                            $itemCart['is_special'] = false;
-                            break;
+                    $findProductSupport = Product::where('sku', '=', $it['item'])->first();
+                    if ($findProductSupport != null){
+                        for ($i = 0; $i < sizeof($sessionInscription['items']); $i++) {
+                            if($sessionInscription['items']['kit'] == $it['item'] ) {
+                                $itemCart['id'] = $sessionInscription['items']['kitid'];
+                                $itemCart['name'] = $sessionInscription['items']['kitname'];
+                                $itemCart['description'] = $sessionInscription['items']['kitdescription'];
+                                $itemCart['image'] = $sessionInscription['items']['kitimage'];
+                                $itemCart['iskit'] = $sessionInscription['items']['iskit'];
+                                $itemCart['is_special'] = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        for ($i = 0; $i < sizeof($sessionInscription['items']); $i++) {
+                            if($sessionInscription['items']['kit'] == $it['item'] ) {
+                                $itemCart['id'] = $sessionInscription['items']['kitid'];
+                                $itemCart['description'] = '';
+                                $itemCart['image'] = $sessionInscription['items']['kitimage'];
+                                $itemCart['iskit'] = $sessionInscription['items']['iskit'];
+                                $itemCart['is_special'] = false;
+                                break;
+                            }
                         }
                     }
+
+
                 }
 
             }
@@ -810,6 +880,11 @@ trait Register {
      */
     public static function getSubtotalFormattedQuotation(string $countryKey, string $currencyKey) : string {
         return Session::has("portal.register.checkout.{$countryKey}.quotation.subtotal") ? currency_format(Session::get("portal.register.checkout.{$countryKey}.quotation.subtotal"), $currencyKey)  : currency_format(0, $currencyKey);
+    }
+
+
+    public static function getDiscountFormattedQuotation(string $countryKey, string $currencyKey) : string {
+        return Session::has("portal.register.checkout.{$countryKey}.quotation.discount") ? Session::get("portal.register.checkout.{$countryKey}.quotation.discount")."%"  : "0%";
     }
 
     /**

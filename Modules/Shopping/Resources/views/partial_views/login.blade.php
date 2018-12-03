@@ -1,4 +1,4 @@
-<div class="modal alert access closeable_modal" id="loginShopping">
+<div class="modal alert access" id="loginShopping">
     <button class="button secondary close modal-close" type="button" id="btnCloseLoginModal">X</button>
 
     <div class="modal__inner ps-container">
@@ -28,7 +28,7 @@
                             <input class="form-control transparent" type="hidden" name="language_corbiz" id="language_corbiz_modal" value="{{Session::get('portal.main.language_corbiz')}}">
 
                             <button id="btnLoginShopping" class="button small" type="button">@lang('shopping::login.modal.login.btn')</button>
-                            <a class="password__recovery" href="{{route('resetpassword.index')}}">@lang('shopping::login.modal.login.reset_password')</a>
+                            <a class="password__recovery" href="{{route(\App\Helpers\TranslatableUrlPrefix::getRouteName(session()->get('portal.main.app_locale'), ['reset-password', 'index']))}}">@lang('shopping::login.modal.login.reset_password')</a>
                         </div>
                     </form>
                 </div>
@@ -37,18 +37,12 @@
             <div class="modal__register">
                 <h3 class="modal__register--title">@lang('shopping::login.modal.register.title')</h3>
 
-                <div class="modal__register--content">
-                    <article>@lang('shopping::login.modal.register.content')</article>
-
-                    <a class="button small" href="{{route('register')}}">@lang('shopping::login.modal.register.btn')</a>
-                </div>
+      
             </div>
         </div>
     </div>
 
-    <div class="modal__footer access">
-        <a class="password__recovery" href="{{route('registercustomer') }}">@lang('shopping::login.modal.footer.btn')</a>
-    </div>
+
 </div>
 
 @include('themes.omnilife2018.sections.loader')

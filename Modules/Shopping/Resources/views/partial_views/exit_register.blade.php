@@ -1,4 +1,4 @@
-<div class="modal alert closeable_modal" id="exitModalRegister">
+<div class="modal alert h50x100a" id="exitModalRegister">
     <div class="modal__inner ps-container">
         <header class="modal__head">
             <h5 class="modal__title highlight">@lang('shopping::register_customer.modal_exit.title')</h5>

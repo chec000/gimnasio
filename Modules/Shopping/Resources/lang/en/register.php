@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'title' => 'Registry',
+    'title' => 'Register',
 
     'tabs' => [
       'account' => [
@@ -32,7 +32,7 @@ return [
     'account' => [
       'invited' => [
         'label' => [
-          'desktop' => 'Were you invited by a Omnilife\'s business man?',
+          'desktop' => 'Were you invited by an OMNILIFE Distributor?',
           'mobile' => 'Were you invited?',
         ],
         'answer' => [
@@ -41,19 +41,20 @@ return [
         ]
       ],
       'businessman_code' => [
-        'label' => 'Businessman Code',
-        'placeholder' => 'Enter your businessman code'
+        'label' => 'Sponsor Code',
+        'label_sponsored' => 'Sponsor Code',
+        'placeholder' => 'Enter your Sponsor code'
       ],
       'meet_us' => [
-        'label' => 'How did you meet us?',
-        'default' => 'How did you meet us?',
+        'label' => 'How did you hear about us?',
+        'default' => 'How did you hear about us?',
       ],
       'country' => [
         'label' => 'Country',
         'default' => 'Select your country',
-        'empty_countries' => 'No countries found it',
-        'emptydata' => 'No country data found it',
-        'emptypool' => 'No distributor data found it',
+        'empty_countries' => 'The country was not found.',
+        'emptydata' => 'No country data found.',
+        'emptypool' => 'No distributor data found.',
       ],
       'email' => [
         'label' => 'Email',
@@ -67,17 +68,17 @@ return [
         'label' => 'Phone',
         'placeholder' => 'Enter your phone'
       ],
-        'cel' => [
-            'label' => 'cellphone',
-            'placeholder' => 'Enter your cellphone'
-        ],
+      'cel' => [
+        'label' => 'cellphone',
+        'placeholder' => 'Enter your cellphone'
+      ],
       'pool' => [
           'empty_country' => 'Empty Country',
       ],
       'secret_question' => [
         'label' => 'Secret question',
         'default' => 'Select a secret question',
-        'emptydata' => 'No secret questions data found it',
+        'emptydata' => 'No secret question information found.',
       ],
       'secret_answer' => [
         'label' => 'Answer',
@@ -107,11 +108,12 @@ return [
                   'placeholder'   => 'Mother\'s Last Name',
               ],
               'email'      => [
-
-                'placeholder'   => 'Email',
-                ],
+                  'placeholder'   => 'Email',
+              ],
+              'email2'      => [
+                  'placeholder'   => 'Email',
+              ],
               'invited'      => [
-
                   'placeholder'   => 'Invited',
               ],
               'confirm-email'      => [
@@ -124,43 +126,55 @@ return [
                   'placeholder' => 'Cellphone',
               ],
               'secret-question'      => [
-
                   'placeholder'   => 'Secret Question',
               ],
               'response-question'      => [
-
                   'placeholder'   => 'Answer',
               ],
              'day' => [
-                 'placeholder' => 'day',
+                 'placeholder' => 'Day',
              ],
              'month' => [
-                 'placeholder' => 'month',
+                 'placeholder' => 'Month',
              ],
              'year' => [
-                 'placeholder' => 'year',
+                 'placeholder' => 'Year',
              ],
             'zip' => [
-                'placeholder' => 'zipcode',
+                'placeholder' => 'Zip Code',
              ],
              'terms1' => [
                  'placeholder' => 'Terms and conditions',
              ],
              'ext_num' => [
-                 'placeholder' => 'exterior number'
+                 'placeholder' => 'Exterior number'
              ],
              'terms2' => [
                  'placeholder' => 'Transfer data',
              ],
             'city' => [
-                'placeholder' => 'city',
+                'placeholder' => 'City',
             ],
             'state' => [
-                'placeholder' => 'state',
+                'placeholder' => 'State',
+            ],
+            'street' => [
+                'placeholder' => 'Street',
             ],
 
-            'required'  => 'The :attribute field is required.',
-            'same' => 'The :attribute must match with the email',
+          'required'      => 'The :attribute field is required.',
+          'in'            => 'The selected :attribute is invalid.',
+          'not_in'        => 'The selected :attribute is invalid.',
+          'email'         => 'The :attribute must be a valid email address.',
+          'numeric'       => 'The :attribute must be a number.',
+          'same'          => 'The :attribute and :other must match.',
+          'min'           => 'The :attribute must be at least :min characters.',
+          'max'           => 'The :attribute may not be greater than :max characters.',
+          'date'          => 'The :attribute is not a valid date.',
+          'date_format'   => 'The :attribute does not match the format :format.',
+          'unique'        => 'The :attribute has already been taken.',
+          'regex'         => 'The :attribute format is invalid.',
+          'street_corbiz' => 'Wrong Address',
         ],
     ],
 
@@ -193,15 +207,18 @@ return [
       ],
       'address' => [
         'label' => 'Address',
+        'street_message' => 'Enter your information, consider that shipping to PO BOX is not available.',
+        'street_message_fail' => 'Invalid address. Shipping to PO BOX is not available.',
         'placeholders' => [
           'street' => 'Street',
           'ext_num' => 'Exterior number',
           'int_num' => 'Interior number',
-          'colony' => 'Colony',
+          'colony' => 'County',
           'streets' => 'On the streets',
           'state' => 'State',
           'city' => 'City',
           'zip' => 'Zip code',
+           'choose_zip' => 'Choose an option',
         ]
       ],
       'terms_contract' => [
@@ -223,6 +240,8 @@ return [
 
     'kit' => [
       'types' => 'Select your kit',
+      'emptydata' => 'No kits available',
+      'emptywarehouse' => 'Must send a warehouse',
       'shipping' => 'Select your shipping method',
       'shippingCompanies_empty' => 'No shipping companies were found with the state and city entered, please report the problem and try another state and city',
       'payment' => 'Select payment method',
@@ -236,7 +255,8 @@ return [
         'total' => 'Total',
         'resume' => 'Resume',
         'discount' => 'Discount',
-        'shipping_cost' => 'Shipping'
+        'shipping_cost' => 'Shipping',
+        'shopping_cart' => 'Shopping cart',
       ]
     ],
 
@@ -269,35 +289,47 @@ return [
         'privacy_policy'    => 'Privacy Policy',
 
         'order' => [
-
             'title' => 'Order Confirmation',
-
         ],
 
         'customer'          => [
             'title'         => 'Welcome to Omnilife',
-            'subject'       => 'Congratulations! You are now an Entepreneur Omnilife.',
-            'h6'            => 'Welcome',
+            'subject'       => 'Welcome to OMNILIFE! A great family of Entrepreneurs where you get to define your own objectives.',
+            'h6'            => 'Welcome!',
             'p1'            => 'Thank you<strong> :name</strong> By having completed your registration, you are on the road to a healthier and more beautiful life enjoying Omnilife products',
-            'h4'            => 'Your life is about to change!',
+            'h4'            => 'We\'d like to let you know that your registration as a Distributor has been successful, this is your account information:',
             'p2'            => 'Save your Client Code and Password, which will be necessary to make your purchases.',
             'p3'            => 'This is your account information',
-            'client_code'   => 'Client Code',
-            'password'      => 'Password',
-            'question'      => 'Secret Question',
-            'sponsor'       => 'Sponsor Information',
-            'name_sponsor'  => 'Name',
-            'email_sponsor' => 'Email',
+            'client_code'   => 'Distributor Code:',
+            'password'      => 'Password:',
+            'question'      => 'Secret Question:',
+            'answer'        => 'Answer to security question:',
+            'recommend'      => 'We recommend that you do not share your customer code and password as it is considered private and necessary information to make purchases and other operations as an OMNILIFE Distributor.',
+            'recommend2'    => 'We are prepared to help you undertake your business and support the growth you wish to have. We recommend you keep the following points in mind now that you\'re starting your independent business:',
+            'list1'         => 'Use and share day in and day out.',
+            'list2'         => 'Seek results and the money will arrive by default.',
+            'list3'         => 'Follow your dreams.',
+            'list4'         => 'Keep in mind that crisis often brings new opportunities.',
+            'list5'         => 'Invest in your own independent business. ',
+            'visitplatform' => 'Don\'t forget to start your face-to-face training as soon as possible or online through the Learning Platform in your ',
+            'linkplatform'  => 'Distributor Area',
+            'visitweb'      => 'Visit our website and make ',
+            'firstpurchase' => 'your first purchase today!',
+            'unrecognized'  => '"If you don\'t recognize this operation or would like to oppose to the handling of your Personal Data, forward this email to ',
+            'mailprivacy'   => 'privacidad@omnilife.com',
+            'subjectprivacy' => 'with subject line: Right to Oppose, your full name, country and telephone number, or call our {CREO} service lines".',
+            'privacypolicies' => 'Privacy Policies',
+            'dist_area' => 'Distributor area',
         ],
 
         'sponsor'           => [
-            'title'         => 'New Entepreneur to your network',
-            'subject'       => 'Congratulations, a wonderful new entepreneur has been registered to your network!',
-            'p1'            => '<strong>:name_sponsor</strong>, We would like to inform you that <strong>:name_customer </strong>Is now part of your network. Now that he / she is on the way to a healthier and more beautiful life enjoying the nutritional products of Omnilife. You will earn points for purchases that he / she makes, so you can reach your monthly goal more easily.',
-            'p2'            => 'The new entepreneur information is',
+            'title'         => 'New Entepreneur on your network',
+            'subject'       => 'Congratulations!, :name_sponsor',
+            'p1'            => 'Your Independent Business with us is growing! <strong>:name_customer </strong> has registered under your network as a Distributor.',
+            'p2'            => 'Stay in touch to reach your monthly goal more easily: ',
             'text1'         => 'It is very important to remember that as a presenter, you can',
-            'text2'         => 'Work with your entepreneurs, to go beyond and reach your goals!',
-            'client_code'   => 'Entepreneur Code',
+            'text2'         => 'Encourage your new Distributor to stay active because with each purchase he/she makes, you make more points to move you forward and reach your goals.',
+            'client_code'   => 'Distributor Code',
             'name'          => 'Name',
             'telephone'     => 'Telephone',
             'email'         => 'Email',
@@ -305,6 +337,30 @@ return [
             'li2'           => 'Promoting the purchase of Omnilife products',
             'li3'           => 'Recommend the use of products',
             'li4'           => 'Support in the buying process',
+        ],
+
+        'prospect'  => [
+            'title'     => 'A contact is about to end his registration!',
+            'subject'   => 'The distributor didn\'t complete his/her registration',
+            'h6'        => 'The distributor didn\'t complete his/her registration',
+            'h3'        => 'The distributor didn\'t complete his/her registration',
+            'p1'        => '<strong>:name</strong>, don\'t miss the opportunity to expand your business with us!',
+            'p2'        => [
+                'text1' => 'We\'d like to let you know that',
+                'text2' => 'is interested in joining your Distributor network and didn\'t complete his/her registration.',
+            ],
+            'p3'        => 'Contact his/her now and increase your chances of reaching your monthly goal easier',
+            'li'        => [
+                1   => 'Name',
+                2   => 'Telephone',
+                3   => 'Email',
+            ],
+            'p4'        => 'Remember that for every purchase she/he makes, you make more points to move you forward and reach the goals of your Independent Business',
+            'p5'        => [
+                'text1' => '"If you don\'t recognize this operation or would like to oppose to the handling of your Personal Data, forward this email to',
+                'text2' => 'with subject line: Right to Oppose, your full name, country and telephone number, or call our {CREO} service lines".',
+            ],
+            'a1'        => 'Privacy Policy',
         ],
     ],
 

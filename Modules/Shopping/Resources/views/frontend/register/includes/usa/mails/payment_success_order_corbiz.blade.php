@@ -1,10 +1,19 @@
+@php
+	$footerLogo = asset('/uploads/images/mailing/logos/' . \App\Helpers\SessionHdl::getLocale() . '/omnilife_footer.png');
+    $headerLogo = asset('/uploads/images/mailing/logos/' . \App\Helpers\SessionHdl::getLocale() . '/omnilife_header.png');
+	$urlCREO    = \App\Helpers\CoasterFunctions::generatePageUrl(config('settings::inspire.creo.page_code'), config('settings::inspire.creo.page_template'));
+
+	$finalUrlCREO = "<a href='{$urlCREO}' target='_blank'>CREO</a>";
+@endphp
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<!-- If you delete this tag, the sky will fall on your head -->
 	<meta name="viewport" content="width=device-width" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title>Shopping Omnilife | Su pago fue exitoso</title>
+	<title>{!! trans('shopping::checkout.email.success_order.title') !!}</title>
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="stylesheets/email.css" />
 </head>
 <style>
@@ -15,7 +24,7 @@
 		margin:0;
 		padding:0;
 	}
-	* { font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; }
+	* { font-family: "Roboto", "Helvetica", Helvetica, Arial, sans-serif; }
 
 	img {
 		max-width: 100%;
@@ -83,6 +92,65 @@
 		width:100%;
 	}
 
+	.cart__confirm-items {
+		margin-top: 25px !important;
+		margin-bottom: 25px !important;
+	}
+	.cart__confirm-item {
+		display: -webkit-box;
+		display: -moz-box;
+		display: -webkit-flex;
+		display: -ms-flexbox;
+		display: box;
+		display: flex;
+		-webkit-box-align: center;
+		-moz-box-align: center;
+		-o-box-align: center;
+		-ms-flex-align: center;
+		-webkit-align-items: center;
+		align-items: center;
+		border-bottom: 1px solid rgba(0,0,0,0.1);
+		padding: 0.25rem 0.25rem 0.25rem 1rem;
+		text-align: left;
+		min-width: 320px;
+		font-size: 0.95rem;
+	}
+	.list-nostyle {
+		padding-left: 0;
+		margin: 0;
+		list-style: none;
+	}
+	.cart__confirm-items.mul .cart__confirm-item__qty {
+		width: 25px;
+	}
+	.cart__confirm-items.mul .cart__confirm-item__name {
+		width: 148px;
+	}
+	.cart__confirm-item__name {
+		width: 60%;
+		padding-right: 0.5rem;
+		white-space: nowrap;
+		overflow: hidden;
+		-o-text-overflow: ellipsis;
+		text-overflow: ellipsis;
+	}
+	.cart__confirm-items.mul .cart__confirm-item__code {
+		width: 63px;
+	}
+	.cart__confirm-items.mul .cart__confirm-item__price, .cart__confirm-items.mul .cart__confirm-item__pts {
+		width: 44px;
+	}
+	.order-info {
+		margin-bottom: 0;
+		font-size: 0.90em;
+		text-align: right;
+		line-height: 1.3;
+	}
+	.order-info > span.total {
+		font-size: 1.3em;
+		font-weight: bold;
+	}
+
 	/* -------------------------------------
             HEADER
     ------------------------------------- */
@@ -115,8 +183,9 @@
             TYPOGRAPHY
     ------------------------------------- */
 	h1,h2,h3,h4,h5,h6 {
-		font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; line-height: 1.1; margin-bottom:15px; color:#000;
+		font-family: "Roboto", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; line-height: 1.1; margin-bottom:15px; color:#000;
 	}
+
 	h1 small, h2 small, h3 small, h4 small, h5 small, h6 small { font-size: 60%; color: #6f6f6f; line-height: 0; text-transform: none; }
 
 	h1 { font-weight:200; font-size: 44px;}
@@ -212,6 +281,10 @@
 		float:left;
 	}
 
+	.header.container img {
+		width: 170px;
+	}
+
 	/* Be sure to place a .clear element after each set of columns, just to be safe */
 	.clear { display: block; clear: both; }
 
@@ -233,23 +306,21 @@
 
 	}
 </style>
-<body bgcolor="#FFFFFF">
+<body bgcolor="#e2e1e0">
 
 <!-- HEADER -->
 <table class="head-wrap" bgcolor="#690d81">
 	<tr>
 		<td></td>
 		<td class="header container">
-
 			<div class="content">
 				<table >
 					<tr>
-						<td><img style="width: 170px;" src="https://mx.omnilife.com/images/mails/inscription/logo_omnilife_bco.png" /></td>
-						<td align="right"><h6 class="collapse" style="color:#FFFFFF">{!! trans('shopping::checkout.email.success_order.order_confirmation') !!}</h6></td>
+						<td><img style="width: 170px;" src="{{ asset($headerLogo) }}" /></td>
+						<td align="right"><h6 class="collapse" style="color:#FFFFFF">{!! trans('shopping::checkout.email.success_order.title_2') !!}</h6></td>
 					</tr>
 				</table>
 			</div>
-
 		</td>
 		<td></td>
 	</tr>
@@ -261,30 +332,79 @@
 	<tr>
 		<td></td>
 		<td class="container" bgcolor="#FFFFFF">
-
-			<div class="content">
-				<table bgcolor="#F2F2F2" >
+			<div class="content" style="box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);">
+				<table bgcolor="#FFFFFF" >
 					<tr>
 						<td>
 							<!-- Callout Panel -->
-
+							<img  src="{{ asset('uploads/images/mailing/assets/Ppal_payment_success_order_corbiz.jpg') }}" alt="">
 							<div style="padding:15px; color:#666; margin-top:40px; ">
-								<h2>{!! trans('shopping::checkout.email.entepreneur') !!}</h2>
-								<p>{!! trans('shopping::checkout.email.success_order.p1') !!}</p>
+								<h3 style="color:#892CAC; font-weight:800; font-size:21px;">{!! str_replace('{name}', $data['name'], trans('shopping::checkout.email.success_order.p_hi')) !!}</h3>
+								<p>{!! trans('shopping::checkout.email.success_order.p_1') !!}</p>
+								<p>{!! trans('shopping::checkout.email.success_order.p_2') !!}</p>
+								<p style="font-style: italic;">{!! trans('shopping::checkout.email.success_order.p_3') !!}</p>
+								<br>
+								<p><strong>{!! trans('shopping::checkout.email.success_order.p_4') !!}</strong>
+									<ul>
+										<li>{!! str_replace('{order}', $data['order'], trans('shopping::checkout.email.success_order.p_5')) !!}</li>
+										<li>{!! str_replace('{name}', $data['name'], trans('shopping::checkout.email.success_order.p_6')) !!}</li>
+										<li>{!! str_replace('{address}', $data['address'], trans('shopping::checkout.email.success_order.p_7')) !!}</li>
+									</ul>
+								</p>
 
-								<h4>{!! trans('shopping::checkout.email.success_order.order_information') !!}</h4>
-								<ul>
-									<li><strong>{!! trans('shopping::checkout.email.success_order.order_number') !!}</strong> {{ $data['order'] }}</li>
-								</ul>
-								<!-- social & contact -->
-								<div style="width:100%; background-color:#F1F1F1;" align="center">
+								@if (isset($data['items']))
+									<p style="margin-top: 25px;">@lang('shopping::checkout.email.success_order.p_11')</p>
+									<ul class="cart__confirm-items list-nostyle mul">
+										@foreach ($data['items'] as $item)
+											<li class="cart__confirm-item">
+												<span class="cart__confirm-item__qty">{{ $item->quantity }}</span>
+												<span class="cart__confirm-item__name">{{ $item->name }}</span>
+												<span class="cart__confirm-item__code">{{ $item->sku }}</span>
+												<span class="cart__confirm-item__pts">{{ $item->points }} @lang('shopping::checkout.confirmation.success.points')</span>
+												<span class="cart__confirm-item__price">{{ currency_format($item->final_price, \App\Helpers\SessionHdl::getCurrencyKey()) }}</span>
+											</li>
+										@endforeach
+									</ul>
 
-									<div style="width:50%; margin-top:30px;">
-										<a href="https://www.omnilife.com/respaldo-omnilife" style="padding:13px;"><img src="https://mx.omnilife.com/images/mails/inscription/tel.png" width="27"  height="27"/></a><a href="mailto:creo@omnilife.com"  style="padding:13px;"><img src="https://mx.omnilife.com/images/mails/inscription/mail.png" width="27"  height="27"/></a><a href="https://www.facebook.com/omnilifeoficial"  style="padding:13px;"><img src="https://mx.omnilife.com/images/mails/inscription/facebook.png"  width="27"  height="27" /></a><a href="https://twitter.com/Omnilife"  style="padding:13px;"><img src="https://mx.omnilife.com/images/mails/inscription/twitter.png" width="27"  height="27" /></a><a href="https://instagram.com/omnilifeoficial/"  style="padding:13px;"><img src="https://mx.omnilife.com/images/mails/inscription/instagram.png"  width="27"  height="27" /></a>
-									</div>
+									<p style="text-align: right;">@lang('shopping::checkout.email.success_order.p_12')</p>
+									@if (isset($data['detail']['discount'])) <p class="order-info"><span class="desc">@lang('shopping::checkout.quotation.resume_cart.discount'): {{ $data['detail']['discount'] }}</span></p> @endif
+									@if (isset($data['detail']['subtotal'])) <p class="order-info"><span class="sub">@lang('shopping::shopping_cart.cart.bill.subtotal'): {{ $data['detail']['subtotal'] }}</span></p> @endif
+									@if (isset($data['detail']['points'])) <p class="order-info"><span class="ponts">@lang('shopping::shopping_cart.cart.bill.points'): {{ $data['detail']['points'] }}</span></p> @endif
+									@if (isset($data['detail']['management'])) <p class="order-info"><span class="hand">@lang('shopping::shopping_cart.cart.bill.management'): {{ $data['detail']['management'] }}</span></p> @endif
+									@if (isset($data['detail']['taxes'])) <p class="order-info"><span class="tax">@lang('shopping::shopping_cart.cart.bill.taxes'): {{ $data['detail']['taxes'] }}</span></p> @endif
+									@if (isset($data['detail']['total'])) <p class="order-info"><span class="total">@lang('shopping::shopping_cart.cart.bill.total'): {{ $data['detail']['total'] }}</span></p> @endif
+								@endif
 
+								<div style="color:#666; margin-top: 25px;">
+									<p>{!! trans('shopping::checkout.email.success_order.p_8') !!}</p>
+									<p>{!! str_replace('{CREO}', $finalUrlCREO, trans('shopping::checkout.email.success_order.p_9')) !!}</p>
 								</div>
+								<!-- social & contact -->
 
+								<div style="width:100%; background-color:#FFFFFF;" align="center">
+									<table>
+										<tbody>
+										<tr>
+											<td style="width: 55%;">
+												<p style="padding-top: 30px; padding-left: 30px; padding-bottom: 20px;">
+													<a href="{{ \Illuminate\Support\Facades\URL::to('/') }}" target="_blank">
+														<img width="120" src="{{ $footerLogo }}" alt="">
+													</a>
+												</p>
+											</td>
+											<td>
+												<p style="padding-top: 30px; padding-bottom: 20px;">
+													<a href="https://portal.omnilife.com/contacto" target="_blank" style="padding: 8px;"><img src="{{ asset('/uploads/images/mailing/assets/phone.png') }}" width="27" height="27"/></a>
+													<a href="https://www.facebook.com/OmnilifeOficialMexico"  target="_blank" style="padding: 8px;"><img src="{{ asset('/uploads/images/mailing/assets/facebook.png') }}" width="27" height="27"/></a>
+													<a href="https://twitter.com/Omnilife"  target="_blank" style="padding: 8px;"><img src="{{ asset('/uploads/images/mailing/assets/twitter.png') }}" width="27"  height="27" /></a>
+													<a href="https://www.instagram.com/omnilifeoficial/"  target="_blank" style="padding: 8px;"><img src="{{ asset('/uploads/images/mailing/assets/instagram-02.png') }}" width="27" height="27" /></a>
+													<a href="https://www.youtube.com/omnilifeoficial"  target="_blank" style="padding: 8px;"><img src="{{ asset('/uploads/images/mailing/assets/youtube-02.png') }}" width="27" height="27" /></a>
+												</p>
+											</td>
+										</tr>
+										</tbody>
+									</table>
+								</div>
 							</div>
 						</td>
 					</tr>
@@ -295,26 +415,23 @@
 	</tr>
 </table><!-- /BODY -->
 
-
 <!-- FOOTER -->
 <table class="footer-wrap">
 	<tr>
 		<td></td>
 		<td class="container">
-
 			<!-- content -->
 			<div class="content">
 				<table>
 					<tr>
 						<td align="center">
 							<p>
-								<a href="https://www.omnilife.com/privacidad"> Política de Privacidad</a>
+								<a href="https://portal.omnilife.com/politicas-de-privacidad">{!! trans('shopping::checkout.email.success_order.p_10') !!}</a>
 							</p>
 						</td>
 					</tr>
 				</table>
 			</div><!-- /content -->
-
 		</td>
 		<td></td>
 	</tr>

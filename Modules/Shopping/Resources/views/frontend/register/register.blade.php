@@ -1,4 +1,4 @@
-{!! PageBuilder::section('head', ['title' => strtoupper($brand) . ' | ' . trans('shopping::register.title')]) !!}
+{!! PageBuilder::section('head', ['title' => strtoupper($brand) . ' - ' . trans('shopping::register.title')]) !!}
 
 @include('themes.omnilife2018.sections.loader')
 @include('shopping::partial_views.exit_register')
@@ -11,9 +11,6 @@
     </style>
 @endsection
 
-<div class="overlay"></div>
-
-
 
 
 <!--registro-->
@@ -22,19 +19,19 @@
         <div class="wrapper">
             <!--registro barra pasos-->
             <ul class="list-nostyle tabs-static__list">
-                <li class="tabs-static__item tabs-static__item_step1 active">
+                <li id="tab__step1" class="tabs-static__item tabs-static__item_step1 active">
                     <span class="desk">@lang('shopping::register.tabs.account.desktop')</span>
                     <span class="mov">@lang('shopping::register.tabs.account.mobile')</span>
                 </li>
-                <li class=" tabs-static__item tabs-static__item_step2">
+                <li id="tab__step2" class=" tabs-static__item tabs-static__item_step2">
                     <span class="desk">@lang('shopping::register.tabs.info.desktop')</span>
                     <span class="mov">@lang('shopping::register.tabs.info.mobile')</span>
                 </li>
-                <li class="tabs-static__item tabs-static__item_step3">
+                <li id="tab__step3" class="tabs-static__item tabs-static__item_step3">
                     <span class="desk">@lang('shopping::register.tabs.kit.desktop')</span>
                     <span class="mov">@lang('shopping::register.tabs.kit.mobile')</span>
                 </li>
-                <li class="tabs-static__item tabs-static__item">
+                <li id="tab__step4" class="tabs-static__item tabs-static__item">
                     <span class="desk">@lang('shopping::register.tabs.confirm.desktop')</span>
                     <span class="mov">@lang('shopping::register.tabs.confirm.mobile')</span>
                 </li>
@@ -55,11 +52,11 @@
 
                     </ul>
                 </div>
+                <input type="hidden" id="current_lang" value="{{Session::get('portal.main.app_locale')}}">
+                <input type="hidden" id="current_country" value="{{Session::get('portal.main.country_corbiz')}}">
+                <!-- div class="form-group">
 
-                <div class="form-group">
 
-                    <input type="hidden" id="current_lang" value="{{Session::get('portal.main.app_locale')}}">
-                    <input type="hidden" id="current_country" value="{{Session::get('portal.main.country_corbiz')}}">
                     <div class="form-label">@lang('shopping::register.account.country.label'):</div>
                     <div class="col-right">
                         <div class="select">
@@ -77,7 +74,7 @@
                             </select>
                         </div>
                     </div>
-                </div>
+                </div -->
                 <div class="form-group radioEo">
                     <div class="form-label mov">@lang('shopping::register.account.invited.label.desktop'):</div>
                     <div class="form-label desk">@lang('shopping::register.account.invited.label.mobile'):</div>
@@ -91,15 +88,22 @@
                             <label class="radio-fake" for="invited2"></label>
                         </div>
                         <div class="error-msg error-validation" id="div_invited"></div>
-                        <input type="hidden" value="" id="ispool" name="ispool">
+                        <input type="hidden" value="{{ !empty($numEo) ? 0 : '' }}" id="ispool" name="ispool">
                     </div>
                 </div>
                 <div class="form-group hidden" id="invited-yes">
-                    <div class="form-label">@lang('shopping::register.account.businessman_code.label'):</div>
+
+
+
+                        <div class="sponsored form-label {{ !empty($numEo)  ? '' : 'hide hidden' }}">@lang('shopping::register.account.businessman_code.label_sponsored'):</div>
+                        <div class="normal form-label {{ !empty($numEo)  ? 'hide hidden' : '' }}">@lang('shopping::register.account.businessman_code.label'):</div>
+
+
                     <div class="col-right">
                         <input rel="{{ isset($codEo)  ? $codEo : '' }}" class="form-control" type="text" id="register-code" name="register-code" placeholder="@lang('shopping::register.account.businessman_code.placeholder')*" value="{{ $numEo }}">
                         <div class="" id="valid-eo"></div>
-
+                        <div class="error-msg error-validation" id="div_distributor_code"></div>
+                        <div class="error-msg error-validation" id="div_distributor_name"></div>
                     </div>
                     <input type="hidden" value="INSCRIPTION" id="inscription_type" name="inscription_type"/>
                 </div>
@@ -110,11 +114,13 @@
                             <select class="form-control" name="references" id="references">
                                 <option value="">@lang('shopping::register.account.meet_us.default')</option>
                             </select>
-                            <div class="error-msg" id="error-msg-referneces"></div>
+                            <div class="error-msg" id="error-msg-references"></div>
                             <div class="error-msg" id="error-msg-pool"></div>
                             <div class="error-msg error-validation"></div>
                         </div>
+                        <div class="error-msg" id="div_references"></div>
                     </div>
+
                 </div>
 
                 <div class="form-group">
@@ -187,11 +193,11 @@
                         <div class="error-msg" id="div_name"></div>
                     </div>
                     <div class="form-group medium">
-                        <input class="form-control" type="text" id="lastname" name="lastname" placeholder="@lang('shopping::register.info.full_name.placeholders.last_name')*">
+                        <input class="form-control" type="text" id="lastname" name="lastname" placeholder="@lang('shopping::register.info.full_name.placeholders.last_name')">
                         <div class="error-msg" id="div_lastname"></div>
                     </div>
                     <div class="form-group medium">
-                        <input class="form-control" type="text" id="lastname2" name="lastname2" placeholder="@lang('shopping::register.info.full_name.placeholders.last_name2')*">
+                        <input class="form-control" type="text" id="lastname2" name="lastname2" placeholder="@lang('shopping::register.info.full_name.placeholders.last_name2')">
                         <div class="error-msg" id="div_lastname2"></div>
                     </div>
                     <div class="form-group medium">
@@ -277,7 +283,7 @@
 
                     <div class="form-group form-checkbox transfer">
                         <input type="checkbox" id="terms2" name="terms2">
-                        <label class="checkbox-fake" for="terms2"></label><span class="checkbox-label">@lang('shopping::register.info.terms_payment.text')@lang('shopping::register.info.terms_payment.link').</span>
+                        <label class="checkbox-fake" for="terms2"></label><span class="checkbox-label">@lang('shopping::register.info.terms_payment.text') @lang('shopping::register.info.terms_payment.link').</span>
                         <div class="error-msg" id="div_terms2"></div>
                     </div>
 
@@ -285,7 +291,7 @@
 
                     <div class="form-group form-checkbox information">
                         <input type="checkbox" id="terms3" name="terms3">
-                        <label class="checkbox-fake" for="terms3"></label><span class="checkbox-label">@lang('shopping::register.info.terms_information.text')@lang('shopping::register.info.terms_information.link').</span>
+                        <label class="checkbox-fake" for="terms3"></label><span class="checkbox-label">@lang('shopping::register.info.terms_information.text') @lang('shopping::register.info.terms_information.link').</span>
                         <div class="error-msg" id="div_terms3"></div>
                     </div>
 
@@ -314,7 +320,7 @@
                     <div class="cart__register">
                         <div class="cart__left">
                             <div class="cart__main-title">@lang('shopping::register.kit.types')</div>
-                            <div class="error-msg" id="error-msg-kit"></div>
+                            <div class="error-msg" id="error-msg-kits"></div>
                             <div class="error-msg" id="div_kit"></div>
                             <div class="form-group" id="kits">
 
@@ -341,111 +347,76 @@
 
 
                             </div>
+                            @php $banks = \Modules\Shopping\Entities\Bank::whereHas('banksCountry', function ($q) { $q->where('country_id', \App\Helpers\SessionHdl::getCountryID()); })->get(); @endphp
+
+                            @foreach ($banks as $bank)
+                                @if ($bank->bank_key == 'PAYPAL_PLUS')
+                                    <div id="divppplus" style="display: none; text-align: center;">
+                                        <h3 style="border-top-style: solid;border-bottom-style: solid;border-top-width: 1px;border-bottom-width: 1px;border-top-color: rgba(0,0,0,0.1);border-bottom-color: rgba(0,0,0,0.1);font-weight: lighter;padding: 5px 0;">@lang('shopping::checkout.payment.card_pplus')</h3>
+                                        <div id="ppplus" style="border:none; margin: 0 auto;"></div>
+                                        <div id="ppplusmini"></div>
+
+                                        <input type="hidden" id="approvalUrl" name="approvalUrl" value="">
+                                        <input type="hidden" id="payerEmail" name="payerEmail" value="">
+                                        <input type="hidden" id="payerFirstName" name="payerFirstName" value="">
+
+                                        <div style="margin: 0 auto;">
+                                            <button type="button" id="paypal-plus-button-cancel" class="button small" style="display: inline-block">Cancelar</button>
+                                            <button type="button" id="paypal-plus-button-pay" class="button small" style="display: inline-block; background: #9a2e9b;" onclick="ppp.doContinue(); return false;">Pagar</button>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
                             <input type="hidden" id="warehouse" name="warehouse" value="" />
-                            <input type="hidden" id="cent_dist" name="cent_dist" value="" />
+                            <input type="hidden" id="distCenter" name="distCenter" value="" />
 
 
                         </div>
-                        <!--Final kit,shippingcompany, payment type-->
-                        <!--Parte derecha checkout cart-->
-                        <div class="cart-preview fade-in-down cart__right cart__right " id="cart-preview">
-                            <div class="cart-preview__head">
-                                <p>@lang('shopping::register.kit.bill.resume')</p>
-                                <button class="icon-btn icon-cross close" type="button"></button>
-                            </div>
-                            <div class="cart-preview__content hide hidden">
-                                <ul id="cart-list" class="cart-product__list list-nostyle  cart-list">
-                                    @if (isset($shoppingCart) && sizeof($shoppingCart) > 0)
-                                        @foreach ($shoppingCart as $item)
-                                            <li data-id="{{ $item['id'] }}" class="cart-product__item item-id-{{ $item['id'] }}">
-                                                <figure class="cart-product__img"><img src="{{ $item['image'] }}" alt="{{ $item['name'] }}"></figure>
-                                                <div class="cart-product__content">
-                                                    <div class="cart-product__top">
-                                                        <div class="cart-product__title">{{ $item['name'] }}</div>
-                                                        <div class="cart-product__code">@lang('cms::cart_aside.code'): {{ $item['sku'] }}</div>
-                                                        <div class="bin">
-                                                            <figure class="icon-bin"><img src="{{ asset('themes/omnilife2018/images/icons/bin.svg') }}" alt="Eliminar"></figure>
-                                                        </div>
-                                                    </div>
-                                                    <div class="cart-product__bottom">
-                                                        <div class="form-group numeric">
-                                                        <span class="minus s r">
-                                                            <svg height="14" width="14">
-                                                                <line x1="0" y1="8" x2="14" y2="8"></line>
-                                                            </svg>
-                                                        </span>
-                                                                                    <input class="form-control" type="numeric" name="qty#{val}" value="{{ $item['quantity'] }}">
-                                                                                    <span class="plus s r">
-                                                            <svg height="14" width="14">
-                                                                <line x1="0" y1="7" x2="14" y2="7"></line>
-                                                                <line x1="7" y1="0" x2="7" y2="14"></line>
-                                                            </svg>
-                                                        </span>
-                                                        </div>
-                                                        <div class="cart-product__nums">
-                                                            <div class="cart-product__pts">{{ $item['points'] }} @lang('cms::cart_aside.pts')</div>
-                                                            <div class="cart-product__price">x {{ currency_format($item['price'], $currency) }}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        @endforeach
-                                    @else
-                                    @endif
-                                </ul>
-                            </div>
-                            <div id="cart-resume" class="cart-preview__resume list-nostyle js-empty-cart hide hidden">
-                                <li id="subtotal" class="subtotal_checkout">@lang('cms::cart_aside.subtotal'): {{ isset($subtotal) ? $subtotal : '$00.00' }}</li>
-                                <li id="points" class="points_checkout">@lang('cms::cart_aside.points'): {{ isset($points) ? $points : '0000' }}</li>
-                                <li id="total" class="total total_checkout">@lang('cms::cart_aside.total'): {{ isset($subtotal) ? $subtotal : '$00.00' }}</li>
-                            </div>
-                        </div>
-                        <!--Final checkout-->
+
+
+                        <!-- cart preview-->
+                            @if(View::exists("shopping::frontend.register.includes.".strtolower(session()->get('portal.main.country_corbiz')).".cart_preview_".strtolower(session()->get('portal.main.country_corbiz'))))
+                                @include("shopping::frontend.register.includes.".strtolower(session()->get('portal.main.country_corbiz')).".cart_preview_".strtolower(session()->get('portal.main.country_corbiz')))
+                            @endif
+                        <!-- end cart preview-->
+
+
+
                     </div>
-                    <!-- div class="cart-preview-mov" id="cart-preview-mov">
-                        <div class="cart-preview__head">
-                            <p>@lang('shopping::register.kit.bill.shopping_cart')</p>
-                        </div>
-                        <div class="cart-preview__resume list-nostyle">
-                            <li>@lang('shopping::register.kit.bill.points'): 0000</li>
-                            <li class="total">@lang('shopping::register.kit.bill.total'): $00.00</li>
-                        </div>
-                    </div -->
-                    <!-- div class="step step3 cart__confirm" id="step3">
-                        <header class="cart__confirm-head">
-                            <p>@lang('shopping::register.confirm.thank_you')</p>
-                            <h5>@lang('shopping::register.confirm.payment_successful')</h5>
-                        </header>
-                        <div class="cart__confirm-icon"></div>
-                        <div class="cart__confirm-info">
-                            <p>Número de pedido: 13400210491</p>
-                            <p>Pago con tarjeta **** **** **** 0000</p>
-                            <p class="bold">Total de compra: $000.00</p>
-                            <p>Enviado a Fco. I. Madero 1020 Col. Chapultepec, Morelia, Michoacán.</p>
-                        </div>
-                        <ul class="cart__confirm-items list-nostyle mul">
-                            <li class="cart__confirm-item"><span class="cart__confirm-item__qty">2</span><span class="cart__confirm-item__name">@lang('shopping::register.resume.product_name')</span><span class="cart__confirm-item__code">12312312</span><span class="cart__confirm-item__pts">00 pts</span><span class="cart__confirm-item__price">$00.00</span><span class="cart__confirm-item__price">$00.00</span></li>
-                        </ul>
-                        <!-- div class="cart__confirm-banners">
-                            <figure class="cart__confirm-banner"><img src="public/images/checkout-banner001.jpg" alt="">
-                                <figcaption>HISTORIAS DE ÉXITO</figcaption>
-                            </figure>
 
-                        </div>
-                    </div -->
+
                 </div>
                 <div id="isback" value="0"></div>
+                <div id="hasQuotation" value="0"></div>
                 <div id="is_validated" value="0"></div>
                 <div class="buttons-container">
                     <button class="button secondary" type="button" id="backStep3">@lang('shopping::register.prev_button')</button>
-                    <!-- button class="button" type="button" id="btnContinueStep3">@lang('shopping::register.checkout_button')</button -->
-                    <div class="payment-container paypal" style="display: none;">
-                        <div id="paypal-button"></div>
-                    </div>
+                    @foreach ($banks as $bank)
+                        @if ($bank->bank_key == 'PAYPAL')
+                            <div class="payment-container paypal" style="display: none;">
+                                <div id="paypal-button" style="width: 200px; height: 36px;"></div>
+                            </div>
+                        @elseif ($bank->bank_key == 'PAYPAL_PLUS')
+                            <div class="payment-container paypal-plus" style="display: none;">
+                                <button type="button" id="paypal-plus-button" class="button small">@lang('shopping::checkout.payment.pay_pplus')</button>
+                            </div>
+                        @endif
+                    @endforeach
+
                 </div>
+
+
+
             </div>
             <input type="hidden" name="order" id="order" />
-            <input type="hidden" name="type" id="type" value="register" />
+            <input type="hidden" name="type" id="type_action" value="register" />
+        </form>
+        <form id="f_ejecuta_pago" method="POST" action="{{ route('paypalplus.process') }}">
+            <input type="hidden" id="i_pay_id" name="paymentID" value="">
+            <input type="hidden" id="i_payerId" name="payerID" value="">
+            <input type="hidden" id="i_token" name="token" value="">
+            <input type="hidden" id="i_term" name="term" value="">
+            <input type="hidden" name="type" value="register" />
         </form>
         <!-- registro bienvenido-->
         <!-- div class="register__step step step4 register__welcome" id="step4">
@@ -502,7 +473,7 @@
 <button id="btnExitModalRegister" data-modal="true" style="display: none;" href="#exitModalRegister"></button>
 
 
-{!! PageBuilder::section('footer') !!}
+{!! PageBuilder::section('footer', ['isInShoppingView' => true,'isRegister' => true]) !!}
 @include("shopping::frontend.shopping.includes.promotions.modal_promo")
 
 
@@ -511,7 +482,7 @@
 <script type="text/javascript" src="{{ asset('/cms/jquery-ui/jquery-ui.js') }}"></script>
 <script type='text/javascript' src="{{ asset('/js/jquery.autocomplete.js') }}"></script>
 <script src="{{ PageBuilder::js('resume_cart_register_old_browsers') }}"></script>
-@include("shopping::frontend.shopping.includes.paymentjs")
+<script type='text/javascript' src="{{ asset('/js/redirect.js')}}"></script>
 
 <script type="text/javascript">
 
@@ -522,21 +493,31 @@
     var newCountryId        = '';
     var currentLangId       = '';
     var newLangId           = '';
-
+    var hasSession          = true;
+    @if(session('modalExit'))
+    var zipCodeSession      = null;
+    @else
+    var zipCodeSession      = '{{session()->get('portal.main.zipCode')}}';
+    @endif
     var translations = {
         errorEmptyShippingCompanies:  '{{ trans("shopping::register.kit.shippingCompanies_empty") }}',
+        errorStreetCorbiz:              '{{trans("shopping::register_customer.fields.street_corbiz")}}',
 
     };
 
+    var country =  '{{\App\Helpers\SessionRegisterHdl::getCountryID()}}';
+    var countryCorbiz = '{{\App\Helpers\SessionRegisterHdl::getCorbizCountryKey()}}';
+    var lang = '';
 
     $( document ).ready(function() {
 
 
         var lang = $("#current_lang").val();
-        var country =  $("#country").val();
-        var countryname = $("#current_country").val();
-        var countrychoosen = country;
 
+
+        $('#btnCloseLoginSection').click(function() {
+            $('.overlay').hide();
+        });
 
         var shopping_cart = {!! ShoppingCart::sessionToJson(session()->get('portal.main.country_corbiz')) !!};
             if (shopping_cart.constructor === Array && shopping_cart.length == 0) {
@@ -547,39 +528,48 @@
 
         ResumeCart.update_items();
 
+        $('#zip').blur(function() {
+            zipCodeSession = null;
+        });
+
+
+
+
         /* Registro Inconcluso - Al cambiar de país, cambiar lenguaje o click en login */
         $('a').on({
             click: function(e) {
-                var tagClass = $(this).attr('class');
-                var attrId = $(this).attr('id');
+                if (hasSession == true) {
+                    var tagClass = $(this).attr('class');
+                    var attrId = $(this).attr('id');
 
-                if (tagClass == 'change_country_header') {
-                    e.stopPropagation();
-                    currentCountryId = $(this).data('countryidcurrent');
-                    newCountryId = $(this).data('countryid');
-                    typeExit = 'refresh_country';
+                    if (tagClass == 'change_country_header') {
+                        e.stopPropagation();
+                        currentCountryId = $(this).data('countryidcurrent');
+                        newCountryId = $(this).data('countryid');
+                        typeExit = 'refresh_country';
 
-                    if (currentCountryId != newCountryId) {
-                        $('#btnExitModalRegister').click();
+                        if (currentCountryId != newCountryId) {
+                            $('#btnExitModalRegister').click();
+                        }
                     }
-                }
-                else if (tagClass == 'change_language_header') {
-                    e.stopPropagation();
-                    currentLangId = $(this).data('langidcurrent');
-                    newLangId = $(this).data('langid');
-                    typeExit = 'refresh_lang';
+                    else if (tagClass == 'change_language_header') {
+                        e.stopPropagation();
+                        currentLangId = $(this).data('langidcurrent');
+                        newLangId = $(this).data('langid');
+                        typeExit = 'refresh_lang';
 
-                    if (currentLangId != newLangId) {
-                        $('#btnExitModalRegister').click();
+                        if (currentLangId != newLangId) {
+                            $('#btnExitModalRegister').click();
+                        }
                     }
-                }
-                else if (attrId == 'login-btn') {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    $('.login').removeClass('active');
-                    $('#btnExitModalRegister').click();
-                    typeExit = 'section';
-                    hrefExit = '.login';
+                    else if (attrId == 'login-btn') {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        $('.login').removeClass('active');
+                        $('#btnExitModalRegister').click();
+                        typeExit = 'section';
+                        hrefExit = '.login';
+                    }
                 }
             }
         });
@@ -587,25 +577,43 @@
         /* Registro Inconcluso - Alerta al hacer click en el icono de login */
         $('.icon-btn').on({
             click: function() {
-                if(!$(this).hasClass('icon-bin')){
-                    var attrId = $(this).attr('id');
-                    typeExit = 'section';
+                if (hasSession == true) {
+                    if (!$(this).hasClass('icon-bin')) {
+                        var attrId = $(this).attr('id');
+                        typeExit = 'section';
 
-                    if (attrId == 'iuser') {
-                        $('.login').removeClass('active');
-                        hrefExit = '.login';
-                        $('#btnExitModalRegister').click();
+                        if (attrId == 'iuser') {
+                            $('.login').removeClass('active');
+                            hrefExit = '.login';
+                            $('#btnExitModalRegister').click();
+                        }
+                        else if (attrId == 'icart') {
+                            $('.cart-preview').removeClass('active');
+                            typeExit = 'change_url';
+                            hrefExit = "{{session()->get('portal.main.brand.domain')}}/{{ \App\Helpers\TranslatableUrlPrefix::getTranslatablePrefixByIndexAndLang('products', session()->get('portal.main.app_locale')) }}";
+                            $('#btnExitModalRegister').click();
+                        }
                     }
                 }
-
             }
+        });
+
+        $('.cerrarModal').on({
+                click: function(){
+                    $("#modalTerms").removeClass('active');
+                    $(".overlay").hide();
+                    if($("#terms1").is(':checked')){
+                        $("#terms1").prop('checked',false);
+                    }
+
+                }
         });
 
 
 
 
         //Actualiza los campos del fomulario ysesion cuando se cambia de país para volver a llenar los valores en base al país
-        $("#country").change(function () {
+       /*  $("#country").change(function () {
             //Actualizar valore de la sesion
             updateSession($(this).val());
             //Limpiar los campos del formulario que se definen por el paíes e idioma
@@ -635,12 +643,12 @@
             $("#valid-eo").html("");
             $(".radioEo").removeClass('hidden hide');
             $("#register-code").prop('readonly',false);
-            countrychoosen = $(this).val();
-        });
+            country = $(this).val();
+        }); */
 
 
         //Se obtienes las preguntas con el pais e idioma inicial
-        loadView($("#current_country").val());
+        loadView(countryCorbiz);
         getQuestions(country);
         getParameters(country);
 
@@ -659,7 +667,7 @@
             $.ajax({
                 type: "POST",
                 url: "{{ route('register.references') }}",
-                data: {'country':countrychoosen, _token: '{{csrf_token()}}'},
+                data: {'country':country, _token: '{{csrf_token()}}'},
                 statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
                 success: function (result){
 
@@ -718,7 +726,7 @@
             $.ajax({
                 type: "POST",
                 url: "{{ route('register.pool') }}",
-                data: {'country':countrychoosen,'lang':lang, _token: '{{csrf_token()}}'},
+                data: {'country':country,'lang':lang, _token: '{{csrf_token()}}'},
                 statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
                 success: function (result){
 
@@ -759,6 +767,7 @@
         $("#invited1").click(function () {
             $("#invited-yes").removeClass('hide hidden');
             $("#invited-no").addClass('hide hidden');
+            $("#references").val("");
             $("#error-msg-pool").html("");
             $("#distributor_name").val("");
             $("#distributor_code").val("");
@@ -771,49 +780,61 @@
         //se valida si el empresario ingresado existe
         $("#register-code").blur(function () {
             var sponsor = $("#register-code").val();
+
             $.ajax({
-                type: "POST",
-                url: "{{ route('register.validateeo') }}",
-                data: {'country':countrychoosen,'sponsor':sponsor,'lang':lang, _token: '{{csrf_token()}}'},
-                statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
+                type: 'POST',
+                url: "{{route('register.validateeo')}}",
+                data: {'country': country, 'sponsor': sponsor, 'lang': lang},
+                statusCode: {
+                    419: function() {
+                        window.location.href = URL_PROJECT;
+                    }
+                },
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 success: function (result){
                     if(result.status){
                         info = result.data;
-                        $("#error_step1").hide();
-                        $("#error__box_ul_step1").html("");
-                        $("#register-code").removeClass("has-error");
                         $("#valid-eo").addClass('alert-businessman alert-success');
                         $("#valid-eo").html(info.name_1);
                         $("#distributor_name").val(info.name_1);
                         $("#distributor_code").val(info.dist_id);
                         $("#distributor_email").val(info.email);
                         $("#btnContinueStep1").prop('disabled',false);
-
-
-                    }else{
+                    }
+                    else {
                         $("#error_step1").show();
                         $("#register-code").addClass("has-error");
 
-                        $.each(result.messages, function (i, item) {
-                            $("#error__box_ul_step1").append("<li>"+item+"</li>");
+                        $.each(result.messages, function (key, value) {
+                            var id_error = (value.idError == '') ? '' : ' (' + value.idError + ')';
+                            $('#error__box_ul_step1').append('<li>' + $.trim(value.messUser) + $.trim(id_error) + '</li>');
                         });
+
                         $("#btnContinueStep1").prop('disabled',true);
 
+                        if (result.details != '') {
+                            $('#error__box_ul_step1').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                            setErrors(result.details);
+                        }
+
+                        $('html,body').animate({
+                            scrollTop: $(".tabs-static").offset().top
+                        }, 'slow');
                     }
-
-
                 },
-                error:function(result){
-
+                error: function(result) {
                 },
-                beforeSend: function () {
-                    $("#valid-eo").removeClass('alert-businessman alert-success');
-                    $("#valid-eo").html("");
-                    $("#error__box_ul_step1").html("");
-
+                beforeSend: function() {
+                    $('#error_step1').hide();
+                    $('#error__box_ul_step1').empty();
+                    $('#register-code').removeClass('has-error');
+                    $('#valid-eo').removeClass('alert-businessman alert-success');
+                    $('#valid-eo').html('');
+                    $('#distributor_name').val('');
+                    $('#distributor_code').val('');
+                    $('#distributor_email').val('');
                 },
-                complete: function () {
-
+                complete: function() {
                 }
             });
         });
@@ -863,11 +884,10 @@
             $(".overlay").hide();
             $("#modalTerms").removeClass('active');
             $("#terms1").prop('checked',true);
-            setHourTerms("terms1");
+            setHourTerms("terms1",true);
         });
 
         $("#terms1").click(function(){
-            console.log("pressed");
             var checkmarked = $(this).is(':checked');
             setHourTerms("terms1",checkmarked);
             $(".overlay").show();
@@ -885,6 +905,7 @@
 
         $('#btnAcceptModalExitRegister').click(function() {
             if (typeExit == 'section') {
+                $('.overlay').show();
                 $(hrefExit).addClass('active');
                 $('#btnCancelModalExitRegister').click();
             }
@@ -938,7 +959,6 @@
 
     $(document).on('change','#state',function () {
         var state = $(this).val();
-        var country = $("#current_country").val();
         var htmlCities = '';
         $("#state_hidden").val($(this).val());
         $.ajax({
@@ -972,6 +992,10 @@
                         $("#error__box_ul_step2").append("<li class='text-danger'>"+item+"</li>");
                     });
 
+                    $('html,body').animate({
+                        scrollTop: $(".tabs-static").offset().top
+                    }, 'slow');
+
 
                 }
 
@@ -996,6 +1020,61 @@
         $("#city_hidden").val($(this).val());
     });
 
+
+    $(document).on('click','.z_onclose',function(){
+       //Cambios en css para cuando se presione el menu de version movil
+        $('.main-h').css('z-index',1);
+        $('.close_cross').css('z-index',10);
+    });
+    $(document).on('click','.close_cross',function(){
+
+        //Cambios en css para cuando se presione el menu de version movil
+        $('.main-h').css('z-index',100);
+        $('.close_cross').css('z-index',0);
+        $('#cart-preview').removeClass('active');
+    });
+
+
+    $(document).on('keyup','#street',function(){
+        var street = $(this).val();
+        var appliesValidation = '{{config('shopping.defaultValidationForm.'.session()->get('portal.register.country_corbiz').'.specialstreet')}}';
+        if(appliesValidation){
+            $.ajax({
+                type: "POST",
+                url: "{{ route('register.validatestreet') }}",
+                data: {'street':street, _token: '{{csrf_token()}}'},
+                statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
+                success: function (result){
+
+                    if(result.passes){
+                        $("#btnContinueStep2").attr('disabled',false);
+                        $("#div_message_street").html('');
+                        $("#div_message_street").html(result.message);
+                        $("#div_message_street").css('color','black');
+                    }else{
+                        $("#btnContinueStep2").attr('disabled',true);
+                        $("#div_message_street").html('');
+                        $("#div_message_street").html(result.message);
+                        $("#div_message_street").css('color','red');
+                    }
+
+
+
+                },
+                error:function(result){
+
+                },
+                beforeSend: function () {
+
+                },
+                complete: function () {
+                }
+            });
+        }
+
+    });
+
+
     /**
      * Generar la transacción de inscripcion en corbiz
      * */
@@ -1008,6 +1087,10 @@
         var kitselected = $(this).children('input[name="kit"]').val();
         var kitprice = parseFloat($(this).children('input[name="kitprice"]').val());
         var kitid = parseInt($(this).children('input[name="kitid"]').val());
+        var kitname =$(this).children('input[name="kitname"]').val();
+        var kitdescription =$(this).children('input[name="kitdescription"]').val();
+        var kitimage = $(this).children('input[name="kitimage"]').val();
+
         $(".markrmv").attr('checked',false);
         $(this).children('input[name="kit"]').attr('checked',true);
         flushRegisterTransaction();
@@ -1016,12 +1099,29 @@
         $.ajax({
             type: "POST",
             url: "{{ route('register.kitinitiquotation') }}",
-            data: {'kitselected': kitselected,'price':kitprice,'kitid':kitid,'iskit' : 1, _token: '{{csrf_token()}}'},
+            data: {'kitselected': kitselected,'price':kitprice,'kitid':kitid,'kitname':kitname,'kitdescription':kitdescription,'kitimage':kitimage,'iskit' : 1, _token: '{{csrf_token()}}'},
             statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
             success: function(result) {
+
                 if (result.status) {
+                     var products = {};
+                    $.each(result.products, function (i, item) {
+                        products[item.id] = item;
+                    });
+                    document.shopping_cart = products;
+                    ShoppingCart.update_items();
+
                     $("#error__box_ul_step3").html("");
                     $("#error_step3").hide();
+
+                    $('div#cart-preview').find("#divResumeQuotationErrors").css('display','none');
+                    $('div#cart-preview').find("#divResumeQuotationErrors").html("");
+
+
+                    if (result.resultASW && result.resultASW.viewErrors) {
+                        $('div#cart-preview').find("#divResumeQuotationErrors").append(result.resultASW.viewErrors);
+                        $('div#cart-preview').find("#divResumeQuotationErrors").css('display','inline-block');
+                    }
 
                     if (result.resultASW && result.resultASW.existsPromotions) {
                         showPromotions = true;
@@ -1030,6 +1130,7 @@
                     getViewCartPreviewQuotation();
                     $("#choose").hide();
                     $("#banks").removeClass('hide hidden');
+                    $("#hasQuotation").val(1);
 
 
                 } else {
@@ -1037,14 +1138,22 @@
                     $("#error_step3").show();
                     $("#error__box_ul_step3").html("");
                     $(".markrmv").attr('checked',false);
+                    $("#hasQuotation").val(0);
 
-                    if(result.messages){
-                        $.each(result.messages, function (i, item) {
+                    $.each(result.messages, function (i, item) {
                             $("#error__box_ul_step3").append("<li class='text-danger'>"+item.messUser+"</li>");
-                        });
-                    }else{
-                        $("#error__box_ul_step3").append("<li class='text-danger'>"+result.messages+"</li>");
+                    });
+
+
+                    if (result.resultASW.details != null) {
+                        $("#banks").addClass('hide hidden');
+                        $('#error__box_ul_step3').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                        setErrors(result.resultASW.details);
                     }
+
+                    $('html,body').animate({
+                        scrollTop: $(".tabs-static").offset().top
+                    }, 'slow');
 
 
 
@@ -1055,13 +1164,17 @@
             error: function(result) {
                 $('.loader').removeClass('show').addClass('hide');
                 $(".markrmv").attr('checked',false);
+                $('.bag_cart').hide();
+                $("#hasQuotation").val(0);
             },
             beforeSend: function() {
                 $('.loader').removeClass('hide').addClass('show');
+                $('.bag_cart').hide();
+                $("#hasQuotation").val(0);
 
             },
             complete: function() {
-
+                $('.bag_cart').hide();
                 if(showPromotions) {
                     getViewModalPromotions('register');
                 }
@@ -1075,6 +1188,10 @@
     $(document).on('click','.shipping_comp',function (event) {
 
         var company = $(this).children().val();
+        var applies = $(this).children().attr('rel');
+        event.preventDefault();
+        $(this).children('input[name="shipping_way"]').prop('checked',true);
+
         //Guardar en la sesión la compañia seleccionada
         $.ajax({
             type: "POST",
@@ -1083,6 +1200,14 @@
             statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
             success: function (result){
 
+                if(applies == 1){
+                    var kitChecked = $('input[name=kit]:checked').val();
+
+                    if(kitChecked){
+                        var idSelected = $('input[name=kit]:checked').attr('id');
+                        $('#' + idSelected).click();
+                    }
+                }
 
 
 
@@ -1094,7 +1219,6 @@
 
             },
             complete: function () {
-
             }
         });
 
@@ -1123,8 +1247,8 @@
                      document.getElementById("cart-preview").classList.add("ps--active-y");
                      */
                     $('div#cart-preview').removeClass("active");
-                    $('#cart-preview-mov li.total').text($('#total').text());
-                    $('#cart-preview-mov li.points').text($('#points').text());
+                    $('.total_mov').text($('.cart__right #cart-resume #total').text());
+                    $('.points_mov').text($('.cart__right #cart-resume #points').text());
                 } else {
                     alert('No se cargo resumen de compra')
                 }
@@ -1145,8 +1269,8 @@
 
     //Se obtienes la ciudades al momento de cambiar el estado
 
-    function updateSession(country){
-
+    /* function updateSession(country){
+        zipCodeSession = null;
         $.ajax({
             type: "POST",
             url: "{{ route('register.updatesession') }}",
@@ -1164,6 +1288,9 @@
 
             },
             complete: function () {
+                $("#hasQuotation").val(0);
+                $("#isback").val(0);
+                $("#is_validated").val(0);
                 getQuestions(country);
                 getParameters(country);
                 getLegalDocuments(country);
@@ -1174,7 +1301,7 @@
             }
         });
 
-    }
+    } */
     function validateStep1() {
         var url = "{{route('register.validate_step1')}}";
         var form = $('#formRegister');
@@ -1194,6 +1321,7 @@
         validateFieldsPortal(url,form,tipo,step,nextStep);
     }
     function validateStep3() {
+
         var url = "{{route('register.validate_step3')}}";
         var form = $('#formRegister');
         var tipo  = 'register';
@@ -1208,17 +1336,28 @@
         window.history.back();
     }
     function backStep2(){
-
         var step = 'step2';
         var prevStep = 'step1';
 
         backStepPortal(step,prevStep);
+
+        $.ajax({
+            type: 'POST',
+            url: "{{ route('register.backStep2') }}",
+            data: {_token: '{{csrf_token()}}'},
+            statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
+            success : function (data) {
+            }
+        });
     }
 
     function backStep3(){
         var step = 'step3';
         var prevStep = 'step2';
         //LLamado función ajax para preguntar si ya tiene una sesión de inscripcion si es así se borra para que se genere una transaccion en la bd
+        $(".hide_cart_icon").show();
+        $(".cart-preview__resume").addClass('hide hidden');
+        $(".cart-preview__content").addClass('hide hidden');
         flushRegisterTransaction();
         backStepPortal(step,prevStep);
     }
@@ -1228,6 +1367,7 @@
             type: 'POST',
             url: "{{ route('register.changeViews') }}",
             data: {'country':con, _token: '{{csrf_token()}}'},
+            statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
             success : function (data) {
 
                 $("#form_included").html(data);
@@ -1242,31 +1382,40 @@
             type: 'POST',
             url: "{{ route('register.flushRegisterTransaction') }}",
             data: {_token: '{{csrf_token()}}'},
+            statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
             success : function (data) {
 
                 $("input:radio[name='payment']").each(function(i) {
                     this.checked = false;
                 });
-                $("#paypal-button").addClass('hide hidden');
+
+                $(".payment-container").hide();
+                $("#divppplus").hide();
                 $("#generic_error").hide();
+
 
             }
         });
     }
 
+
+
     /* Registro Inconcluso */
     @if(session('modalExit'))
         $('#btnCancelModalExitRegister').click(function() {
-            /* Tab Activa */
-            $('#tab__step1').removeClass('active');
-            $('#step1').removeClass('active');
-            $('#tab__step' + '{{session('stepUnfinished')}}').addClass('active');
-            $('#step' + '{{session('stepUnfinished')}}').addClass('active');
+        @if(session('stepUnfinished') != null)
+        /* Tab Activa */
+        $('#tab__step1').removeClass('active');
+        $('#step1').removeClass('active');
+        $('#tab__step' + '{{session('stepUnfinished')}}').addClass('active');
+        $('#step' + '{{session('stepUnfinished')}}').addClass('active');
+        @endif
 
             /* Carga de Datos al Formulario */
-            var data        = jQuery.parseJSON('{!!session('dataUnfinished')!!}');
-            var city        = '';
-            var invited     = '';
+            var data    = jQuery.parseJSON('{!!session('dataUnfinished')!!}');
+            var city    = '';
+            var invited = '';
+            var country = $("#current_country").val();
 
             if (data != null || data != '') {
                 $.each(data, function(key, value) {
@@ -1293,90 +1442,33 @@
                             $('#' + key + key2).val(value2);
                         });
                     }
-                    else if (key == 'city_hidden' || key == 'city') {
-                        if (value != null || value != '') {
-                            city = value;
-                        }
-                    }
-                    else if (key == 'state_hidden' || key == 'state') {
-                        if (value != null || value != '') {
-                            $('#state').val(value);
-                            $('#state_hidden').val(value);
-                        }
+                    else if (key == 'terms1' || key == 'terms2' || key == 'terms3') {
+                        $('#' + key).prop('checked', true);
                     }
                     else {
                         $('#' + key).val(value);
                     }
                 });
 
-                getCities($('#state_hidden').val(), city);
+                getStates(country);
                 @if(!isset($codEo) && !isset($numEo))
-                $('#invited-yes').removeClass('hidden hide');
-                $('#register-code').attr('readonly','readonly');
-                $('.radioEo').addClass('hidden hide');
-                $('#register-code').blur();
-                $('#invited1').prop('checked',true);
-                @else
-                if (invited == 1) {
+                    $('#invited-yes').removeClass('hidden hide');
+                    $('#register-code').attr('readonly','readonly');
+                    $('.radioEo').addClass('hidden hide');
                     $('#register-code').blur();
-                }
+                    $('#invited1').prop('checked',true);
+                    $(".normal").removeClass('hide hidden');
+                   $(".sponsored").addClass('hide hidden');
+                @else
+                    $(".normal").addClass('hide hidden');
+                    $(".sponsored").removeClass('hide hidden');
+                    if (invited == 1) {
+                        $('#register-code').blur();
+                    }
+
                 @endif
             }
         });
-
-        function getCities(state, city) {
-        var country     = $('#current_country').val();
-        var htmlCities  = '';
-
-        $.ajax({
-            type: 'POST',
-            url: "{{route('registercustomer.cities')}}",
-            data: {'country': country, 'state': state, _token: '{{csrf_token()}}'},
-            statusCode: {
-                419: function() {
-                    window.location.href = URL_PROJECT;
-                }
-            },
-            success: function(result) {
-                if (result.status) {
-                    $("#error__box_ul_step1").html("");
-                    $("#error__box_step1").hide();
-                    $('#city').removeClass('has-error');
-
-                    htmlCities += '<option value="default">@lang("shopping::register_customer.account.address.placeholders.city")*</option>';
-
-                    $.each(result.data, function(i, item) {
-                        htmlCities += '<option value="' + $.trim(item.id) + '">' + $.trim(item.name) + '</option>';
-                    });
-
-                    $("#city").html(htmlCities);
-                    $('#city').val(city);
-                    $('#city_hidden').val(city);
-
-                    var cityText    = $('#city').find('option:selected').text();
-                    $('#city_name').val(cityText);
-                }
-                else {
-                    $("#error__box_step1").show();
-                    $("#error__box_ul_step1").html("");
-                    $("#city").addClass("has-error");
-
-                    $.each(result.messages, function (i, item) {
-                        $("#error__box_ul_step1").append("<li class='text-danger'>" + item + "</li>");
-                    });
-                }
-            },
-            error:function(result) {
-            },
-            beforeSend: function() {
-                $("#error__box_ul_step1").html("");
-                $("#error__box_step1").hide();
-                $("#city").children('option:not(:first)').remove();
-            },
-            complete: function() {
-            }
-        });
-    }
     @endif
 
     function getStates(country){
@@ -1406,6 +1498,33 @@
                     });
                     $("#state").html(stateHtml);
 
+                    @if(session('modalExit'))
+                    /* Carga de Datos al Formulario */
+                    var data    = jQuery.parseJSON('{!!session('dataUnfinished')!!}');
+                    var city    = '';
+
+                    if (data != null || data != '') {
+                        $.each(data, function (key, value) {
+                            if (key == 'city_hidden' || key == 'city') {
+                                if (value != null || value != '') {
+                                    city = value;
+                                }
+                            }
+                            else if (key == 'state_hidden' || key == 'state') {
+                                if (value != null || value != '') {
+                                    $('#state').val(value);
+                                    $('#state_hidden').val(value);
+                                }
+                            }
+                        });
+
+                        getCities($('#state_hidden').val(), city);
+                    }
+                    @endif
+
+                    if (zipCodeSession != null) {
+                        getZipCodeFromCorbiz(zipCodeSession);
+                    }
 
 
                 }else{
@@ -1414,9 +1533,20 @@
                     $("#error_step2").show();
                     $("#error__box_ul_step2").html("");
                     $("#state").addClass("has-error");
-                    $.each(result.messages, function (i, item) {
-                        $("#error__box_ul_step2").append("<li class='text-danger'>"+item+"</li>");
+
+                    $.each(result.messages, function(key, message) {
+                        var id_error = (message.idError != '') ? ' (' + $.trim(message.idError) + ')' : '';
+                        $('#error__box_ul_step2').append('<li>' + $.trim(message.messUser) + id_error + '</li>');
                     });
+
+                    if (result.details != '') {
+                        $('#error__box_ul_step2').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                        setErrors(result.details);
+                    }
+
+                    $('html,body').animate({
+                        scrollTop: $(".tabs-static").offset().top
+                    }, 'slow');
 
 
                 }
@@ -1434,6 +1564,72 @@
             },
             complete: function () {
 
+            }
+        });
+    }
+
+    function getCities(state, city) {
+
+        var htmlCities  = '';
+
+        $.ajax({
+            type: 'POST',
+            url: "{{route('register.cities')}}",
+            data: {'country': country, 'state': state, _token: '{{csrf_token()}}'},
+            statusCode: {
+                419: function() {
+                    window.location.href = URL_PROJECT;
+                }
+            },
+            success: function(result) {
+                if (result.status) {
+                    $("#error__box_ul_step1").html("");
+                    $("#error__box_step1").hide();
+                    $('#city').removeClass('has-error');
+
+                    htmlCities += '<option value="default">@lang("shopping::register_customer.account.address.placeholders.city")*</option>';
+
+                    $.each(result.data, function(i, item) {
+                        htmlCities += '<option value="' + $.trim(item.id) + '">' + $.trim(item.name) + '</option>';
+                    });
+
+                    $("#city").html(htmlCities);
+                    $('#city').val(city);
+                    $('#city_hidden').val(city);
+
+                    var cityText    = $('#city').find('option:selected').text();
+                    $('#city_name').val(cityText);
+
+                    getShippingCompanyFromCorbiz(state, city);
+                }
+                else {
+                    $("#error__box_step1").show();
+                    $("#error__box_ul_step1").html("");
+                    $("#city").addClass("has-error");
+
+                    $.each(result.messages, function (key, value) {
+                        var id_error = (value.idError == '') ? '' : ' (' + value.idError + ')';
+                        $('#error__box_ul_step1').append('<li>' + $.trim(value.messUser) + $.trim(id_error) + '</li>');
+                    });
+
+                    if (result.details != '') {
+                        $('#error__box_ul_step1').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                        setErrors(result.details);
+                    }
+
+                    $('html,body').animate({
+                        scrollTop: $(".tabs-static").offset().top
+                    }, 'slow');
+                }
+            },
+            error:function(result) {
+            },
+            beforeSend: function() {
+                $("#error__box_ul_step1").html("");
+                $("#error__box_step1").hide();
+                $("#city").children('option:not(:first)').remove();
+            },
+            complete: function() {
             }
         });
     }
@@ -1587,7 +1783,9 @@
                     $('#day').addClass('has-error');
                     $('#month').addClass('has-error');
                     $('#documents').hide();
-
+                    $('html,body').animate({
+                        scrollTop: $(".tabs-static").offset().top
+                    }, 'slow');
 
                 }
 
@@ -1670,13 +1868,19 @@
                 if(result.success){
                     var info = result.data;
 
+
                     $.each(info, function (i, item) {
+
+
                         $('<div class="form-radio inline card kitinscription" data-radio="'+i+'">'+
                             ' <input type="radio" id="kit_'+i+'" class="'+item.sku+' markrmv" name="kit" value="'+item.sku+'">'+
                             ' <input type="hidden" id="kitprice_'+i+'" name="kitprice" value="'+item.price+'">'+
+                            ' <input type="hidden" id="kitname_'+i+'" name="kitname" value="'+item.name+'">'+
+                            ' <input type="hidden" id="kitdescription_'+i+'" name="kitdescription" value="'+item.description+'">'+
+                            ' <input type="hidden" id="kitimage_'+i+'" name="kitimage" value="'+item.image+'">'+
                             ' <input type="hidden" id="kitid_'+i+'" name="kitid" value="'+item.id+'">'+
-                            '<label class="card__content-wrap" for="kit_'+i+'">'+
-                            '<figure class="card__img kit"><img src="/themes/omnilife2018/images/9410335.png" alt=""></figure>'+
+                            '<label class="card__content-wrap container-kit" for="kit_'+i+'">'+
+                            '<figure class="card__img kit"><img src="'+item.image+'" alt=""></figure>'+
                             '<div class="card__content kit">'+
                             '<h3 class="card__title">'+item.name+'</h3>'+
                             ' <p class="card__price">$'+item.price+'</p>'+
@@ -1691,7 +1895,9 @@
 
                 }else{
                     $("#error-msg-kits").html(result.message);
-
+                    $('html,body').animate({
+                        scrollTop: $(".tabs-static").offset().top
+                    }, 'slow');
 
                 }
 
@@ -1770,6 +1976,9 @@
                     $.each(result.messages, function (i, item) {
                         $('#error__box_ul_step2').append('<li>' + item + '</li>');
                     });
+                    $('html,body').animate({
+                        scrollTop: $(".tabs-static").offset().top
+                    }, 'slow');
                 }
             },
             error: function(result) {
@@ -1829,6 +2038,8 @@
     }
 
     function getShippingCompanyFromCorbiz(state,city){
+        var defaultCompany = '{{config('shopping.defaultValidationForm.'.session()->get('portal.register.country_corbiz').'.shipping_way')}}';
+
         $.ajax({
             type: "POST",
             url: "{{ route('register.shippingCompanies') }}",
@@ -1842,23 +2053,54 @@
                     $('#id_type').removeClass('has-error');
 
                     if(!$.trim(result.data)){
-
+                        //validacion compañias de envio vacias
                         $("#error_step3").show();
                         $("#error__box_ul_step3").html("");
                         $("#error__box_ul_step3").append("<li class='text-danger'>"+translations.errorEmptyShippingCompanies+"</li>");
-
+                        $('html,body').animate({
+                            scrollTop: $(".tabs-static").offset().top
+                        }, 'slow');
                     }
                     else{
-                        $.each(result.data, function (i, item) {
+                        var shipping_way_active = '';
 
-                                $('<div class="form-radio card shipping_comp">' +
-                                    '<input name="shipping_way" type="radio" id="shipping_way_'+i+'"  value='+item.id+'>'+
-                                    '<label class="card__content-wrap" for="shipping_way_'+i+'">'+
-                                    '<div class="card__content">'+
-                                    '<label class="radio-fake" for="shipping_way_'+i+'"></label><span class="radio-label">'+item.name+'</span>'+
-                                    '</div>'+
-                                    '</label>'+
-                                    '</div>').appendTo ("#shipping_companies");
+                        @if(session('modalExit'))
+                        /* Carga de Datos al Formulario */
+                        var data                = jQuery.parseJSON('{!!session('dataUnfinished')!!}');
+
+                        if (data != null || data != '') {
+                            $.each(data, function (key, value) {
+                                if (key == 'shipping_way') {
+                                    shipping_way_active = value;
+                                }
+                            });
+                        }
+                        @endif
+
+                        $.each(result.data, function (i, item) {
+                                var applyRequotation = item.appliesRequotation ? 1 : 0;
+                                var valid = item.id;
+                                var itemid = valid.replace(/\s/g, '');
+
+                                if (shipping_way_active == item.id) {
+                                    $('<div class="form-radio card shipping_comp ' + itemid + '">' +
+                                        '<input name="shipping_way" type="radio" id="shipping_way_' + i + '"  value="' + item.id + '" rel="' + applyRequotation + '" checked>' +
+                                        '<label class="card__content-wrap" for="shipping_way_' + i + '">' +
+                                        '<div class="card__content">' +
+                                        '<label class="radio-fake" for="shipping_way_' + i + '"></label><span class="radio-label">' + item.name + '</span>' +
+                                        '</div>' +
+                                        '</label>' +
+                                        '</div>').appendTo("#shipping_companies");
+                                }else {
+                                    $('<div class="form-radio card shipping_comp ' + itemid + '">' +
+                                        '<input name="shipping_way" type="radio" id="shipping_way_' + i + '"  value="' + item.id + '" rel="' + applyRequotation + '">' +
+                                        '<label class="card__content-wrap" for="shipping_way_' + i + '">' +
+                                        '<div class="card__content">' +
+                                        '<label class="radio-fake" for="shipping_way_' + i + '"></label><span class="radio-label">' + item.name + '</span>' +
+                                        '</div>' +
+                                        '</label>' +
+                                        '</div>').appendTo("#shipping_companies");
+                                }
 
                             });
                     }
@@ -1875,6 +2117,10 @@
                         $("#error__box_ul_step3").append("<li class='text-danger'>"+item+"</li>");
                     });
 
+                    $('html,body').animate({
+                        scrollTop: $(".tabs-static").offset().top
+                    }, 'slow');
+
 
                 }
 
@@ -1890,10 +2136,33 @@
 
             },
             complete: function () {
-                $("#shipping_way_0").click();
+
+                //si tenemos una compañia default la seleccionamos si no tomamos la primera
+                @if(!session('modalExit'))
+                /* Carga de Datos al Formulario */
+                    if(defaultCompany){
+                        $("." +  defaultCompany).click();
+                    }else{
+
+                        $("#shipping_way_0").click();
+                    }
+                @else
+                    var data  = jQuery.parseJSON('{!!session('dataUnfinished')!!}');
+
+                    if (data != null || data != '') {
+                        $.each(data, function (key, value) {
+                            if (key == 'kitselected') {
+                               $("." + value).click();
+                            }
+                        });
+                    }
+
+                @endif
+
             }
         });
     }
+
 
     function clear_form_elements() {
 
@@ -1959,7 +2228,6 @@
             success: function (result){
 
                 if(result.status){
-                    var country = $("#country").val();
                     $("#isback").val(0);
                     $("#error__box_ul_step1").html("");
                     $("#error_step1").hide();
@@ -1975,16 +2243,18 @@
                     $('#step3').addClass('active');
                     $('.tabs-static__item_step2').removeClass('active');
                     $('.tabs-static__item_step3').addClass('active');
-                    $("#banks").addClass('hide hidden');
+
                     $("#paypal-button").addClass('hide hidden');
-                    if($("#isback").val() == 0) {
+
+                    //if($("#isback").val() == 0 && $("#hasQuotation").val() == 0) {
 
                         getShippingCompanyFromCorbiz($("#state").val(), $("#city").val());
                         getBanks(country);
                         getKits(country);
+                        $("#banks").addClass('hide hidden');
 
 
-                    }
+                    //}
 
 
 
@@ -1999,12 +2269,25 @@
                     $("#error_step3").show();
                     $("#error__box_ul_step3").html("");
 
-                    $.each(result.errors, function (i, item) {
+                    $.each(result.errors, function (i, message) {
 
-                        $("#error__box_ul_step1").append("<li class='text-danger'>"+item+"</li>");
-                        $("#error__box_ul_step2").append("<li class='text-danger'>"+item+"</li>");
-                        $("#error__box_ul_step3").append("<li class='text-danger'>"+item+"</li>");
+                        $('#error__box_ul_step1').append('<li>' + $.trim(message.messUser) + ' (' + message.idError + ')</li>');
+                        $('#error__box_ul_step2').append('<li>' + $.trim(message.messUser) + ' (' + message.idError + ')</li>');
+                        $('#error__box_ul_step3').append('<li>' + $.trim(message.messUser) + ' (' + message.idError + ')</li>');
+
+
+                        if (message.idError == '10026') {
+                            $('#street').removeClass('has-error').addClass('has-error');
+                            $('#div_street').empty().append(translations.errorStreetCorbiz);
+                        }
+
                     });
+
+                    if (result.details != '') {
+                        $('#error__box_ul_step1').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                        $('#error__box_ul_step2').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                        setErrors(result.details);
+                    }
 
                     $('html,body').animate({
                         scrollTop: $(".tabs-static").offset().top
@@ -2039,8 +2322,12 @@
 
     $(document).on("click", ".close", function (){
         $(".overlay").css("display",'none');
+        console.log("closed");
         $(this).closest("div.modal").removeClass("active");
     });
+
+
+
 
     function getViewModalPromotions(process){
 
@@ -2083,6 +2370,28 @@
         }
     }
 
+    /* function minusPromoOLD(idPromo, idLine) {
+        var collapsePromo = $('div#collapsePromo'+idPromo);
+        var input = collapsePromo.find("div#promoLine"+idLine).find(".numeric").find('input');
+        var required = collapsePromo.find('input.promoRequired').val();
+
+        if (parseInt(input.val()) > 0){
+            /*if(parseInt(input.val()) === 1 && parseInt(required) === 1){
+             alert("Esta promoción es obligatoria, la cantidad no puede ser menor a 1");
+             } else {
+            input.val(parseInt(input.val()) > 0 ? parseInt(input.val()) - 1 : 0);
+            //}
+
+        }
+
+        $('div#collapsePromo'+idPromo).find("div#promoLine"+idLine).find(".numeric").find('input').val(parseInt(input.val()));
+
+        /*ShoppingCart.remove_one(id);
+         if (parseInt(input.val()) === 0) {
+         ShoppingCart.remove_item(id);
+         }
+    } */
+
     function minusPromo(idPromo, idLine) {
         var collapsePromo = $('div#collapsePromo'+idPromo);
         var input = collapsePromo.find("div#promoLine"+idLine).find(".numeric").find('input');
@@ -2097,13 +2406,31 @@
 
         }
 
-        $('div#collapsePromo'+idPromo).find("div#promoLine"+idLine).find(".numeric").find('input').val(parseInt(input.val()));
+        $('div#collapsePromo'+idPromo).find("div.card").each(function() {
+            if($(this).attr("id") === "div#promoLine"+idLine){
+                $(this).find(".numeric").find('input').val(parseInt(input.val()));
+            } else {
+                $(this).find(".numeric").find('input').val(0);
+            }
+        });
+        //$('div#collapsePromo'+idPromo).find("div#promoLine"+idLine).find(".numeric").find('input').val(parseInt(input.val()));
 
         /*ShoppingCart.remove_one(id);
          if (parseInt(input.val()) === 0) {
          ShoppingCart.remove_item(id);
          }*/
     }
+
+    /* function plusPromoOLD(idPromo, idLine) {
+        var collapsePromo = $('div#collapsePromo'+idPromo);
+        var input = collapsePromo.find("div#promoLine"+idLine).find(".numeric").find('input');
+        var maxQuantity = collapsePromo.find('input.maxQuantity').val();
+
+        if (parseInt(input.val()) < parseInt(maxQuantity)) {
+            input.val(parseInt(input.val()) + 1);
+        }
+        $('div#collapsePromo'+idPromo).find("div#promoLine"+idLine).find(".numeric").find('input').val(parseInt(input.val()));
+    } */
 
     function plusPromo(idPromo, idLine) {
         var collapsePromo = $('div#collapsePromo'+idPromo);
@@ -2113,7 +2440,14 @@
         if (parseInt(input.val()) < parseInt(maxQuantity)) {
             input.val(parseInt(input.val()) + 1);
         }
-        $('div#collapsePromo'+idPromo).find("div#promoLine"+idLine).find(".numeric").find('input').val(parseInt(input.val()));
+        $('div#collapsePromo'+idPromo).find("div.card").each(function() {
+            if($(this).attr("id") === "promoLine"+idLine){
+                $(this).find(".numeric").find('input').val(parseInt(input.val()));
+            } else {
+                $(this).find(".numeric").find('input').val(0);
+            }
+        });
+        //$('div#collapsePromo'+idPromo).find("div#promoLine"+idLine).find(".numeric").find('input').val(parseInt(input.val()));
     }
 
     function minusPromoC(idPromo, idLine, sku) {
@@ -2170,6 +2504,7 @@
             dataType: 'JSON',
             data: form.serialize(),
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
             success: function (data) {
                 console.log(data);
                 if (data.success == true) {
@@ -2228,6 +2563,72 @@
         $('.error-msg').html('');
     }
 
+    function getZipCodeFromCorbiz(zip) {
+        $.ajax({
+            url: "{{route('register.zipcode')}}",
+            type: 'POST',
+            dataType: 'JSON',
+            data: { zipCode: zip },
+            statusCode: {
+                419: function() {
+                    window.location.href = URL_PROJECT;
+                }
+            },
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            success: function(result) {
+
+                if(result.status){
+                    $('#zip').val(result.suggestions[0].data.zipcode);
+                    $('#state').val(result.suggestions[0].data.idState);
+                    $('#state_hidden').val(result.suggestions[0].data.idState);
+
+                    citybystate(result.suggestions[0].data.idState,result.suggestions[0].data.idCity,result.suggestions[0].data.cityDescr,urlcities,token,validate,tipo);
+
+                    if (check == 'county') {
+                        $('#colony').val(result.suggestions[0].data.county);
+                    }
+                    else if (check == 'suburb') {
+                        $('#colony').val(result.suggestions[0].data.suburb);
+                    }
+
+                    $('#city_hidden').val(result.suggestions[0].data.idCity);
+
+                    $('.loader').removeClass('show').addClass('hide');
+                }else{
+                    $('.loader').removeClass('show').addClass('hide');
+                    $("#error_step2").show();
+                    $("#error__box_ul_step2").html("");
+                    $("#state").addClass("has-error");
+                    $.each(result.messages, function (i, item) {
+
+                        if(item.messUser == null){
+
+                            $("#error__box_ul_step2").append("<li class='text-danger'>" + item + "</li>");
+
+                        }else{
+
+                            $("#error__box_ul_step2").append("<li class='text-danger'>" + item.messUser + "</li>");
+
+                        }
+
+                    });
+
+                    if (result.details != '') {
+                        $('#error__box_ul_step2').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                        setErrors(result.details);
+                    }
+                }
+
+            },
+            beforeSend: function() {
+                $('.loader').removeClass('hide').addClass('show');
+            },
+            error: function(result) {
+                $('.loader').removeClass('show').addClass('hide');
+            }
+        });
+    }
+
     function getInitQuotationPromos(process){
 
         var kitselected = $('input[name="kit"]:checked').val();
@@ -2243,14 +2644,22 @@
         $.ajax({
             url: "{{ route('register.getInitQuotationPromos') }}",
             type: 'POST',
-            data: {'kitselected': kitselected,'price':kitprice,'kitid':kitid,'iskit' : 1, _token: '{{csrf_token()}}'},
+            data: {'kitselected': kitselected,'price':kitprice,'kitid':kitid,'iskit' : 1,'fromChanged':true, _token: '{{csrf_token()}}'},
             statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
             success: function (result) {
-                console.log("resultado " + result);
+
                 if (result.status) {
 
                     $("#error__box_ul_step3").html("");
                     $("#error_step3").hide();
+
+                    $('div#cart-preview').find("#divResumeQuotationErrors").css('display','none');
+                    $('div#cart-preview').find("#divResumeQuotationErrors").html("");
+
+                    if (result.resultASW && result.resultASW.viewErrors) {
+                        $('div#cart-preview').find("#divResumeQuotationErrors").append(result.resultASW.viewErrors);
+                        $('div#cart-preview').find("#divResumeQuotationErrors").css('display','inline-block');
+                    }
 
                     if (result.resultASW && result.resultASW.existsPromotions) {
                         showPromotions = true;
@@ -2275,11 +2684,24 @@
                     });
                     $('.loader').removeClass('show').addClass('hide');
                     $('.overlay').hide();
+
+                    if (result.resultASW.details != '') {
+                        $("#banks").addClass('hide hidden');
+                        $('#error__box_ul_step3').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                        setErrors(result.resultASW.details);
+                    }
+
+
+
+                    $('html,body').animate({
+                        scrollTop: $(".tabs-static").offset().top
+                    }, 'slow');
                 }
             },
             complete: function () {
                 $('.loader').removeClass('show').addClass('hide');
                 $('.overlay').hide();
+                $('.bag_cart').hide();
                 //console.log("showPromotions: "+showPromotions);
                 if(showPromotions) {
                     getViewModalPromotions(process);

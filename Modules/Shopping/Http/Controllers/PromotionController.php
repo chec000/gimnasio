@@ -20,13 +20,19 @@ class PromotionController extends Controller
 
     public function initPromotions($headPromotions, $detPromotions, $whereSaveSession = "checkout"){
         //dd($headPromotions,$detPromotions);
+        //dd(Session::get("portal.{$whereSaveSession}.".SessionHdl::getCorbizCountryKey().".promotionsSent"), $whereSaveSession,SessionHdl::getCorbizCountryKey());
         Session::forget('portal.'.$whereSaveSession.'.'.SessionHdl::getCorbizCountryKey().'.promotions');
 
         $promotions = array();
         $transPromotions = array();
+        $promotionsSent = array();
 
-        $promotionsSent = Session::has('portal.'.$whereSaveSession.'.'.SessionHdl::getCorbizCountryKey().'.promotionsSent') ?
-            Session::get('portal.'.$whereSaveSession.'.'.SessionHdl::getCorbizCountryKey().'.promotionsSent') : array();
+        if(Session::get('portal.'.$whereSaveSession.'.'.SessionHdl::getCorbizCountryKey().'.promotionsSent') != null){
+            $promotionsSent = Session::get('portal.'.$whereSaveSession.'.'.SessionHdl::getCorbizCountryKey().'.promotionsSent');
+            //dd($promotionsSent);
+        }
+        /*$promotionsSent = Session::has('portal.'.$whereSaveSession.'.'.SessionHdl::getCorbizCountryKey().'.promotionsSent') ?
+            Session::get('portal.'.$whereSaveSession.'.'.SessionHdl::getCorbizCountryKey().'.promotionsSent') : array();*/
 
         //Armado de cabeceras de promociones
         foreach($headPromotions as $hp) {
@@ -59,8 +65,10 @@ class PromotionController extends Controller
                 //dd($itemsPromoSession,$itemsPromoValidation, $newItemsPromo);
             }
         }
-        Session::put("portal.{$whereSaveSession}.".SessionHdl::getCorbizCountryKey().".promotionsSent", $promotionsSent);
+        //Session::put('portal.'.$whereSaveSession.'.'.SessionHdl::getCorbizCountryKey().'.promotionsSent', $promotionsSent);
+        //dd(Session::get("portal.{$whereSaveSession}.".SessionHdl::getCorbizCountryKey().".promotionsSent"));
 
+        //dd($detPromotions, $transPromotions, $transPromotions["295-BR"]->promoprods);
         //Armado de contenido de promociones
         foreach($detPromotions as $dp){
             if (isset($promotions['head'][trim($dp['tipo_linea'])][trim($dp['clv_promo'])])) {
@@ -68,7 +76,9 @@ class PromotionController extends Controller
                 if (isset($transPromotions[$dp['clv_promo']]) && $transPromotions[$dp['clv_promo']] != null
                     && !empty($transPromotions[$dp['clv_promo']])) {
                     //Si existe traduccion la sobrescribe
-                    if ($transPromotions[$dp['clv_promo']]->promoprods[$dp['clv_arti']][0]->name != null && $transPromotions[$dp['clv_promo']]->promoprods[$dp['clv_arti']][0]->name != "") {
+                    if (isset($transPromotions[$dp['clv_promo']]->promoprods[$dp['clv_arti']])
+                        && $transPromotions[$dp['clv_promo']]->promoprods[$dp['clv_arti']][0]->name != null
+                        && $transPromotions[$dp['clv_promo']]->promoprods[$dp['clv_arti']][0]->name != "") {
                         $dp['descripcion'] = $transPromotions[$dp['clv_promo']]->promoprods[$dp['clv_arti']][0]->name;
                     }
                 }
@@ -96,6 +106,7 @@ class PromotionController extends Controller
             //Guardado en session de arreglo de promociones y retorna true
             Session::put("portal.{$whereSaveSession}.".SessionHdl::getCorbizCountryKey().".promotions", $promotions);
             //Session::put('portal.checkout.'.SessionHdl::getCorbizCountryKey().'.promotions', $promotions);
+            $this->addPromotionsSent($whereSaveSession);
             return true;
         }
 
@@ -125,6 +136,7 @@ class PromotionController extends Controller
     public function validateQuantityPromos(Request $request){
 
         $process = $request->has('process') && $request->get('process') != "" ? $request->get('process') : "checkout";
+        //dd($request->all(), Session::get('portal.'.$process.'.'.SessionHdl::getCorbizCountryKey().'.promotions'));
         //Se limpia de sesion los articulos de promocion temporales para cotizacion
         Session::forget('portal.'.$process.'.'.SessionHdl::getCorbizCountryKey().'.promotionsItemsTempValidate');
         // Se inicializan los result para las distintas promociones
@@ -137,23 +149,22 @@ class PromotionController extends Controller
                 $arrayQtyPromos = $request->get('qtyPromo');
                 //dd($arrayQtyPromos['A']);
             }
-            if($request->get('selectPromo') != null) {
-                $arraySelectPromos = $request->get('selectPromo');
-                //dd($arrayQtyPromos['A']);
-            }
+            /*if($request->get('selectPromo') != null) {
+                //$arraySelectPromos = $request->get('selectPromo');
+            }*/
 
             $dataQtyPromos['A'] = isset($arrayQtyPromos['A']) ? $arrayQtyPromos['A'] : array();
-            $dataSelectPromos['A'] = isset($arraySelectPromos['A']) ? $arraySelectPromos['A'] : array();
-            $resultA = $this->validatePromotionA($dataQtyPromos['A'], $dataSelectPromos['A'], $process);
+            //$dataSelectPromos['A'] = isset($arraySelectPromos['A']) ? $arraySelectPromos['A'] : array();
+            $resultA = $this->validatePromotionA($dataQtyPromos['A'], $process);
             if(!$resultA['success']){
-                //dd($response['messages'], $resultA['messages']);
+                //dd($response, $resultA);
                 $response['successA'] = false;
                 $response['messages'] = array_merge($response['messages'], $resultA['messages']);
             }
 
             $dataQtyPromos['B'] = isset($arrayQtyPromos['B']) ? $arrayQtyPromos['B'] : array();
-            $dataSelectPromos['B'] = isset($arraySelectPromos['B']) ? $arraySelectPromos['B'] : array();
-            $resultB = $this->validatePromotionB($dataQtyPromos['B'], $dataSelectPromos['B'], $process);
+            //$dataSelectPromos['B'] = isset($arraySelectPromos['B']) ? $arraySelectPromos['B'] : array();
+            $resultB = $this->validatePromotionB($dataQtyPromos['B'], $process);
             if(!$resultB['success']){
                 $response['successB'] = false;
                 $response['messages'] = array_merge($response['messages'], $resultB['messages']);
@@ -169,6 +180,8 @@ class PromotionController extends Controller
                 }
             }
 
+            //dd($response);
+            //En caso de que todas las promociones hayan resultado exitosas
             if($response['successA'] && $response['successB'] && $response['successC']){
                 $response['success'] = true;
 
@@ -181,6 +194,9 @@ class PromotionController extends Controller
                 //dd($itemsPromoSession,$itemsPromoValidation, $newItemsPromo);
                 Session::put('portal.'.$process.'.'.SessionHdl::getCorbizCountryKey().'.promotionsItemsTemp', $newItemsPromo);
                 Session::forget('portal.'.$process.'.'.SessionHdl::getCorbizCountryKey().'.promotionsItemsTempValidate');
+
+                $response['prmotionsSent'] = $this->addPromotionsSent($process);
+
             } else {
                 Session::forget('portal.'.$process.'.'.SessionHdl::getCorbizCountryKey().'.promotionsItemsTempValidate');
             }
@@ -188,11 +204,10 @@ class PromotionController extends Controller
         return response()->json($response);
     }
 
-    private function validatePromotionA($qtyPromoA, $slctPromoA, $process = "checkout"){
+    private function validatePromotionA($qtyPromoA, $process = "checkout"){
 
-        $headPromos = session()->get('portal.'.$process.'.'.SessionHdl::getCorbizCountryKey().'.promotions.head.A');
+        $headPromos = Session::get('portal.'.$process.'.'.SessionHdl::getCorbizCountryKey().'.promotions.head.A');
         //$itemsPromos = session()->get('portal.checkout.'.SessionHdl::getCorbizCountryKey().'.promotions.items.A');
-
 
         $result['success'] = false; //result final de la funcion
         $resultBefore = true; //result auxiliar en caso de que exista mas de una promocion, para comprobar que todos las promociones sean exitosas
@@ -200,27 +215,25 @@ class PromotionController extends Controller
         if($headPromos != null){
             foreach($headPromos as $indexHead => $promo){
 
+                $resultValidatePromoA = $this->getValidateQuantityPromo($qtyPromoA[$indexHead], $promo['quantity']);
+                //dd($headPromos,$qtyPromoA[$indexHead], $promo['quantity'], $resultValidatePromoA);
+                $result = array('success' => false, 'max_allowed' => false, 'line' => false, 'quantity' => false, 'messages' => array());
+
                 //Se comprueba si la promocion es obligatoria
                 if($promo['required']){
-                    //Se comprueba si existe un paquete seleccionado
-                    if(isset($slctPromoA[$indexHead])){
-                        //Se comprueba si el paquete seleccionado tiene una cantidad mayor que cero
-                        if(isset($qtyPromoA[$indexHead][$slctPromoA[$indexHead]]) && (int)$qtyPromoA[$indexHead][$slctPromoA[$indexHead]] > 0){
-                            //Se comprueba si la quantity es menor que la maxima permitida
-                            if((int)$qtyPromoA[$indexHead][$slctPromoA[$indexHead]] <= $promo['quantity']) {
-                                if($resultBefore) {
-                                    $result['success'] = true;
-                                    //Parametros de envio para guardar en items temporales: Tipo promocion, clave promocion, linea, cantidad.
-                                    $this->addItemPromoTempByLine("A", $indexHead, $slctPromoA[$indexHead], (int)$qtyPromoA[$indexHead][$slctPromoA[$indexHead]], $process);
-                                }
-                            } else {
-                                //Mensaje para cantidad maxima excedida
-                                $result['messages'][$indexHead] = trans('shopping::checkout.promotions.msg_promo_qty',['name_promo' => $promo['description'], 'qty_promo' => $promo['quantity'] ]);
-                                $resultBefore = false;
+                    //Se comprueba si existe un paquete seleccionado y  si el paquete seleccionado tiene una cantidad mayor que cero
+                    if($resultValidatePromoA['quantity'] && $resultValidatePromoA['quantity'] > 0){
+                        //Se comprueba si la quantity es menor que la maxima permitida
+                        if($resultValidatePromoA['max_allowed']) {
+                           // dd($resultBefore,$resultValidatePromoA, $promo);
+                            if($resultBefore) {
+                                $result['success'] = true;
+                                //Parametros de envio para guardar en items temporales: Tipo promocion, clave promocion, linea, cantidad.
+                                $this->addItemPromoTempByLine("A", $indexHead, $resultValidatePromoA['line'], $resultValidatePromoA['quantity'], $process);
                             }
                         } else {
-                            //Mensaje para cantidad promocion no seleccionada/igual a cero
-                            $result['messages'][$indexHead] = trans('shopping::checkout.promotions.msg_promo_obliga',['name_promo' => $promo['description']]);
+                            //Mensaje para cantidad maxima excedida
+                            $result['messages'][$indexHead] = trans('shopping::checkout.promotions.msg_promo_qty',['name_promo' => $promo['description'], 'qty_promo' => $promo['quantity'] ]);
                             $resultBefore = false;
                         }
                     } else {
@@ -232,29 +245,28 @@ class PromotionController extends Controller
                     //Validaciones de promocion no obligatoria
 
                     //Se comprueba si existe un paquete seleccionado
-                    if(isset($slctPromoA[$indexHead])){
-                        //Se comprueba si el paquete seleccionado tiene una cantidad mayor que cero
-                        if(isset($qtyPromoA[$indexHead][$slctPromoA[$indexHead]]) && (int)$qtyPromoA[$indexHead][$slctPromoA[$indexHead]] > 0){
-                            //Se comprueba si la quantity es menor que la maxima permitida
-                            if((int)$qtyPromoA[$indexHead][$slctPromoA[$indexHead]] <= $promo['quantity']) {
-                                if($resultBefore) {
-                                    $result['success'] = true;
-                                    //Parametros de envio para guardar en items temporales: Tipo promocion, clave promocion, linea, cantidad.
-                                    $this->addItemPromoTempByLine("A", $indexHead, $slctPromoA[$indexHead], (int)$qtyPromoA[$indexHead][$slctPromoA[$indexHead]], $process);
-                                }
-                            } else {
-                                //Mensaje para cantidad maxima excedida
-                                $result['messages'][$indexHead] = trans('shopping::checkout.promotions.msg_promo_qty',['name_promo' => $promo['description'], 'qty_promo' => $promo['quantity'] ]);
-                                $resultBefore = false;
+                    //Se comprueba si el paquete seleccionado tiene una cantidad mayor que cero
+                    if($resultValidatePromoA['quantity'] && $resultValidatePromoA['quantity'] > 0){
+                        //Se comprueba si la quantity es menor que la maxima permitida
+                        if($resultValidatePromoA['max_allowed']) {
+                            $result['max_allowed'] = true;
+                            //dd($resultBefore);
+                            if($resultBefore) {
+                                $result['success'] = true;
+                                //Parametros de envio para guardar en items temporales: Tipo promocion, clave promocion, linea, cantidad.
+                                $this->addItemPromoTempByLine("A", $indexHead,  $resultValidatePromoA['line'], (int)$resultValidatePromoA['quantity'], $process);
                             }
                         } else {
-                            //Mensaje para cantidad promocion no seleccionada/igual a cero
-                            $result['messages'][$indexHead] = trans('shopping::checkout.promotions.msg_promo_obliga',['name_promo' => $promo['description']]);
+                            //Mensaje para cantidad maxima excedida
+                            $result['messages'][$indexHead] = trans('shopping::checkout.promotions.msg_promo_qty',['name_promo' => $promo['description'], 'qty_promo' => $promo['quantity'] ]);
                             $resultBefore = false;
                         }
                     } else {
+
+                        $result['success'] = true;
+
                         //Si el usuario eligio cantidad pero no selecciono promocion
-                        if(isset($qtyPromoA[$indexHead])) {
+                        /*if(isset($qtyPromoA[$indexHead])) {
                             $qtyZero = true;
                             foreach($qtyPromoA[$indexHead] as $lineQty){
                                 if((int)$lineQty > 0){
@@ -269,7 +281,7 @@ class PromotionController extends Controller
                             }
                         } elseif($resultBefore) {
                             $result['success'] = true;
-                        }
+                        }*/
                         //$result['messages'][$indexHead][] = trans('shopping::checkout.promotions.msg_promo_obliga',['name_promo' => $promo['description']]);
                     }
                 }
@@ -278,11 +290,11 @@ class PromotionController extends Controller
             $result['success'] = true;
         }
 
-        //dd($result);
+        //dd($resultValidatePromoA,$result);
         return $result;
     }
 
-    private function validatePromotionB($qtyPromoB, $slctPromoB, $process = "checkout"){
+    private function validatePromotionB($qtyPromoB, $process = "checkout"){
         $headPromos = session()->get('portal.'.$process.'.'.SessionHdl::getCorbizCountryKey().'.promotions.head.B');
         //$itemsPromos = session()->get('portal.checkout.'.SessionHdl::getCorbizCountryKey().'.promotions.items.A');
 
@@ -292,27 +304,23 @@ class PromotionController extends Controller
         if($headPromos != null) {
             foreach ($headPromos as $indexHead => $promo) {
 
+                $resultValidatePromoB = $this->getValidateQuantityPromo($qtyPromoB[$indexHead], $promo['quantity']);
+
                 //Se comprueba si la promocion es obligatoria
                 if ($promo['required']) {
                     //Se comprueba si existe un paquete seleccionado
-                    if (isset($slctPromoB[$indexHead])) {
-                        //Se comprueba si el paquete seleccionado tiene una cantidad mayor que cero
-                        if (isset($qtyPromoB[$indexHead][$slctPromoB[$indexHead]]) && (int)$qtyPromoB[$indexHead][$slctPromoB[$indexHead]] > 0) {
-                            //Se comprueba si la cantidad es menor que la maxima permitida
-                            if ((int)$qtyPromoB[$indexHead][$slctPromoB[$indexHead]] <= $promo['quantity']) {
-                                if ($resultBefore) {
-                                    $result['success'] = true;
-                                    //Parametros de envio para guardar en items temporales: Tipo promocion, clave promocion, linea, cantidad.
-                                    $this->addItemPromoTempByLine("B", $indexHead, $slctPromoB[$indexHead], (int)$qtyPromoB[$indexHead][$slctPromoB[$indexHead]], $process);
-                                }
-                            } else {
-                                //Mensaje para cantidad maxima excedida
-                                $result['messages'][$indexHead] = trans('shopping::checkout.promotions.msg_promo_qty', ['name_promo' => $promo['description'], 'qty_promo' => $promo['quantity']]);
-                                $resultBefore = false;
+                    //Se comprueba si el paquete seleccionado tiene una cantidad mayor que cero
+                    if ($resultValidatePromoB['quantity'] && $resultValidatePromoB['quantity'] > 0) {
+                        //Se comprueba si la cantidad es menor que la maxima permitida
+                        if ($resultValidatePromoB['max_allowed']) {
+                            if ($resultBefore) {
+                                $result['success'] = true;
+                                //Parametros de envio para guardar en items temporales: Tipo promocion, clave promocion, linea, cantidad.
+                                $this->addItemPromoTempByLine("B", $indexHead, $resultValidatePromoB['line'], (int)$resultValidatePromoB['quantity'], $process);
                             }
                         } else {
-                            //Mensaje para cantidad promocion no seleccionada/igual a cero
-                            $result['messages'][$indexHead] = trans('shopping::checkout.promotions.msg_promo_obliga', ['name_promo' => $promo['description']]);
+                            //Mensaje para cantidad maxima excedida
+                            $result['messages'][$indexHead] = trans('shopping::checkout.promotions.msg_promo_qty', ['name_promo' => $promo['description'], 'qty_promo' => $promo['quantity']]);
                             $resultBefore = false;
                         }
                     } else {
@@ -324,26 +332,21 @@ class PromotionController extends Controller
                     //Validaciones de promocion no obligatoria
 
                     //Se comprueba si existe un paquete seleccionado
-                    if (isset($slctPromoB[$indexHead])) {
-                        //Se comprueba si el paquete seleccionado tiene una cantidad mayor que cero
-                        if (isset($qtyPromoB[$indexHead][$slctPromoB[$indexHead]]) && (int)$qtyPromoB[$indexHead][$slctPromoB[$indexHead]] > 0) {
-                            //Se comprueba si la cantidad es menor que la maxima permitida
-                            if ((int)$qtyPromoB[$indexHead][$slctPromoB[$indexHead]] <= $promo['quantity']) {
-                                if ($resultBefore) {
-                                    $result['success'] = true;
-                                    //Parametros de envio para guardar en items temporales: Tipo promocion, clave promocion, linea, cantidad.
-                                    $this->addItemPromoTempByLine("B", $indexHead, $slctPromoB[$indexHead], (int)$qtyPromoB[$indexHead][$slctPromoB[$indexHead]], $process);
-                                }
-                            } else {
-                                //Mensaje para cantidad maxima excedida
-                                $result['messages'][$indexHead] = trans('shopping::checkout.promotions.msg_promo_qty', ['name_promo' => $promo['description'], 'qty_promo' => $promo['quantity']]);
-                                $resultBefore = false;
+                    //Se comprueba si el paquete seleccionado tiene una cantidad mayor que cero
+                    if ($resultValidatePromoB['quantity'] && $resultValidatePromoB['quantity'] > 0) {
+                        //Se comprueba si la cantidad es menor que la maxima permitida
+                        if ($resultValidatePromoB['max_allowed']) {
+                            if ($resultBefore) {
+                                $result['success'] = true;
+                                //Parametros de envio para guardar en items temporales: Tipo promocion, clave promocion, linea, cantidad.
+                                $this->addItemPromoTempByLine("B", $indexHead, $$resultValidatePromoB['line'], (int)$resultValidatePromoB['quantity'], $process);
                             }
                         } else {
-                            //Mensaje para cantidad promocion no seleccionada/igual a cero
-                            $result['messages'][$indexHead] = trans('shopping::checkout.promotions.msg_promo_obliga', ['name_promo' => $promo['description']]);
+                            //Mensaje para cantidad maxima excedida
+                            $result['messages'][$indexHead] = trans('shopping::checkout.promotions.msg_promo_qty', ['name_promo' => $promo['description'], 'qty_promo' => $promo['quantity']]);
                             $resultBefore = false;
-                        }
+                        }$resultBefore = false;
+
                     } else {
                         //Mensaje para cantidad promocion no seleccionada/igual a cero
                         if ($resultBefore) {
@@ -490,4 +493,46 @@ class PromotionController extends Controller
         //Se guarda en sesion los articulos de promocion temporales para cotizacion
         Session::put('portal.'.$process.'.'.SessionHdl::getCorbizCountryKey().'.promotionsItemsTempValidate', $arrayItems);
     }
+
+    private function addPromotionsSent($whereSaveSession){
+        $promotionsSent = array();
+        $headPromotions = Session::get("portal.{$whereSaveSession}.".SessionHdl::getCorbizCountryKey().".promotions.head") != null ?
+            Session::get("portal.{$whereSaveSession}.".SessionHdl::getCorbizCountryKey().".promotions.head") : array();
+
+        foreach($headPromotions as $hp) {
+            foreach($hp as $promo) {
+                $promotionsSent[] = trim($promo["key_promo"]);
+                //dd($itemsPromoSession,$itemsPromoValidation, $newItemsPromo);
+                Session::push('portal.'.$whereSaveSession.'.'.SessionHdl::getCorbizCountryKey().'.promotionsSent', trim($promo["key_promo"]));
+            }
+        }
+        //Session::put('portal.'.$whereSaveSession.'.'.SessionHdl::getCorbizCountryKey().'.promotionsSent', $promotionsSent);
+
+        return $promotionsSent;
+    }
+
+    public function getValidateQuantityPromo($promotion = array(), $max_allowed = 0){
+        $result = array('max_allowed' => false, 'line' => false, 'quantity' => false);
+        $all_zero = true; //Bandera para verificar si todas las lineas estan en 0, entonces max_allowed = true.
+            foreach($promotion as $keyLine => $line) {
+                if ((int)$line > 0) {
+                    $all_zero = false;
+                    if ((int)$line <= $max_allowed) {
+                        $result['max_allowed'] = true;
+                    }
+                    $result['line'] = $keyLine;
+                    $result['quantity'] = (int)$line;
+                    break;
+                } else {
+                    $result['line'] = $keyLine;
+                    $result['quantity'] = (int)$line;
+                }
+            }
+            if($all_zero){
+                $result['max_allowed'] = true;
+            }
+
+         return $result;
+    }
 }
+

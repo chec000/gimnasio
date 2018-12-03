@@ -1,15 +1,30 @@
-<div class="step step3 fade-in-down active cart__confirm" id="step3">
+<div class="step step4 fade-in-down active cart__confirm" id="step4">
     <header class="cart__confirm-head">
-        <p>@lang('shopping::checkout.confirmation.success.thank_you')</p>
-        <h5>@lang('shopping::checkout.confirmation.success.success_pay')</h5>
+        @if (isset($banners))
+            @foreach ($banners as $banner)
+                @if (!empty($banner->link))<a target="_blank" href="{{ $banner->link }}">@endif
+
+                    <img src="{{ asset($banner->image) }}" alt="">
+
+                    @if (!empty($banner->link))</a>@endif
+            @endforeach
+        @endif
     </header>
+
+
+    <h3>@lang('shopping::checkout.confirmation.success.message_inscription') {{strtoupper(Session::get('portal.main.brand.name'))}}</h3>
+    <p>@lang('shopping::checkout.confirmation.success.Eonumber'):<strong> {{ $shipping->eo_number }} </strong></p>
+    <p>@lang('shopping::checkout.confirmation.success.secretquestion'): <strong> {{ $question}} </strong></p>
+    <p>@lang('shopping::checkout.confirmation.success.password'): <strong> {{ $password}} </strong></p>
     <div class="cart__confirm-icon"></div>
     {{--<p>Tu pedido llegará en 10 días hábiles.</p>--}}
     <div class="cart__confirm-info">
-        <p>@lang('shopping::checkout.confirmation.success.order_number'): {{ $order->order_number }}</p>
+        <p>@lang('shopping::checkout.confirmation.success.order_number'): <strong> {{ $order->order_number }} </strong></p>
+        <p>@lang('shopping::checkout.confirmation.success.corbiz_order'):<strong> {{ $order->corbiz_order_number }} </strong></p>
         <p>@lang('shopping::checkout.confirmation.success.pay_with_'.strtolower($order->payment_brand))</p>
-        <p class="bold">@lang('shopping::checkout.confirmation.success.total'): {{ currency_format($order->total, \App\Helpers\SessionHdl::getCurrencyKey()) }}</p>
-        <p>@lang('shopping::checkout.confirmation.success.send_to') {{ "{$shipping->address}, {$shipping->suburb}. {$shipping->city_name}, {$shipping->state}" }}</p>
+        <p>@lang('shopping::checkout.confirmation.success.pay_auth'): <strong> {{ $order->bank_authorization }} </strong></p>
+        <p class="bold">@lang('shopping::checkout.confirmation.success.total'): <strong> {{ currency_format($order->total, \App\Helpers\SessionHdl::getCurrencyKey()) }} </strong></p>
+        <p>@lang('shopping::checkout.confirmation.success.send_to') <strong> {{ "{$shipping->address}, {$shipping->suburb}. {$shipping->city_name}, {$shipping->state}" }} </strong></p>
     </div>
     <ul class="cart__confirm-items list-nostyle mul">
 
@@ -25,15 +40,6 @@
             @endforeach
         @endif
     </ul>
-    <div class="cart__confirm-banners">
-        @if (isset($banners))
-            @foreach ($banners as $banner)
-                @if (!empty($banner->link))<a target="_blank" href="{{ $banner->link }}">@endif
-                    <figure class="cart__confirm-banner">
-                        <img src="{{ asset($banner->image) }}" alt="">
-                    </figure>
-                    @if (!empty($banner->link))</a>@endif
-            @endforeach
-        @endif
-    </div>
+
+
 </div>

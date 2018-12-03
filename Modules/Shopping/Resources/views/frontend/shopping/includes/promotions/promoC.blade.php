@@ -14,7 +14,8 @@
                         <line x1="0" y1="8" x2="14" y2="8"></line>
                     </svg>
                 </span>
-                    <input class="form-control" name="qtyPromo[{{$indexPromo}}][{{$item['key_promo']}}][{{$item['key_item']}}]" value="0" type="numeric">
+                    <input class="form-control number" maxlength="4" onkeypress="return esNumero(event)"
+                           name="qtyPromo[{{$indexPromo}}][{{$item['key_promo']}}][{{$item['key_item']}}]" value="0" type="numeric">
                 <span class="plus" onclick="plusPromoC('{{ $promo['key_promo'] }}','{{$indexLine}}', '{{$item['key_item']}}')">
                     <svg height="14" width="14">
                     <line x1="0" y1="7" x2="14" y2="7"></line>

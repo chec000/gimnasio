@@ -1,4 +1,4 @@
-{!! PageBuilder::section('head', ['title' => strtoupper($brand) . ' | ' . trans('shopping::register_customer.title')]) !!}
+{!! PageBuilder::section('head', ['title' => strtoupper($brand) . ' - ' . trans('shopping::register_customer.title')]) !!}
 
 @section('styles')
     <style>
@@ -8,7 +8,9 @@
     </style>
 @endsection
 
-<div class="register fullsteps" id="tabs_register">
+<div class="overlay"></div>
+
+<div class="register fullsteps">
     <nav class="tabs-static">
         <div class="wrapper">
             <ul class="list-nostyle tabs-static__list">
@@ -46,29 +48,6 @@
                     </ul>
                 </div>
 
-                <div class="form-group">
-                    <input type="hidden" id="current_lang" value="{{Session::get('portal.main.app_locale')}}">
-                    <input type="hidden" id="current_country" value="{{Session::get('portal.main.country_corbiz')}}">
-                    <div class="form-label">@lang('shopping::register_customer.account.country.label'):</div>
-
-                    <div class="col-right">
-                        <div class="select">
-                            <select class="form-control" name="country" id="country" autofocus>
-                                <option value="default">@lang('shopping::register_customer.account.country.default')</option>
-                                @foreach ($countries as $country)
-                                    <option value="{{ $country->id }}"
-                                            @if ($country->id == Session::get('portal.register_customer.country_id'))
-                                            selected="selected"
-                                            @endif
-                                    >{{ $country->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="error-msg" id="div_country"></div>
-                </div>
-
                 <div class="form-group radioEo">
                     <div class="form-label mov">@lang('shopping::register_customer.account.invited.label.mobile'):</div>
                     <div class="form-label desk">@lang('shopping::register_customer.account.invited.label.desktop'):</div>
@@ -91,10 +70,12 @@
                 </div>
 
                 <div class="form-group hidden" id="invited-yes">
-                    <div class="form-label">@lang('shopping::register_customer.account.businessman_code.label'):</div>
+
+                    <div class="sponsored form-label {{ !empty($numEo)  ? '' : 'hide hidden' }}">@lang('shopping::register.account.businessman_code.label_sponsored'):</div>
+                    <div class="normal form-label {{ !empty($numEo)  ? 'hide hidden' : '' }}">@lang('shopping::register.account.businessman_code.label'):</div>
 
                     <div class="col-right">
-                        <input rel="{{isset($codEo) ? $codEo : ''}}" class="form-control" type="text" id="register-code" name="register-code" placeholder="@lang('shopping::register_customer.account.businessman_code.placeholder')*" value="{{$numEo}}" maxlength="13">
+                        <input rel="{{isset($codEo) ? $codEo : ''}}" class="form-control" type="text" id="register-code" name="register-code" placeholder="@lang('shopping::register_customer.account.businessman_code.placeholder')*" value="{{$numEo}}" maxlength="13" style="text-transform: uppercase;">
 
                         <div class="" id="valid-eo"></div>
                     </div>
@@ -129,13 +110,13 @@
                     </div>
 
                     <div class="form-group medium">
-                        <input class="form-control" type="text" id="lastname" name="lastname" placeholder="@lang('shopping::register_customer.account.full_name.lastname.placeholder')*" maxlength="30">
+                        <input class="form-control" type="text" id="lastname" name="lastname" placeholder="@lang('shopping::register_customer.account.full_name.lastname.placeholder')" maxlength="30">
 
                         <div class="error-msg" id="div_lastname"></div>
                     </div>
 
                     <div class="form-group medium">
-                        <input class="form-control" type="text" id="lastname2" name="lastname2" placeholder="@lang('shopping::register_customer.account.full_name.lastname2.placeholder')*" maxlength="30">
+                        <input class="form-control" type="text" id="lastname2" name="lastname2" placeholder="@lang('shopping::register_customer.account.full_name.lastname2.placeholder')" maxlength="30">
 
                         <div class="error-msg" id="div_lastname2"></div>
                     </div>
@@ -167,10 +148,6 @@
                     <div class="form-group select small">
                         <select class="form-control" name="day" id="day">
                             <option value="">@lang('shopping::register_customer.account.borndate.day')*</option>
-                            @for($i=1;$i<=31;$i++)
-                                <?php $day = strlen($i) == 1 ? "0".$i : $i ?>
-                                <option value="{{$day}}">{{$day}}</option>
-                            @endfor
                         </select>
 
                         <div class="error-msg" id="div_day"></div>
@@ -178,9 +155,6 @@
                     <div class="form-group select small">
                         <select class="form-control" name="month" id="month">
                             <option value="">@lang('shopping::register_customer.account.borndate.month')*</option>
-                            @foreach($months as $key => $month)
-                                <option value="{{$key}}">@lang($month)</option>
-                            @endforeach
                         </select>
 
                         <div class="error-msg" id="div_month"></div>
@@ -318,8 +292,9 @@
                     <input id="language_corbiz_customer" name="language_corbiz_customer" type="hidden" value="">
                 </div>
 
-                <div id="btnFinish" class="buttons-container" style="display: none;">
-                    <button class="button" type="button" id="btnFinish">@lang('shopping::register_customer.btn.finish')</button>
+                <div class="buttons-container">
+                    <button class="button" type="button" id="btnFinishShopping" style="display: none;">@lang('shopping::register_customer.btn.finish.shopping')</button>
+                    <button class="button" type="button" id="btnFinishLogin" style="display: none;">@lang('shopping::register_customer.btn.finish.login')</button>
                 </div>
             </div>
         </form>
@@ -334,7 +309,6 @@
 
 {!! PageBuilder::section('footer') !!}
 
-@if($activation)
 <script>
     var hrefExit            = '';
     var typeExit            = '';
@@ -342,43 +316,68 @@
     var newCountryId        = '';
     var currentLangId       = '';
     var newLangId           = '';
+    var lang                = '';
+    var countryId           = '';
+    var countryCorbiz       = '';
+    var hasSession          = true;
+    var translations        = {
+        errorEmptyShippingCompanies:    '{{trans("shopping::register.kit.shippingCompanies_empty")}}',
+        errorStreetCorbiz:              '{{trans("shopping::register_customer.fields.street_corbiz")}}',
+    };
+    @if(session('modalExit') || session()->get('portal.main.zipCode') == null)
+    var zipCodeSession      = null;
+    @else
+    var zipCodeSession      = '{{session()->get('portal.main.zipCode')}}';
+    @endif
 
+    $(document).ready(function () {
+        $('#btnCloseLoginSection').click(function() {
+            $('.overlay').hide();
+        });
+    });
+</script>
+
+@if($activation)
+<script>
     $(document).ready(function() {
-        updateSession({{Session::get('portal.register_customer.ca.country_id')}});
+        countryId   = '{{Session::get('portal.main.country_id')}}';
+        getQuestions(countryId);
 
         /* Registro Inconcluso - Al cambiar de país, cambiar lenguaje o click en login */
         $('a').on({
             click: function(e) {
-                var tagClass = $(this).attr('class');
-                var attrId = $(this).attr('id');
+                if (hasSession == true) {
+                    var tagClass = $(this).attr('class');
+                    var attrId = $(this).attr('id');
 
-                if (tagClass == 'change_country_header') {
-                    e.stopPropagation();
-                    currentCountryId = $(this).data('countryidcurrent');
-                    newCountryId = $(this).data('countryid');
-                    typeExit = 'refresh_country';
+                    if (tagClass == 'change_country_header') {
+                        e.stopPropagation();
+                        currentCountryId = $(this).data('countryidcurrent');
+                        newCountryId = $(this).data('countryid');
+                        typeExit = 'refresh_country';
 
-                    if (currentCountryId != newCountryId) {
-                        $('#btnExitModalRegister').click();
+                        if (currentCountryId != newCountryId) {
+                            $('#btnExitModalRegister').click();
+                        }
                     }
-                }
-                else if (tagClass == 'change_language_header') {
-                    e.stopPropagation();
-                    currentLangId = $(this).data('langidcurrent');
-                    newLangId = $(this).data('langid');
-                    typeExit = 'refresh_lang';
+                    else if (tagClass == 'change_language_header') {
+                        e.stopPropagation();
+                        currentLangId = $(this).data('langidcurrent');
+                        newLangId = $(this).data('langid');
+                        typeExit = 'refresh_lang';
 
-                    if (currentLangId != newLangId) {
-                        $('#btnExitModalRegister').click();
+                        if (currentLangId != newLangId) {
+                            $('#btnExitModalRegister').click();
+                        }
                     }
-                }
-                else if (attrId == 'login-btn') {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    $('.login').removeClass('active');
-                    $('#btnExitModalRegister').click();
-                    typeExit = 'section';
-                    hrefExit = '.login';
+                    else if (attrId == 'login-btn') {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        $('.login').removeClass('active');
+                        $('#btnExitModalRegister').click();
+                        typeExit = 'section';
+                        hrefExit = '.login';
+                    }
                 }
             }
         });
@@ -386,13 +385,21 @@
         /* Registro Inconcluso - Alerta al hacer click en el icono de login */
         $('.icon-btn').on({
             click: function() {
-                var attrId = $(this).attr('id');
-                typeExit = 'section';
+                if (hasSession == true) {
+                    var attrId = $(this).attr('id');
+                    typeExit = 'section';
 
-                if (attrId == 'iuser') {
-                    $('.login').removeClass('active');
-                    hrefExit = '.login';
-                    $('#btnExitModalRegister').click();
+                    if (attrId == 'iuser') {
+                        $('.login').removeClass('active');
+                        hrefExit = '.login';
+                        $('#btnExitModalRegister').click();
+                    }
+                    else if (attrId == 'icart') {
+                        $('.cart-preview').removeClass('active');
+                        typeExit = 'change_url';
+                        hrefExit = "{{session()->get('portal.main.brand.domain')}}/{{ \App\Helpers\TranslatableUrlPrefix::getTranslatablePrefixByIndexAndLang('products', session()->get('portal.main.app_locale')) }}";
+                        $('#btnExitModalRegister').click();
+                    }
                 }
             }
         });
@@ -403,14 +410,33 @@
         });
 
         //Inciamos Sesion
-        $('#btnFinish').click(function() {
-            loginRegisterCustomer();
+        $('#btnFinishShopping').click(function() {
+            var url = "{{route('checkout.index')}}";
+
+            loginRegisterCustomer(url);
+        });
+
+        //Rediregimos a Login
+        $('#btnFinishLogin').click(function() {
+            var url = URL_PROJECT;
+
+            loginRegisterCustomer(url);
         });
 
         $('#btnAcceptModalExitRegister').click(function() {
             if (typeExit == 'section') {
+                $('.overlay').show();
                 $(hrefExit).addClass('active');
                 $('#btnCancelModalExitRegister').click();
+            }
+            else if (typeExit == 'change_url') {
+                var url         = "{{route('registercustomer.exit')}}";
+                var dataForm    = {
+                    name_session:           'register_customer',
+                    url_next_exit_register: hrefExit,
+                };
+
+                modalUnfinishedRegister(url, dataForm);
             }
             else if (typeExit == 'refresh_lang') {
                 $('.loader').removeClass('hide').addClass('show');
@@ -437,29 +463,6 @@
             }
         });
     });
-
-    function updateSession(country) {
-        $.ajax({
-            type: 'POST',
-            dataType: 'JSON',
-            url: "{{ route('registercustomer.update_session') }}",
-            data: {'country': country, _token: '{{csrf_token()}}'},
-            statusCode: {
-                419: function() {
-                    window.location.href = URL_PROJECT;
-                }
-            },
-            success: function(result) {
-                getQuestions(country);
-            },
-            error:function(result){
-            },
-            beforeSend: function () {
-            },
-            complete: function () {
-            }
-        });
-    }
 
     //Se obtienen las preguntas secreteas cuando se cambia de país en el select
     function getQuestions(country) {
@@ -536,7 +539,6 @@
                     $('#step3_div_2').hide();
                     $('#step3_div_3').hide();
                     $('.register__banner').removeClass('hidden');
-                    $('#btnFinish').show();
 
                     html_corbiz += "<img src='" + data.message.url_image + "' alt=''>";
                     html_corbiz += "<p><strong>{{trans('shopping::register_customer.activation.label')}}:</strong></p>";
@@ -546,17 +548,37 @@
 
                     $('#data_corbiz').html(html_corbiz);
 
+                    if (data.message.items == true) {
+                        $('#btnFinishShopping').show();
+                    }
+                    else {
+                        $('#btnFinishLogin').show();
+                    }
+
                     $('#code_customer').val(data.message.code);
                     $('#password_customer').val(data.message.password);
                     $('#country_corbiz_customer').val(data.message.country);
                     $('#language_corbiz_customer').val(data.message.language);
+                    hasSession = false;
+
+                    $('.loader').removeClass('show').addClass('hide');
                 }
                 else if (data.success == false) {
                     $('#error__box_step3').show();
 
                     $.each(data.message, function (key, message) {
-                        $('#error__box_ul_step3').append('<li>' + $.trim(message.messUser) + '</li>');
+                        $('#error__box_ul_step3').append('<li>' + $.trim(message.messUser) + ' (' + message.idError + ')</li>');
                     });
+
+                    if (data.details != '') {
+                        $('#error__box_ul_step3').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                        setErrors(data.details);
+                    }
+
+                    $('html,body').animate({
+                        scrollTop: $(".tabs-static").offset().top
+                    }, 'slow');
+                    $('.loader').removeClass('show').addClass('hide');
                 }
             },
             beforeSend: function() {
@@ -565,15 +587,21 @@
                 $('#error__box_ul_step3').html('');
                 $('#data_corbiz').html('');
                 $('.register__banner').addClass('hidden');
-                $('#btnFinish').hide();
+                $('#btnFinishShopping').hide();
+                $('#btnFinishLogin').hide();
             },
             complete: function() {
+            },
+            error: function() {
+                $('html,body').animate({
+                    scrollTop: $(".tabs-static").offset().top
+                }, 'slow');
                 $('.loader').removeClass('show').addClass('hide');
             }
         });
     }
 
-    function loginRegisterCustomer() {
+    function loginRegisterCustomer(url) {
         $.ajax({
             url: "{{route('login.auth')}}",
             type: 'POST',
@@ -583,7 +611,7 @@
                 'password': $('#password_customer').val(),
                 'country_corbiz': $('#country_corbiz_customer').val(),
                 'language_corbiz': $('#language_corbiz_customer').val(),
-                'url_previous': "{{route('checkout.index')}}",
+                'url_previous': url,
             },
             statusCode: {
                 419: function() {
@@ -594,11 +622,26 @@
             success: function (data) {
                 if (data.success == true) {
                     location.href = data.message;
-                }
-                else {
+                } else {
                     $('#error__box_step3').show();
-                    $('#error__box_ul_step3').append('<li>' + data.message + '</li>');
+                    $('#error__box_ul_step3').html('');
+
+                    if (typeof data.message === "object") {
+                        $.each(data.message, function (key, value) {
+                            $('#error__box_ul_step3').append('<li>' + value.messUser + '</li>');
+                        });
+                    } else {
+                        $('#error__box_ul_step3').append('<li>{{ trans('shopping::checkout.payment.errors.sys006') }}</li>');
+                    }
+
+                    $('.loader').removeClass('show').addClass('hide');
                 }
+            },
+            beforeSend: function () {
+                $('.loader').removeClass('hide').addClass('show');
+            },
+            error: function (data) {
+                $('.loader').removeClass('show').addClass('hide');
             }
         });
     }
@@ -608,21 +651,14 @@
 <script type="text/javascript" src="{{ asset('cms/jquery-ui/jquery-ui.js') }}"></script>
 <script type='text/javascript' src="{{ asset('js/jquery.autocomplete.js') }}"></script>
 <script>
-    var hrefExit            = '';
-    var typeExit            = '';
-    var currentCountryId    = '';
-    var newCountryId        = '';
-    var currentLangId       = '';
-    var newLangId           = '';
-    var translations        = {
-        errorEmptyShippingCompanies:  '{{trans("shopping::register.kit.shippingCompanies_empty")}}',
-    };
-
     $(document).ready(function() {
-        var lang            = $('#current_lang').val();
-        var country         = $('#country').val();
-        var countryname     = $('#current_country').val();
-        var countrychoosen  = country;
+        lang            = '{{Session::get('portal.main.app_locale')}}';
+        countryId       = '{{Session::get('portal.main.country_id')}}';
+        countryCorbiz   = '{{Session::get('portal.main.country_corbiz')}}';
+
+        $('#zip').blur(function() {
+            zipCodeSession = null;
+        });
 
         /* Registro Inconcluso - Al cambiar de país, cambiar lenguaje o click en login */
         $('a').on({
@@ -672,51 +708,18 @@
                     hrefExit = '.login';
                     $('#btnExitModalRegister').click();
                 }
+                else if (attrId == 'icart') {
+                    $('.cart-preview').removeClass('active');
+                    typeExit = 'change_url';
+                    hrefExit = "{{session()->get('portal.main.brand.domain')}}/{{ \App\Helpers\TranslatableUrlPrefix::getTranslatablePrefixByIndexAndLang('products', session()->get('portal.main.app_locale')) }}";
+                    $('#btnExitModalRegister').click();
+                }
             }
         });
 
-        //Actualiza los campos del formulario y sesion cuando se cambia de país para volver a llenar los valores en base al país
-        $('#country').change(function () {
-            //Actualizar valores de la sesion
-            updateSession($(this).val());
-
-            //Limpiar los campos del formulario que se definen por el paíes e idioma
-            $('#register-code').val('');
-            $('#distributor_code').val('');
-            $('#distributor_name').val('');
-            $('#distributor_email').val('');
-            $('#references').children('option').remove();
-            $('#name').val('');
-            $('#lastname').val('');
-            $('#lastname2').val('');
-            $('#invited1').prop('checked', false);
-            $('#invited2').prop('checked', false);
-            $('#sex1').prop('checked', false);
-            $('#sex2').prop('checked', false);
-            $('#day').children('option:not(:first)').remove();
-            $('#month').children('option:not(:first)').remove();
-            $('#year').children('option:not(:first)').remove();
-            $('#id_type').children('option:not(:first)').remove();
-            $('#error-msg-references').html('');
-            $('#id_num').val('');
-            $('#error__box_step1').hide();
-            $('#error__box_ul_step1').html('');
-            $('#register-code').removeClass('has-error');
-            $('#valid-eo').removeClass('alert-businessman alert-success');
-            $('#valid-eo').html('');
-            $('#invited-yes').removeClass('hide hidden').addClass('hide hidden');
-            $('#invited-no').removeClass('hide hidden').addClass('hide hidden');
-            $(".radioEo").removeClass('hidden hide');
-
-            cleanMessagesValidateFieldsPortal('step1');
-
-            countrychoosen = $(this).val();
-        });
-
-        getParameters(country);
-        getStates(country);
-        loadView($('#current_country').val());
-        getQuestions(country);
+        getParameters(countryId);
+        loadView(countryCorbiz);
+        getQuestions(countryId);
 
         //Se obtienen las referencias y el pool de empresario asl seccionar que no fuiste invitado
         $('#invited2').click(function() {
@@ -727,7 +730,7 @@
             $.ajax({
                 type: 'POST',
                 url: "{{ route('registercustomer.references') }}",
-                data: {'country': countrychoosen, _token: '{{csrf_token()}}'},
+                data: {'country': countryId, _token: '{{csrf_token()}}'},
                 statusCode: {
                     419: function() {
                         window.location.href = URL_PROJECT;
@@ -776,7 +779,7 @@
             $.ajax({
                 type: 'POST',
                 url: "{{ route('registercustomer.pool') }}",
-                data: {'country': countrychoosen, 'lang': lang, _token: '{{csrf_token()}}'},
+                data: {'country': countryId, 'lang': lang, _token: '{{csrf_token()}}'},
                 statusCode: {
                     419: function() {
                         window.location.href = URL_PROJECT;
@@ -819,20 +822,18 @@
             var sponsor = $('#register-code').val();
 
             $.ajax({
-                type: "POST",
-                url: "{{ route('registercustomer.validateeo') }}",
-                data: {'country': countrychoosen, 'sponsor': sponsor, 'lang': lang, _token: '{{csrf_token()}}'},
+                type: 'POST',
+                url: "{{route('registercustomer.validateeo')}}",
+                data: {'country': countryId, 'sponsor': sponsor, 'lang': lang},
                 statusCode: {
                     419: function() {
                         window.location.href = URL_PROJECT;
                     }
                 },
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 success: function(result) {
                     if (result.status){
                         info = result.data;
-                        $('#error__box_step1').hide();
-                        $('#error__box_ul_step1').html('');
-                        $('#register-code').removeClass('has-error');
                         $('#valid-eo').addClass('alert-businessman alert-success');
                         $('#valid-eo').html(info.name_1);
                         $('#distributor_name').val(info.name_1);
@@ -841,18 +842,29 @@
                     }
                     else {
                         $('#error__box_step1').show();
-                        $('#error__box_ul_step1').html('');
                         $('#register-code').addClass('has-error');
 
-                        $.each(result.messages, function (i, item) {
-                            $('#error__box_ul_step1').html('<li>' + item + '</li>');
+                        $.each(result.messages, function (key, value) {
+                            var id_error = (value.idError == '') ? '' : ' (' + value.idError + ')';
+                            $('#error__box_ul_step1').append('<li>' + $.trim(value.messUser) + $.trim(id_error) + '</li>');
                         });
+
+                        if (result.details != '') {
+                            $('#error__box_ul_step1').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                            setErrors(result.details);
+                        }
+
+                        $('html,body').animate({
+                            scrollTop: $(".tabs-static").offset().top
+                        }, 'slow');
                     }
                 },
                 error: function(result) {
-                    console.log(result);
                 },
                 beforeSend: function() {
+                    $('#error__box_step1').hide();
+                    $('#error__box_ul_step1').empty();
+                    $('#register-code').removeClass('has-error');
                     $('#valid-eo').removeClass('alert-businessman alert-success');
                     $('#valid-eo').html('');
                     $('#distributor_name').val('');
@@ -890,11 +902,20 @@
             $('#step2').removeClass('active');
             $('#tab__step1').addClass('active');
             $('#step1').addClass('active');
-            "{{Session::put('portal.register_customer.step', 1)}}";
+
+            $.ajax({
+                type: 'POST',
+                url: "{{route('registercustomer.backStep2')}}",
+                data: {_token: '{{csrf_token()}}'},
+                statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
+                success : function (data) {
+                }
+            });
         });
 
         $('#btnAcceptModalExitRegister').click(function() {
             if (typeExit == 'section') {
+                $('.overlay').show();
                 $(hrefExit).addClass('active');
                 $('#btnCancelModalExitRegister').click();
             }
@@ -960,92 +981,119 @@
 
     $(document).on('change', '#state', function() {
         var state       = $(this).val();
-        var country     = $('#current_country').val();
         var htmlCities  = '';
 
-        $.ajax({
-            type: 'POST',
-            url: "{{route('registercustomer.cities')}}",
-            data: {'country': country, 'state': state, _token: '{{csrf_token()}}'},
-            statusCode: {
-                419: function() {
-                    window.location.href = URL_PROJECT;
-                }
-            },
-            success: function(result) {
-                if (result.status) {
-                    $("#error__box_ul_step1").html("");
-                    $("#error__box_step1").hide();
-                    $('#city').removeClass('has-error');
+        if (state != 'default') {
+            $.ajax({
+                type: 'POST',
+                url: "{{route('registercustomer.cities')}}",
+                data: {'country': countryCorbiz, 'state': state, _token: '{{csrf_token()}}'},
+                statusCode: {
+                    419: function () {
+                        window.location.href = URL_PROJECT;
+                    }
+                },
+                success: function (result) {
+                    if (result.status) {
+                        $("#error__box_ul_step1").html("");
+                        $("#error__box_step1").hide();
+                        $('#city').removeClass('has-error');
 
-                    htmlCities += '<option value="default">@lang("shopping::register_customer.account.address.placeholders.city")*</option>';
+                        htmlCities += '<option value="default">@lang("shopping::register_customer.account.address.placeholders.city")*</option>';
 
-                    $.each(result.data, function(i, item) {
-                        htmlCities += '<option value="' + $.trim(item.id) + '">' + $.trim(item.name) + '</option>';
-                    });
+                        $.each(result.data, function (i, item) {
+                            htmlCities += '<option value="' + $.trim(item.id) + '">' + $.trim(item.name) + '</option>';
+                        });
 
-                    $("#city").html(htmlCities);
+                        $("#city").html(htmlCities);
 
-                    if (state == 'default') {
-                        $('#state_hidden').val('');
+                        if (state == 'default') {
+                            $('#state_hidden').val('');
+                        }
+                        else {
+                            $('#state_hidden').val(state);
+                        }
+
+                        $('.loader').removeClass('show').addClass('hide');
                     }
                     else {
-                        $('#state_hidden').val(state);
-                    }
-                }
-                else {
-                    $("#error__box_step1").show();
-                    $("#error__box_ul_step1").html("");
-                    $("#city").addClass("has-error");
+                        $("#error__box_step1").show();
+                        $("#error__box_ul_step1").html("");
+                        $("#city").addClass("has-error");
 
-                    $.each(result.messages, function (i, item) {
-                        $("#error__box_ul_step1").append("<li class='text-danger'>" + item + "</li>");
-                    });
+                        $.each(result.messages, function (key, value) {
+                            var id_error = (value.idError == '') ? '' : ' (' + value.idError + ')';
+                            $('#error__box_ul_step1').append('<li>' + $.trim(value.messUser) + $.trim(id_error) + '</li>');
+                        });
+
+                        if (result.details != '') {
+                            $('#error__box_ul_step1').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                            setErrors(result.details);
+                        }
+
+                        $('html,body').animate({
+                            scrollTop: $(".tabs-static").offset().top
+                        }, 'slow');
+
+                        $('.loader').removeClass('show').addClass('hide');
+                    }
+                },
+                error: function (result) {
+                    $('.loader').removeClass('show').addClass('hide');
+                },
+                beforeSend: function () {
+                    $('.loader').removeClass('hide').addClass('show');
+                    $("#error__box_ul_step1").html("");
+                    $("#error__box_step1").hide();
+                    $("#city").children('option:not(:first)').remove();
+                },
+                complete: function () {
                 }
-            },
-            error:function(result) {
-            },
-            beforeSend: function() {
-                $("#error__box_ul_step1").html("");
-                $("#error__box_step1").hide();
-                $("#city").children('option:not(:first)').remove();
-            },
-            complete: function() {
-            }
-        });
+            });
+        }
     });
 
-    function updateSession(country) {
-        $.ajax({
-            type: 'POST',
-            dataType: 'JSON',
-            url: "{{ route('registercustomer.update_session') }}",
-            data: {'country': country, _token: '{{csrf_token()}}'},
-            statusCode: {
-                419: function() {
-                    window.location.href = URL_PROJECT;
-                }
-            },
-            success: function(result) {
-                loadView(result.country_name);
-                getParameters(country);
-                getStates(country);
-                getQuestions(country);
-            },
-            error:function(result){
-            },
-            beforeSend: function () {
-            },
-            complete: function () {
-            }
-        });
-    }
+    $(document).on('keyup', '#street', function() {
+        var street = $(this).val();
+        var appliesValidation = '{{config('shopping.defaultValidationForm.' . session()->get('portal.register_customer.country_corbiz') . '.specialstreet')}}';
 
-    function loadView(country){
+        if (appliesValidation) {
+            $.ajax({
+                type: 'POST',
+                url: "{{route('registercustomer.validatestreet')}}",
+                data: { 'street': street, _token: '{{csrf_token()}}' },
+                statusCode: {
+                    419: function() {
+                        window.location.href = URL_PROJECT;
+                    }
+                },
+                success: function(result) {
+                    if (result.passes) {
+                        $('#btnContinueStep1').attr('disabled', false);
+                        $('#div_message_street').html('');
+                        $('#div_message_street').html(result.message);
+                        $('#div_message_street').css('color', 'dodgerblue');
+                    }
+                    else {
+                        $('#btnContinueStep1').attr('disabled', true);
+                        $('#div_message_street').html('');
+                        $('#div_message_street').html(result.message);
+                        $('#div_message_street').css('color', 'red');
+                    }
+                },
+                error: function(result) {},
+                beforeSend: function() {},
+                complete: function() {}
+            });
+        }
+
+    });
+
+    function loadView(countryId){
         $.ajax({
             type: 'POST',
             url: "{{ route('registercustomer.changeview') }}",
-            data: {'country': country, _token: '{{csrf_token()}}'},
+            data: {'country': countryId, _token: '{{csrf_token()}}'},
             statusCode: {
                 419: function() {
                     window.location.href = URL_PROJECT;
@@ -1053,18 +1101,18 @@
             },
             success : function (data) {
                 $("#form_included").html(data);
-                getStates(country);
+                getStates(countryId);
             }
         });
     }
 
     //Se obtienen las preguntas secreteas cuando se cambia de país en el select
-    function getQuestions(country) {
+    function getQuestions(countryId) {
         //Llamado Secret Questions
         $.ajax({
             type: 'POST',
             url: "{{ route('register.questions') }}",
-            data: {'country': country, _token: '{{csrf_token()}}'},
+            data: {'country': countryId, _token: '{{csrf_token()}}'},
             statusCode: {
                 419: function() {
                     window.location.href = URL_PROJECT;
@@ -1100,11 +1148,11 @@
     }
 
     //Llamado Parametros de Inscripcion
-    function getParameters(country) {
+    function getParameters(countryId) {
         $.ajax({
             type: "POST",
             url: "{{ route('registercustomer.parameters') }}",
-            data: {'country': country, _token: '{{csrf_token()}}'},
+            data: {'country': countryId, _token: '{{csrf_token()}}'},
             statusCode: {
                 419: function() {
                     window.location.href = URL_PROJECT;
@@ -1116,7 +1164,18 @@
                     $("#error-msg-parameters").html("");
                     $('#year').removeClass('has-error');
 
-                    for (x= info.fechain;x >= info.fecha_fin; x--){
+                    for (d = 1; d <= 31; d++) {
+                        $('#day').append($('<option>', {
+                            value: d,
+                            text : d
+                        }));
+                    }
+
+                    @foreach($months as $key => $month)
+                        $('#month').append('<option value="{{$key}}">{{trans($month)}}</option>');
+                    @endforeach
+
+                    for (x= info.fechain;x >= info.fecha_fin; x--) {
                         $('#year').append($('<option>', {
                             value: x,
                             text : x
@@ -1126,7 +1185,7 @@
                     if (info.has_documents == 1) {
                         $("#documents").show('fadeIn');
                         //llamado a documentos de corbiz por país
-                        getDocumentsFromCorbiz(country);
+                        getDocumentsFromCorbiz(countryId);
                     }
                 }
                 else {
@@ -1142,19 +1201,22 @@
             },
             beforeSend: function() {
                 $("#error-msg-parameters").html("");
+                $('#day').children('option:not(:first)').remove();
+                $('#month').children('option:not(:first)').remove();
+                $('#year').children('option:not(:first)').remove();
             },
             complete: function() {
             }
         });
     }
 
-    function getDocumentsFromCorbiz(country){
+    function getDocumentsFromCorbiz(countryId){
         var html = '';
 
         $.ajax({
             type: "POST",
             url: "{{ route('registercustomer.documents') }}",
-            data: {'country': country, _token: '{{csrf_token()}}'},
+            data: {'country': countryId, _token: '{{csrf_token()}}'},
             statusCode: {
                 419: function() {
                     window.location.href = URL_PROJECT;
@@ -1229,22 +1291,19 @@
         $.ajax({
             type: 'POST',
             url: "{{route('registercustomer.shippingCompanies')}}",
-            data: {'state': state, 'city': city, _token: '{{csrf_token()}}'},
+            data: {'state': state, 'city': city},
             statusCode: {
                 419: function() {
                     window.location.href = URL_PROJECT;
                 }
             },
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             success: function (result) {
                 if (result.status) {
-                    $('#error__box_ul_step1').empty();
-                    $('#error__box_step1').hide();
-                    $('#shipping_company').removeClass('has-error');
-
                     if(!$.trim(result.data)) {
+                        $('#shipping_company').addClass('has-error');
                         $('#error__box_step1').show();
-                        $('#error__box_ul_step3').empty();
-                        $('#error__box_ul_step1').append("<li class='text-danger'>" + translations.errorEmptyShippingCompanies + "</li>");
+                        $('#div_shipping_company').append(translations.errorEmptyShippingCompanies);
                     }
                     else {
                         $.each(result.data, function(i, item) {
@@ -1266,21 +1325,39 @@
                             }
                         @endif
                     }
+
+                    $('.loader').removeClass('show').addClass('hide');
                 }
                 else {
                     $('#error__box_step1').show();
-                    $('#error__box_ul_step1').empty();
 
-                    $.each(result.messages, function(i, item) {
-                        $('#error__box_ul_step1').append("<li class='text-danger'>" + item + "</li>");
+                    $.each(result.messages, function(key, message) {
+                        var id_error = (message.idError != '') ? ' (' + $.trim(message.idError) + ')' : '';
+
+                        $('#error__box_ul_step1').append('<li>' + $.trim(message.messUser) + id_error + '</li>');
                     });
+
+                    if (result.details != '') {
+                        $('#error__box_ul_step1').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                        setErrors(result.details);
+                    }
+
+                    $('html,body').animate({
+                        scrollTop: $(".tabs-static").offset().top
+                    }, 'slow');
+
+                    $('.loader').removeClass('show').addClass('hide');
                 }
             },
             error:function(result) {
+                $('.loader').removeClass('show').addClass('hide');
             },
             beforeSend: function() {
-                $('#error__box_ul_step3').empty();
-                $('#error_step3').hide();
+                $('#div_shipping_company').empty();
+                $('#shipping_company').removeClass('has-error');
+                $('.loader').removeClass('hide').addClass('show');
+                $('#error__box_ul_step1').empty();
+                $('#error__box_step1').hide();
                 $('#shipping_company').children('option:not(:first)').remove();
             },
             complete: function () {
@@ -1332,13 +1409,13 @@
         });
     }
 
-    function getStates(country) {
+    function getStates(countryId) {
         var stateHtml = '';
 
         $.ajax({
             type: 'POST',
             url: "{{ route('registercustomer.states') }}",
-            data: {'country': country, _token: '{{csrf_token()}}'},
+            data: {'country': countryId, _token: '{{csrf_token()}}'},
             statusCode: {
                 419: function() {
                     window.location.href = URL_PROJECT;
@@ -1357,15 +1434,26 @@
                     });
 
                     $("#state").html(stateHtml);
+                    getZipCodeFromCorbiz(zipCodeSession);
                 }
                 else {
                     $("#error__box_step1").show();
                     $("#error__box_ul_step1").html("");
                     $("#state").addClass("has-error");
 
-                    $.each(result.messages, function (i, item) {
-                        $("#error__box_ul_step1").append("<li class='text-danger'>" + item + "</li>");
+                    $.each(result.messages, function(key, message) {
+                        var id_error = (message.idError != '') ? ' (' + $.trim(message.idError) + ')' : '';
+                        $('#error__box_ul_step1').append('<li>' + $.trim(message.messUser) + id_error + '</li>');
                     });
+
+                    if (result.details != '') {
+                        $('#error__box_ul_step1').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                        setErrors(result.details);
+                    }
+
+                    $('html,body').animate({
+                        scrollTop: $(".tabs-static").offset().top
+                    }, 'slow');
                 }
             },
             error: function(result) {
@@ -1378,6 +1466,73 @@
             complete: function() {
             }
         });
+    }
+
+    function getZipCodeFromCorbiz(zip) {
+        if (zip != null) {
+            $.ajax({
+                url: "{{route('registercustomer.zipcode')}}",
+                type: 'POST',
+                dataType: 'JSON',
+                data: {zipCode: zip},
+                statusCode: {
+                    419: function () {
+                        window.location.href = URL_PROJECT;
+                    }
+                },
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                success: function (result) {
+
+                    if(result.status){
+                        $('#zip').val(result.suggestions[0].data.zipcode);
+                        $('#state').val(result.suggestions[0].data.idState);
+                        $('#state_hidden').val(result.suggestions[0].data.idState);
+
+                        citybystate(result.suggestions[0].data.idState, result.suggestions[0].data.idCity, result.suggestions[0].data.cityDescr, urlcities, token, validate, tipo);
+
+                        if (check == 'county') {
+                            $('#colony').val(result.suggestions[0].data.county);
+                        }
+                        else if (check == 'suburb') {
+                            $('#colony').val(result.suggestions[0].data.suburb);
+                        }
+
+                        $('#city_hidden').val(result.suggestions[0].data.idCity);
+
+                        $('.loader').removeClass('show').addClass('hide');
+                    }else{
+                        $('.loader').removeClass('show').addClass('hide');
+                        $("#error__box_step1").show();
+                        $("#error__box_ul_step1").html("");
+                        $("#state").addClass("has-error");
+
+                        $.each(result.messages, function (i, item) {
+                            if(item.messUser == null){
+                                $("#error__box_ul_step1").append("<li class='text-danger'>" + item + "</li>");
+
+                            }else{
+                                $("#error__box_ul_step1").append("<li class='text-danger'>" + item.messUser + "</li>");
+
+                            }
+                        });
+
+                        if (result.details != '') {
+                            $('#error__box_ul_step1').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                            setErrors(result.details);
+                        }
+
+
+                    }
+
+                },
+                beforeSend: function () {
+                    $('.loader').removeClass('hide').addClass('show');
+                },
+                error: function(result) {
+                    $('.loader').removeClass('show').addClass('hide');
+                }
+            });
+        }
     }
 
     function clear_form_elements() {
@@ -1404,6 +1559,7 @@
     function backStep1() {
         typeExit    = 'change_url';
         hrefExit    = '/';
+
         $('#btnExitModalRegister').click();
     }
 
@@ -1448,16 +1604,28 @@
                     $('#error__box_step2').show();
 
                     $.each(data.message, function (key, message) {
-                        $('#error__box_ul_step1').append('<li>' + $.trim(message.messUser) + '</li>');
-                        $('#error__box_ul_step2').append('<li>' + $.trim(message.messUser) + '</li>');
+                        $('#error__box_ul_step1').append('<li>' + $.trim(message.messUser) + ' (' + message.idError + ')</li>');
+                        $('#error__box_ul_step2').append('<li>' + $.trim(message.messUser) + ' (' + message.idError + ')</li>');
+
+                        if (message.idError == '10026') {
+                            $('#street').removeClass('has-error').addClass('has-error');
+                            $('#div_street').empty().append(translations.errorStreetCorbiz);
+                        }
                     });
 
+                    if (data.details != '') {
+                        $('#error__box_ul_step1').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                        $('#error__box_ul_step2').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                        setErrors(data.details);
+                    }
+
                     $('.loader').removeClass('show').addClass('hide');
-                    window.location.href = "#tabs_register";
+                    $('html,body').animate({
+                        scrollTop: $(".tabs-static").offset().top
+                    }, 'slow');
                 }
             },
             beforeSend: function() {
-                $('.loader').removeClass('hide').addClass('show');
                 $('#error__box_step1').hide();
                 $('#error__box_ul_step1').html('');
                 $('#error__box_step2').hide();
@@ -1482,6 +1650,10 @@
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             success: function(data) {
                 if (data.success == true) {
+                    $('#email').prop('readonly', true);
+                    $('#confirm-email').prop('readonly', true);
+                    $('#tel').prop('readonly', true);
+                    $('#cel').prop('readonly', true);
                     $('#info_send_correo').removeClass('hidden');
                     $('#btnGoBackStep2').hide();
                     $('#btnContinueStep2').hide();
@@ -1492,13 +1664,18 @@
                     $('#error__box_step2').show();
                     $('#error__box_ul_step2').html('<li>' + data.message + '</li>');
                     $('.loader').removeClass('show').addClass('hide');
-                    window.location.href = "#tabs_register";
+                    $('html,body').animate({
+                        scrollTop: $(".tabs-static").offset().top
+                    }, 'slow');
                 }
             },
             beforeSend: function() {
-                $('.loader').removeClass('hide').addClass('show');
                 $('#error__box_step2').hide();
                 $('#error__box_ul_step2').html('');
+                $('#email').prop('readonly', false);
+                $('#confirm-email').prop('readonly', false);
+                $('#tel').prop('readonly', false);
+                $('#cel').prop('readonly', false);
             },
             complete: function() {
             }
@@ -1527,11 +1704,13 @@
     /* Registro Inconcluso */
     @if(session('modalExit'))
     $('#btnCancelModalExitRegister').click(function() {
+        @if(session('stepUnfinished') != null)
         /* Tab Activa */
         $('#tab__step1').removeClass('active');
         $('#step1').removeClass('active');
         $('#tab__step' + '{{session('stepUnfinished')}}').addClass('active');
         $('#step' + '{{session('stepUnfinished')}}').addClass('active');
+        @endif
 
         /* Carga de Datos al Formulario */
         var data        = jQuery.parseJSON('{!!session('dataUnfinished')!!}');
@@ -1586,7 +1765,11 @@
             $('.radioEo').addClass('hidden hide');
             $('#register-code').blur();
             $('#invited1').prop('checked',true);
+            $(".normal").removeClass('hide hidden');
+            $(".sponsored").addClass('hide hidden');
             @else
+                $(".normal").addClass('hide hidden');
+            $(".sponsored").removeClass('hide hidden');
             if (invited == 1) {
                 $('#register-code').blur();
             }
@@ -1595,59 +1778,70 @@
     });
 
     function getCities(state, city) {
-        var country     = $('#current_country').val();
-        var htmlCities  = '';
+        var htmlCities = '';
 
-        $.ajax({
-            type: 'POST',
-            url: "{{route('registercustomer.cities')}}",
-            data: {'country': country, 'state': state, _token: '{{csrf_token()}}'},
-            statusCode: {
-                419: function() {
-                    window.location.href = URL_PROJECT;
-                }
-            },
-            success: function(result) {
-                if (result.status) {
+        if (state != 'default') {
+            $.ajax({
+                type: 'POST',
+                url: "{{route('registercustomer.cities')}}",
+                data: {'country': countryCorbiz, 'state': state, _token: '{{csrf_token()}}'},
+                statusCode: {
+                    419: function () {
+                        window.location.href = URL_PROJECT;
+                    }
+                },
+                success: function (result) {
+                    if (result.status) {
+                        $("#error__box_ul_step1").html("");
+                        $("#error__box_step1").hide();
+                        $('#city').removeClass('has-error');
+
+                        htmlCities += '<option value="default">@lang("shopping::register_customer.account.address.placeholders.city")*</option>';
+
+                        $.each(result.data, function (i, item) {
+                            htmlCities += '<option value="' + $.trim(item.id) + '">' + $.trim(item.name) + '</option>';
+                        });
+
+                        $("#city").html(htmlCities);
+                        $('#city').val(city);
+                        $('#city_hidden').val(city);
+
+                        var cityText = $('#city').find('option:selected').text();
+                        $('#city_name').val(cityText);
+
+                        getShippingCompanyFromCorbiz(state, city);
+                    }
+                    else {
+                        $("#error__box_step1").show();
+                        $("#error__box_ul_step1").html("");
+                        $("#city").addClass("has-error");
+
+                        $.each(result.messages, function (key, value) {
+                            var id_error = (value.idError == '') ? '' : ' (' + value.idError + ')';
+                            $('#error__box_ul_step1').append('<li>' + $.trim(value.messUser) + $.trim(id_error) + '</li>');
+                        });
+
+                        if (result.details != '') {
+                            $('#error__box_ul_step1').append('<br><a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{trans('cms::errors.modal.more')}}</a>');
+                            setErrors(result.details);
+                        }
+
+                        $('html,body').animate({
+                            scrollTop: $(".tabs-static").offset().top
+                        }, 'slow');
+                    }
+                },
+                error: function (result) {
+                },
+                beforeSend: function () {
                     $("#error__box_ul_step1").html("");
                     $("#error__box_step1").hide();
-                    $('#city').removeClass('has-error');
-
-                    htmlCities += '<option value="default">@lang("shopping::register_customer.account.address.placeholders.city")*</option>';
-
-                    $.each(result.data, function(i, item) {
-                        htmlCities += '<option value="' + $.trim(item.id) + '">' + $.trim(item.name) + '</option>';
-                    });
-
-                    $("#city").html(htmlCities);
-                    $('#city').val(city);
-                    $('#city_hidden').val(city);
-
-                    var cityText    = $('#city').find('option:selected').text();
-                    $('#city_name').val(cityText);
-
-                    getShippingCompanyFromCorbiz(state,city);
+                    $("#city").children('option:not(:first)').remove();
+                },
+                complete: function () {
                 }
-                else {
-                    $("#error__box_step1").show();
-                    $("#error__box_ul_step1").html("");
-                    $("#city").addClass("has-error");
-
-                    $.each(result.messages, function (i, item) {
-                        $("#error__box_ul_step1").append("<li class='text-danger'>" + item + "</li>");
-                    });
-                }
-            },
-            error:function(result) {
-            },
-            beforeSend: function() {
-                $("#error__box_ul_step1").html("");
-                $("#error__box_step1").hide();
-                $("#city").children('option:not(:first)').remove();
-            },
-            complete: function() {
-            }
-        });
+            });
+        }
     }
     @endif
 </script>

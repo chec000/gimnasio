@@ -11,7 +11,7 @@ return [
     'tabs' => [
       'address' => [
         'desktop' => '1. Shipping address',
-        'mobile' => 'Address'
+        'mobile' => 'Shipping'
       ],
       'payment' => [
         'desktop' => '2. Payment method',

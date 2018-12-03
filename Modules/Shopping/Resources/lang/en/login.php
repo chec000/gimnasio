@@ -3,25 +3,27 @@
 return [
     'modal' => [
         'login' => [
-            'title'             => 'Login',
-            'user'              => 'Client/Businessman Code',
+            'title'             => 'Access your account',
+            'user'              => 'Distributor/Customer Code',
             'password'          => 'Password',
-            'btn'               => 'Login',
-            'reset_password'    => 'Forgot your password?',
+            'btn'               => 'Access',
+            'reset_password'    => 'Did you forget your password?',
         ],
 
         'register' => [
-            'title'     => 'New to Omnilife?',
-            'content'   => 'Register as an entrepreneur and start your independent business today, it is an excellent opportunity to materialize your success, through a model that challenges you to grow continuously and achieve your goals. In addition, as an Independent Business Owner, you have great benefits in purchasing nutritional and beauty products, as well as access to the OMNILIFE tools to strengthen the growth of your business.',
-            'btn'       => 'Sign in',
+            'title'     => 'New to OMNILIFE?',
+            'content'   => "Join today and start your Independent Business, it's an excellent opportunity to materialize your success through a business model that challenges you to continuously grow and achieve your objectives. Also, as an Independent Distributor, you have great benefits to purchase nutritional and beauty products, as well as access to OMNILIFE tools that will strengthen the growth of your business.",
+            'btn'       => 'Join',
+            'btn_assponsor' => 'Register New Distributor',
         ],
 
         'footer' => [
-            'btn'   => 'Continue Shopping',
+            'btn'   => 'Shop as a Client',
+            'btn_assponsor'   => 'Shop as a Client',
         ],
     ],
 
     'fields' => [
-        'required'  => 'The :attribute field is required.',
+        'required'  => 'The field :attribute is mandatory',
     ],
 ];

@@ -9,14 +9,23 @@ use App\Helpers\SessionHdl;
 use Carbon\Carbon;
 use function Couchbase\defaultDecoder;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Request;
 use Mockery\Exception;
 use Modules\Admin\Entities\Country;
+use Modules\Admin\Http\Controllers\Shopping\OrderController;
+use Modules\Shopping\Entities\CountryProduct;
+use Modules\Shopping\Entities\Legal;
 use Modules\Shopping\Entities\Order;
 use Modules\Shopping\Entities\OrderDetail;
 use Modules\Shopping\Entities\OrderDocument;
+use Modules\Shopping\Entities\PromoProd;
 use Modules\Shopping\Entities\ShippingAddress;
+use Modules\Shopping\Entities\WarehouseCountry;
 
 class CronController extends Controller
 {
@@ -65,13 +74,15 @@ class CronController extends Controller
      */
     private function processInscriptions($order_type)
     {
-        $data = $this->getOrderInfo($order_type->so_id);
+        $data   = $this->getOrderInfo($order_type->so_id);
 
         if ($data)
         {
             $statusAddEntrepreneur = false;
             $statusAddSalesWeb = false;
             $country = Country::find($data->so_country_id);
+            $date   = new \DateTime('now', new \DateTimeZone($country->timezone));
+            App::setLocale($country->default_locale);
 
             /* Consumir Servicios AddFormEntrepreneur, AddEntrepreneur y AddSalesWeb */
             if ($data->so_saved_dataeo == 0)
@@ -98,7 +109,6 @@ class CronController extends Controller
                 if ($resultAddFormEntrepreneur['success'] && $resultAddFormEntrepreneur['responseWS']['response']['Success'] == 'true')
                 {
                     $statusAddEntrepreneur = true;
-                    //$this->saveString(json_encode($paramsAddFormEntrepreneur), json_encode($resultAddFormEntrepreneur), 'inscripcion');
                 }
                 else if (!$resultAddFormEntrepreneur['success'] && isset($resultAddFormEntrepreneur['responseWS']['response']) && $resultAddFormEntrepreneur['responseWS']['response']['Success'] == 'false' && isset($resultAddFormEntrepreneur['responseWS']['response']['Error']['dsError']['ttError']))
                 {
@@ -112,12 +122,10 @@ class CronController extends Controller
                     }
 
                     $this->updateOrderStatus($data, 'CORBIZ_ERROR', 0, $error_corbiz, $error_user);
-                    //$this->saveString(json_encode($paramsAddFormEntrepreneur), json_encode($resultAddFormEntrepreneur), 'inscripcion');
                 }
                 else
                 {
                     $this->updateOrderStatus($data, 'CORBIZ_ERROR', 0, isset($resultAddFormEntrepreneur['message']), isset($resultAddFormEntrepreneur['responseWS']['_errors'][0]['_errorMsg']));
-                    //$this->saveString(json_encode($paramsAddFormEntrepreneur), json_encode($resultAddFormEntrepreneur), 'inscripcion');
                 }
             }
             else if ($data->so_saved_dataeo == 1)
@@ -136,7 +144,7 @@ class CronController extends Controller
 
             if ($statusAddEntrepreneur)
             {
-                $restWrapperAddEntrepreneur = new RestWrapper($country->corbiz_key . 'addEntrepreneur');
+                $restWrapperAddEntrepreneur = new RestWrapper($country->webservice . 'addEntrepreneur');
                 $paramsAddEntrepreneur = [
                     'request' => [
                         'CountryKey' => $country->corbiz_key,
@@ -168,40 +176,92 @@ class CronController extends Controller
                         'view_mail'         => 'shopping::frontend.register.includes.' . strtolower($country->corbiz_key) . '.mails.sponsor',
                         'from_email'        => $from_email,
                         'title'             => trans('shopping::register.mail.sponsor.title'),
-                        'to_email'          => 'daniel.herrera@omnilife.com',//$data->ssa_sponsor_email,
+                        'to_email'          => $data->ssa_sponsor_email,
                         'name'              => $data->ssa_sponsor_name,
-                        'subject'           => trans('shopping::register_customer.mail.sponsor.subject'),
-                        'name_customer'     => ($data->ssa_eo_lastname != '' || $data->ssa_eo_lastname != null) ? $data->ssa_eo_name . ' ' . $data->ssa_eo_lastname : $data->ssa_eo_name,
+                        'subject'           => trans('shopping::register.mail.sponsor.subject', ['name_sponsor' => $data->ssa_sponsor_name]),
+                        'name_customer'     => $data->ssa_eo_name . ' ' . $data->ssa_eo_lastname,
                         'code_customer'     => $resultAddEntrepreneur['responseWS']['response']['EntrepreneurId'],
                         'tel_customer'      => isset($data->ssa_telephone) ? $data->ssa_telephone : $data->ssa_cellphone,
                         'email_customer'    => $data->ssa_email
                     ];
 
-                    if (($from_email != '' || $from_email != null) /*&& ($data->ssa_sponsor_email != '' || $data->ssa_sponsor_email != null)*/)
+                    if (!empty($from_email) && !empty($data->ssa_sponsor_email))
                     {
                         $this->CommonMethods->getSendMail($data_sponsor);
                     }
 
+                    $eo     = Crypt::encryptString($country->corbiz_key . ' ' . $country->language->corbiz_key . ' ' . $resultAddEntrepreneur['responseWS']['response']['EntrepreneurId'] . ' ' . $resultAddEntrepreneur['responseWS']['response']['Password']);
+                    $legal  = Legal::where('country_id', $country->id)->whereTranslation('locale', $country->language->locale_key)->first();
+
                     /* Envio de mail entrepreneur */
-                    $data_entrepreneur = [
+                    $data_customer = [
                         'view_mail'     => 'shopping::frontend.register.includes.' . strtolower($country->corbiz_key) . '.mails.customer',
                         'from_email'    => $from_email,
-                        'title'         => trans('shopping::register_customer.mail.customer.title'),
-                        'to_email'      => 'daniel.herrera@omnilife.com',//$data->ssa_email,
-                        'name'          => ($data->ssa_eo_lastname != '' || $data->ssa_eo_lastname != null) ? $data->ssa_eo_name . ' ' . $data->ssa_eo_lastname : $data->ssa_eo_name,
-                        'subject'       => trans('shopping::register_customer.mail.customer.subject'),
+                        'title'         => trans('shopping::register.mail.customer.title'),
+                        'to_email'      => $data->ssa_email,
+                        'name'          => $data->ssa_eo_name . ' ' . $data->ssa_eo_lastname,
+                        'subject'       => trans('shopping::register.mail.customer.subject'),
                         'code'          => $resultAddEntrepreneur['responseWS']['response']['EntrepreneurId'],
                         'password'      => $resultAddEntrepreneur['responseWS']['response']['Password'],
                         'question'      => $resultAddEntrepreneur['responseWS']['response']['Question'],
+                        'answer'        => $data->ssa_answer,
                         'name_sponsor'  => $data->ssa_sponsor_name,
                         'email_sponsor' => $data->ssa_sponsor_email,
+                        'url_login'     => '/login?eo=' . $eo,
+                        'disclaimer'    => !is_null($legal) && $legal->active_disclaimer == 1 && !empty($legal->disclaimer_html) ? $legal->disclaimer_html : '',
+                        'locale'        => $country->language->locale_key,
                     ];
 
-                    if (($from_email != '' || $from_email != null) /*&& ($data->ssa_email != '' || $data->ssa_email != null)*/)
+                    /* Contrato */
+                    if (!empty($data->so_contract_path))
                     {
-                        $this->CommonMethods->getSendMail($data_entrepreneur);
+                        $data_customer['attachPdf'] = $data->so_contract_path;
                     }
-                    //$this->saveString(json_encode($paramsAddEntrepreneur), json_encode($resultAddEntrepreneur), 'inscripcion');
+                    else
+                    {
+                        # Generación del código QR
+                        $content    = "date={$data->so_terms_checked}&ip={$data->ssa_public_ip}&country={$country->name}&distributor={$resultAddEntrepreneur['responseWS']['response']['EntrepreneurId']}";
+                        $qrInfo     = $this->getQRContractInfo($content, $country->corbiz_key);
+
+                        try
+                        {
+                            $today = explode('.', date('d.m.y'));
+
+                            $paths = $this->generateContract([
+                                'name'       => (!empty($data->ssa_eo_lastnamem) ? "{$data->ssa_eo_lastname} {$data->ssa_eo_lastnamem}, " : "{$data->ssa_eo_lastname}, ") . "{$data->ssa_eo_name} ({$resultAddEntrepreneur['responseWS']['response']['EntrepreneurId']})",
+                                'address'    => $data->ssa_address,
+                                'city'       => $data->ssa_city,
+                                'state'      => $data->ssa_state,
+                                'zipCode'    => $data->ssa_zip_code,
+                                'birthday'   => date('m-d-Y', strtotime($data->ssa_birthdate)),
+                                'email'      => $data->ssa_email,
+                                'phone'      => isset($data->ssa_telephone) ? $data->ssa_telephone : '',
+                                'cellphone'  => isset($data->ssa_cellphone) ? $data->ssa_cellphone : '',
+                                'otherphone' => '',
+                                'dd'         => $today[0],
+                                'mm'         => $today[1],
+                                'yy'         => $today[2],
+                                'filename'   => $resultAddEntrepreneur['responseWS']['response']['EntrepreneurId'] . '.pdf'
+                            ], $data->so_country_id, $country->language->locale_key, $qrInfo, $country->corbiz_key);
+
+                            if ($paths !== false) {
+                                $data_customer['attachPdf']  = $paths['completePath'];
+                                Order::where('id', $data->so_id)->update([
+                                    'contract_path' => $paths['publicPath'],
+                                    'updated_at'    => $date->format('Y-m-d H:i:s')
+                                ]);
+                            }
+                        }
+                        catch (\ErrorException $e)
+                        {
+                            Log::error('ERR resendContract (confirmation): ' . $e->getMessage());
+                        }
+                    }
+
+                    if (!empty($from_email) && !empty($data->ssa_email))
+                    {
+                        $this->CommonMethods->getSendMail($data_customer);
+                    }
                 }
                 else if (!$resultAddEntrepreneur['success'] && isset($resultAddEntrepreneur['responseWS']['response']) && $resultAddEntrepreneur['responseWS']['response']['Success'] == 'false' && isset($resultAddEntrepreneur['responseWS']['response']['Error']['dsError']['ttError']))
                 {
@@ -215,12 +275,10 @@ class CronController extends Controller
                     }
 
                     $this->updateOrderStatus($data, 'CORBIZ_ERROR', 0, $error_corbiz, $error_user);
-                    //$this->saveString(json_encode($paramsAddEntrepreneur), json_encode($resultAddEntrepreneur), 'inscripcion');
                 }
                 else
                 {
                     $this->updateOrderStatus($data, 'CORBIZ_ERROR', 0, isset($resultAddEntrepreneur['message']), isset($resultAddEntrepreneur['responseWS']['_errors'][0]['_errorMsg']));
-                    //$this->saveString(json_encode($paramsAddEntrepreneur), json_encode($resultAddEntrepreneur), 'inscripcion');
                 }
             }
 
@@ -256,25 +314,25 @@ class CronController extends Controller
                     $supportEmails = Config::get('cms.email_send');
                     $from_email = $supportEmails[$country->corbiz_key];
 
-                    $data_email  = [
-                        'view_mail'     => 'shopping::frontend.shopping.includes.' . $country->corbiz_key . '.mails.payment_success_order_corbiz',
-                        'from_email'    => $from_email,
-                        'title'         => trans('shopping::register_customer.mail_address.title'),
-                        'to_email'      => 'daniel.herrera@omnilife.com',//$data_update->ssa_email,
-                        'name'          => ($data_update->ssa_eo_lastname != '' || $data_update->ssa_eo_lastname != null) ? $data_update->ssa_eo_name . ' ' . $data_update->ssa_eo_lastname : $data_update->ssa_eo_name,
-                        'subject'       => trans('shopping::checkout.confirmation.emails.order_success'),
-                        'order'         => $resultAddSalesWeb['responseWS']['response']['Orden'],
+                    $mail_info = [
+                        'first_name'   => $data_update->ssa_eo_name . ' ' . $data_update->ssa_eo_lastname,
+                        'order_number' => $resultAddSalesWeb['responseWS']['response']['Orden'],
+                        'addr_name'    => $data_update->ssa_eo_name . ' ' . $data_update->ssa_eo_lastname,
+                        'address'      => "{$data_update->ssa_address} {$data_update->ssa_city_name}, {$data_update->ssa_state}",
+                        'items'        => $this->getItemsToMail($order_type->so_id),
+                        'detail'       => $this->getOrderDetail($order_type->so_id),
                     ];
 
-                    if (($from_email != null || $from_email != '') /*&& ($data_update->ssa_email != '' || $data_update->ssa_email != null)*/)
+                    $to_mail    = $data_update->ssa_email;
+                    $to_name    = $data_update->ssa_eo_name . ' ' . $data_update->ssa_eo_lastname;
+
+                    if (!empty($from_email) && !empty($to_mail))
                     {
-                        Mail::send($data_email['view_mail'], ['order' => $data_email['order']], function($m) use ($data_email) {
-                            $m->from($data_email['from_email'], $data_email['title']);
-                            $m->to($data_email['to_email'], $data_email['name'])->subject($data_email['subject']);
+                        Mail::send('shopping::frontend.shopping.includes.' . strtolower($country->corbiz_key) . '.mails.payment_success_order_corbiz', $mail_info, function ($m) use ($from_email, $to_mail, $to_name) {
+                            $m->from($from_email, trans('shopping::register_customer.mail_address.title'));
+                            $m->to($to_mail, $to_name)->subject(trans('shopping::checkout.confirmation.emails.order_success'));
                         });
-                        //$this->CommonMethods->getSendMail($data_email);
                     }
-                    //$this->saveString(json_encode($paramsAddSalesWeb), json_encode($resultAddSalesWeb), 'venta');
                 }
                 else if (!$resultAddSalesWeb['success'] && isset($resultAddSalesWeb['responseWS']['response']) && $resultAddSalesWeb['responseWS']['response']['Success'] == 'false' && isset($resultAddSalesWeb['responseWS']['response']['Error']['dsError']['ttError']))
                 {
@@ -288,18 +346,22 @@ class CronController extends Controller
                     }
 
                     $this->updateOrderStatus($data_update, 'CORBIZ_ERROR', 0, $error_corbiz, $error_user);
-                    //$this->saveString(json_encode($paramsAddSalesWeb), json_encode($resultAddSalesWeb), 'venta');
+
+                    Log::error('Request Inscription addSalesWeb Cron: ' . json_encode($paramsAddSalesWeb));
+                    Log::error('Response Inscription addSalesWeb Cron: ' . json_encode($resultAddSalesWeb));
                 }
                 else
                 {
                     $this->updateOrderStatus($data_update, 'CORBIZ_ERROR', 0, isset($resultAddSalesWeb['message']), isset($resultAddSalesWeb['responseWS']['_errors'][0]['_errorMsg']));
-                    //$this->saveString(json_encode($paramsAddSalesWeb), json_encode($resultAddSalesWeb), 'venta');
+
+                    Log::error('Request Inscription addSalesWeb Cron: ' . json_encode($paramsAddSalesWeb));
+                    Log::error('Response Inscription addSalesWeb Cron: ' . json_encode($resultAddSalesWeb));
                 }
             }
         }
         else
         {
-            $this->saveString('Sin peticiones por procesar', 'Sin peticiones por procesar', 'inscripcion');
+            Log::error('Inscription Cron: Sin peticiones por procesar.');
         }
     }
 
@@ -312,6 +374,7 @@ class CronController extends Controller
             $country = Country::find($data->so_country_id);
             $paramsTtSalesWeb = $this->getTtSalesWebParams($data);
             $paramsTtSalesWebItems = $this->getTtSalesWebItemsParams($data);
+            App::setLocale($country->default_locale);
 
             $restWrapperAddSalesWeb = new RestWrapper($country->webservice . 'addSalesWeb');
             $paramsAddSalesWeb = [
@@ -338,25 +401,26 @@ class CronController extends Controller
                 $supportEmails = Config::get('cms.email_send');
                 $from_email = $supportEmails[$country->corbiz_key];
 
-                $data_email  = [
-                    'view_mail'     => 'shopping::frontend.shopping.includes.' . $country->corbiz_key . '.mails.payment_success_order_corbiz',
-                    'from_email'    => $from_email,
-                    'title'         => trans('shopping::register_customer.mail_address.title'),
-                    'to_email'      => 'daniel.herrera@omnilife.com',//$data->ssa_email,
-                    'name'          => $data->ssa_eo_name . ' ' . $data->ssa_eo_lastname,
-                    'subject'       => trans('shopping::checkout.confirmation.emails.order_success'),
-                    'order'         => $resultAddSalesWeb['responseWS']['response']['Orden'],
+                $mail_info = [
+                    'first_name'   => $data->ssa_eo_name . ' ' . $data->ssa_eo_lastname,
+                    'order_number' => $resultAddSalesWeb['responseWS']['response']['Orden'],
+                    'addr_name'    => $data->ssa_eo_name . ' ' . $data->ssa_eo_lastname,
+                    'address'      => "{$data->ssa_address} {$data->ssa_city_name}, {$data->ssa_state}",
+                    'items'        => $this->getItemsToMail($order_type->so_id),
+                    'detail'       => $this->getOrderDetail($order_type->so_id),
                 ];
 
-                if (($from_email != null || $from_email != '') /*&& ($data->ssa_email != '' || $data->ssa_email != null)*/)
+                $to_mail    = $data->ssa_email;
+                $to_name    = $data->ssa_eo_name . ' ' . $data->ssa_eo_lastname;
+
+                if (!empty($from_email) && !empty($to_mail))
                 {
-                    Mail::send($data_email['view_mail'], ['order' => $data_email['order']], function($m) use ($data_email) {
-                        $m->from($data_email['from_email'], $data_email['title']);
-                        $m->to($data_email['to_email'], $data_email['name'])->subject($data_email['subject']);
+                    Mail::send('shopping::frontend.shopping.includes.' . strtolower($country->corbiz_key) . '.mails.payment_success_order_corbiz', $mail_info, function ($m) use ($from_email, $to_mail, $to_name) {
+                        $m->from($from_email, trans('shopping::register_customer.mail_address.title'));
+                        $m->to($to_mail, $to_name)->subject(trans('shopping::checkout.confirmation.emails.order_success'));
                     });
-                    //$this->CommonMethods->getSendMail($data_email);
                 }
-                //$this->saveString(json_encode($paramsAddSalesWeb), json_encode($resultAddSalesWeb), 'venta');
+
             }
             else if (!$resultAddSalesWeb['success'] && isset($resultAddSalesWeb['responseWS']['response']) && $resultAddSalesWeb['responseWS']['response']['Success'] == 'false' && isset($resultAddSalesWeb['responseWS']['response']['Error']['dsError']['ttError']))
             {
@@ -370,17 +434,21 @@ class CronController extends Controller
                 }
 
                 $this->updateOrderStatus($data, 'CORBIZ_ERROR', 0, $error_corbiz, $error_user);
-                //$this->saveString(json_encode($paramsAddSalesWeb), json_encode($resultAddSalesWeb), 'venta');
+
+                Log::error('Request Sales addSalesWeb Cron: ' . json_encode($paramsAddSalesWeb));
+                Log::error('Response Sales addSalesWeb Cron: ' . json_encode($resultAddSalesWeb));
             }
             else
             {
                 $this->updateOrderStatus($data, 'CORBIZ_ERROR', 0, isset($resultAddSalesWeb['message']), isset($resultAddSalesWeb['responseWS']['_errors'][0]['_errorMsg']));
-                //$this->saveString(json_encode($paramsAddSalesWeb), json_encode($resultAddSalesWeb), 'venta');
+
+                Log::error('Request Sales addSalesWeb Cron: ' . json_encode($paramsAddSalesWeb));
+                Log::error('Response Sales addSalesWeb Cron: ' . json_encode($resultAddSalesWeb));
             }
         }
         else
         {
-            $this->saveString('Sin peticiones por procesar', 'Sin peticiones por procesar', 'venta');
+            Log::error('Sales Cron: Sin peticiones por procesar.');
         }
     }
 
@@ -398,39 +466,40 @@ class CronController extends Controller
     {
         $country = Country::find($data->so_country_id);
         $order_detail = OrderDetail::where([['order_id', '=', $data->so_id], ['is_kit', '=', 1]])->first();
+        $warehouse = WarehouseCountry::where([['id', '=', $data->so_warehouse_id], ['country_id', '=', $country->id]])->first();
 
         return [
             [
                 'countrysale' => $country->corbiz_key,
-                'idtransaction' => $data->so_corbiz_transaction,
-                'sponsor' => $data->ssa_sponsor,
-                'lastnamef' => $data->ssa_eo_lastnamem,
-                'lastnamem' => $data->ssa_eo_lastname,
-                'names' => $data->ssa_eo_name,
-                'birthdate' => $data->ssa_birthdate,
-                'address' => $data->ssa_address,
-                'number' => ($data->ssa_number != '' || $data->ssa_numer != null) ? $data->ssa_number : '',
-                'suburb' => ($data->ssa_suburb != '' || $data->ssa_suburb != null) ? $data->ssa_suburb : '',
-                'complement' => ($data->ssa_complement != '' || $data->ssa_complement != null) ? $data->ssa_complement : '',
-                'phone' => ($data->ssa_telephone != '' || $data->ssa_telephone != null) ? $data->ssa_telephone : '',
-                'cellphone' => ($data->ssa_cellphone != '' || $data->ssa_cellphone != null) ? $data->ssa_cellphone : '',
+                'idtransaction' => !empty($data->so_corbiz_transaction) ? $data->so_corbiz_transaction : '',
+                'sponsor' => !empty($data->ssa_sponsor) ? $data->ssa_sponsor : '',
+                'lastnamef' => !empty($data->ssa_eo_lastnamem) ? $data->ssa_eo_lastnamem : '',
+                'lastnamem' => !empty($data->ssa_eo_lastname) ? $data->ssa_eo_lastname : '',
+                'names' => !empty($data->ssa_eo_name) ? $data->ssa_eo_name : '',
+                'birthdate' => !empty($data->ssa_birthdate) ? $data->ssa_birthdate : '',
+                'address' => !empty($data->ssa_address) ? $data->ssa_address : '',
+                'number' => !empty($data->ssa_number) ? $data->ssa_number : '',
+                'suburb' => !empty($data->ssa_suburb) ? $data->ssa_suburb : '',
+                'complement' => !empty($data->ssa_complement) ? $data->ssa_complement : '',
+                'phone' => !empty($data->ssa_telephone) ? $data->ssa_telephone : '',
+                'cellphone' => !empty($data->ssa_cellphone) ? $data->ssa_cellphone : '',
                 'country' => $country->corbiz_key,
-                'state' => ($data->ssa_state != '' || $data->ssa_state != null) ? $data->ssa_state : '',
-                'city' => ($data->ssa_city != '' || $data->ssa_city != null) ? $data->ssa_city : '',
-                'county' => ($data->ssa_county != '' || $data->ssa_county != null) ? $data->ssa_county : '',
-                'zipcode' => ($data->ssa_zip_code != '' || $data->ssa_zip_code != null) ? $data->ssa_zip_code : '',
-                'email' => $data->ssa_email,
-                'sex' => $data->ssa_gender,
-                'idcenter' => $this->CommonMethods->getWarehouseId($country->id, $data->so_warehouse_id),
-                'warehouse' => $data->so_warehouse_id,
-                'iditem' => $order_detail->countryProduct->product->sku,
-                'questions' => $data->ssa_security_question_id,
-                'answer' => $data->ssa_answer,
-                'receive_adversiting' => ($data->so_advertise_checked != '' || $data->so_advertise_checked != null) ? true : false,
+                'state' => !empty($data->ssa_state) ? $data->ssa_state : '',
+                'city' => !empty($data->ssa_city) ? $data->ssa_city : '',
+                'county' => !empty($data->ssa_county) ? $data->ssa_county : '',
+                'zipcode' => !empty($data->ssa_zip_code) ? $data->ssa_zip_code : '',
+                'email' => !empty($data->ssa_email) ? $data->ssa_email : '',
+                'sex' => !empty($data->ssa_gender) ? $data->ssa_gender : '',
+                'idcenter' => !empty($data->so_cent_dist) ? $data->so_cent_dist : '',
+                'warehouse' => $warehouse->warehouse,
+                'iditem' => !empty($order_detail->countryProduct->product->sku) ? $order_detail->countryProduct->product->sku : '',
+                'questions' => !empty($data->ssa_security_question_id) ? $data->ssa_security_question_id : '',
+                'answer' => !empty($data->ssa_answer) ? $data->ssa_answer : '',
+                'receive_adversiting' => !empty($data->so_advertise_checked) ? true : false,
                 'zsource' => 'WEB',
                 'zcreate' => true,
                 'lang' => $country->language->corbiz_key,
-                'pool' => false,
+                'pool' => !empty($data->ssa_is_pool) && ($data->ssa_is_pool == 1) ? true : false,
                 'client_type' => ''
             ]
         ];
@@ -442,13 +511,13 @@ class CronController extends Controller
         $order_documents = OrderDocument::where([['order_id', '=', $data->so_id]])->get();
         $documents = [];
 
-        if ($order_documents != null || $order_documents != '')
+        if (count($order_documents) > 0)
         {
             foreach ($order_documents as $document)
             {
                 $documents[] = [
                     'countrysale' => $country->corbiz_key,
-                    'idtransaction' => $data->so_corbiz_transaction,
+                    'idtransaction' => !empty($data->so_corbiz_transaction) ? $data->so_corbiz_transaction : '',
                     'countrydoc' => $country->corbiz_key,
                     'iddocument' => $document->document_key,
                     'numberdoc' => $document->document_number,
@@ -477,23 +546,23 @@ class CronController extends Controller
 
         return [
             'countrysale' => $country->corbiz_key,
-            'no_trans' => $data->so_corbiz_transaction,
-            'distributor' => $data->so_distributor_number,
-            'amount' => $data->so_total,
-            'receiver' => ($data->ssa_eo_lastname != '' || $data->ssa_eo_lastname != null) ? $data->ssa_eo_name . ' ' . $data->ssa_eo_lastname : $data->ssa_eo_name,
-            'address' => $data->ssa_address,
-            'number' => ($data->ssa_number != '' || $data->ssa_number != null) ? $data->ssa_number : '',
-            'suburb' => ($data->ssa_suburb != '' || $data->ssa_suburb != null) ? $data->ssa_suburb : '',
-            'complement' => ($data->ssa_complement != '' || $data->ssa_complement != null) ? $data->ssa_complement : '',
-            'state' => $data->ssa_state,
-            'city' => $data->ssa_city,
-            'county' => ($data->ssa_county != '' || $data->ssa_county != null) ? $data->ssa_county : '',
-            'zipcode' => ($data->ssa_zip_code != '' || $data->ssa_zip_code != null) ? $data->ssa_zip_code : '',
-            'shippingcompany' => $data->so_shipping_company,
-            'altAddress' => ($data->ssa_folio_address != 0) ? $data->ssa_folio_address : 0,
-            'email' => $data->ssa_email,
-            'phone' => ($data->ssa_telephone != '' || $data->ssa_telephone != null) ? $data->ssa_telephone : '',
-            'previousperiod' => ($data->so_change_period == 0) ? false : true,
+            'no_trans' => !empty($data->so_corbiz_transaction) ? $data->so_corbiz_transaction : '',
+            'distributor' => !empty($data->so_distributor_number) ? $data->so_distributor_number : '',
+            'amount' => !empty($data->so_total) ? $data->so_total : '',
+            'receiver' => !empty($data->ssa_eo_name) ? $data->ssa_eo_name . (!empty($data->ssa_eo_lastname) ? ' ' . $data->ssa_eo_lastname : '') : '',
+            'address' => !empty($data->ssa_address) ? $data->ssa_address : '',
+            'number' => !empty($data->ssa_number) ? $data->ssa_number : '',
+            'suburb' => !empty($data->ssa_suburb) ? $data->ssa_suburb : '',
+            'complement' => !empty($data->ssa_complement) ? $data->ssa_complement : '',
+            'state' => !empty($data->ssa_state) ? $data->ssa_state : '',
+            'city' => !empty($data->ssa_city) ? $data->ssa_city : '',
+            'county' => !empty($data->ssa_county) ? $data->ssa_county : '',
+            'zipcode' => !empty($data->ssa_zip_code) ? $data->ssa_zip_code : '',
+            'shippingcompany' => !empty($data->so_shipping_company) ? $data->so_shipping_company : '',
+            'altAddress' => !empty($data->ssa_folio_address) && ($data->ssa_folio_address != 0) ? $data->ssa_folio_address : 0,
+            'email' => !empty($data->ssa_email) ? $data->ssa_email : '',
+            'phone' => !empty($data->ssa_telephone) ? $data->ssa_telephone : '',
+            'previousperiod' => !empty($data->so_change_period) && ($data->so_change_period == 1) ? true : false,
             'source' => 'WEB', /* Pendiente de Validar Jose si sera con BD o archivo config */
             'type_mov'=> 'VENTA',
             'codepaid' => Config::get('shopping.paymentCorbizRelation.' . $country->corbiz_key . '.' . $data->so_bank_id),
@@ -504,7 +573,7 @@ class CronController extends Controller
     private function getTtSalesWebItemsParams($data)
     {
         $country = Country::find($data->so_country_id);
-        $order_details = OrderDetail::where([['order_id', '=', $data->so_id], ['active', '=', 1]])->get();
+        $order_details = OrderDetail::where([['order_id', '=', $data->so_id], ['active', '>=', 1]])->get();
         $items = [];
 
         foreach ($order_details as $key => $value)
@@ -539,7 +608,8 @@ class CronController extends Controller
                 'listPrice' => $value->list_price,
                 'discPrice' => $value->final_price,
                 'points' => $value->points,
-                'promo' => ($value->is_promo == 0) ? false : true
+                'promo' => ($value->is_promo == 0) ? false : true,
+                'kitinsc' => ($value->is_kit == 1) ? 'yes' : ''
             ];
         }
 
@@ -555,7 +625,8 @@ class CronController extends Controller
         ShippingAddress::query()->where('order_id', '=', $order->so_id)->update($update_shipping_address);
 
         $update_order = [
-            'distributor_number' => $eo_number
+            'distributor_number' => $eo_number,
+            'saved_dataeo' => 1
         ];
 
         Order::query()->where('id', '=', $order->so_id)->update($update_order);
@@ -580,76 +651,51 @@ class CronController extends Controller
         Order::query()->where('id', '=', $order->so_id)->update($update);
     }
 
-    /*
-     * 1. Escribimos el log en el archivo.
-     */
-    public function saveString($request, $response, $type)
+    private function generateContract($data, $countryId, $lang, $qrInfo, $countryKey)
     {
-        try
-        {
-            $file_path = $this->getFilePath($type);
-            $handle = fopen($file_path, 'a+');
-            $text = date('H:i:s') . (chr(13) . chr(10));
-            $text .= 'REQUEST => ' . ($request . chr(13) . chr(10));
-            $text .= 'RESPONSE => ' . ($response . chr(13) . chr(10) . chr(13) . chr(10));
-            fwrite($handle, $text);
-            fclose($handle);
+        $coords = Config::get('shopping.pdf.coords.'.$countryKey);
 
-            return true;
-        }
-        catch (Exception $e)
-        {
-            throw new Exception('Ocurrio un problema al guardar el registro ' . $e->getMessage());
-        }
+        $lines  = [
+            ['x' => $coords[0]['x'],  'y' => $coords[0]['y'],  'content' => utf8_decode($data['name'])], # Name
+            ['x' => $coords[1]['x'],  'y' => $coords[1]['y'],  'content' => utf8_decode($data['address'])], # Address
+            ['x' => $coords[2]['x'],  'y' => $coords[2]['y'],  'content' => $data['city']], # City
+            ['x' => $coords[3]['x'],  'y' => $coords[3]['y'],  'content' => $data['state']], # State
+            ['x' => $coords[4]['x'],  'y' => $coords[4]['y'],  'content' => $data['zipCode']], # Zip code
+            ['x' => $coords[5]['x'],  'y' => $coords[5]['y'],  'content' => $data['birthday']], # Birthday
+            ['x' => $coords[6]['x'],  'y' => $coords[6]['y'],  'content' => $data['email']], # Email
+            ['x' => $coords[7]['x'],  'y' => $coords[7]['y'],  'content' => $data['phone']], # Phone
+            ['x' => $coords[8]['x'],  'y' => $coords[8]['y'],  'content' => $data['cellphone']], # Cellphone
+            ['x' => $coords[9]['x'],  'y' => $coords[9]['y'],  'content' => $data['otherphone']], # Other phone
+            ['x' => $coords[10]['x'], 'y' => $coords[10]['y'], 'content' => $data['dd']], # Day
+            ['x' => $coords[11]['x'], 'y' => $coords[11]['y'], 'content' => $data['mm']], # Month
+            ['x' => $coords[12]['x'], 'y' => $coords[12]['y'], 'content' => $data['yy']], # Year
+        ];
+
+        return generate_contract_pdf($countryId, $lang, $lines, $data['filename'], '', $qrInfo);
     }
 
-    /*
-     * 1. Obtenemos el archivo para guardar el log.
-     */
-    public function getFilePath($type)
+    private function getQRContractInfo($content, $countryKey)
     {
-        try
+        $qrContractConfig = Config::get('shopping.pdf.qr.'.$countryKey);
+
+        if ($qrContractConfig['has'])
         {
-            $date = Carbon::now();
-            $base_path = $this->getBasePath() . DIRECTORY_SEPARATOR . $type;
-            $this->createPath($base_path);
-
-            $path = $base_path . DIRECTORY_SEPARATOR . $date->format('Y');
-            $this->createPath($path);
-
-            $path .= DIRECTORY_SEPARATOR . $date->format('m');
-            $this->createPath($path);
-
-            $path .= DIRECTORY_SEPARATOR . $date->format('d') . '.txt';
-
-            return $this->createPath($path);
-        }
-        catch (Exception $e)
-        {
-            throw new Exception('Ocurrio un problema al guardar el registro ' . $e->getMessage());
-        }
-    }
-
-    /*
-     * 1. Creamos el archivo si no existe.
-     */
-    private function createPath($path)
-    {
-        if (!file_exists($path))
-        {
-            mkdir($path);
+            return [
+                'content'   => $content,
+                'img'       => [
+                    'x' => $qrContractConfig['img']['x'],
+                    'y' => $qrContractConfig['img']['y'],
+                    'w' => $qrContractConfig['img']['w']
+                ],
+                'txt'       => [
+                    'x' => $qrContractConfig['txt']['x'],
+                    'y' => $qrContractConfig['txt']['y']
+                ]
+            ];
         }
 
-        return $path;
+        return false;
     }
-
-    /*
-     * 1. Obtenemos la configuracion de la url donde guardar el archivo.
-     */
-    protected function getBasePath() {
-        return Config::get('shopping.cron.base_path');
-    }
-
 
     /**
      * Cron para procesar los pagos pendientes y/o con error de Paypal
@@ -711,5 +757,49 @@ class CronController extends Controller
         }
 
         echo "END -> {$status}<br>";
+    }
+
+    private function getItemsToMail($order) {
+        $items = OrderDetail::where('order_id', $order)->get();
+
+        foreach ($items as $i => $item) {
+            if ($item->is_promo == 1) {
+                $promoProduct = PromoProd::find($item->promo_prod_id);
+
+                if (!is_null($promoProduct)){
+                    $name = "{$promoProduct->clv_producto} - {$promoProduct->name}";
+                    $sku = $promoProduct->clv_producto;
+                } else {
+                    $name = "{$item->product_code} - {$item->product_name}";
+                    $sku = $item->product_code;
+                }
+
+            } else if ($item->is_special == 1) {
+                $name = "{$item->product_code} - {$item->product_name}";
+                $sku  = $item->product_code;
+            } else {
+                $countryProduct = CountryProduct::find($item->product_id);
+                $name = "{$countryProduct->product->sku} - {$countryProduct->name}";
+                $sku  = $countryProduct->product->sku;
+            }
+
+            $items[$i]->name = $name;
+            $items[$i]->sku  = $sku;
+        }
+
+        return $items;
+    }
+
+    private function getOrderDetail($order) {
+        $order = Order::find($order);
+
+        return [
+            'discount'   => $order->discount . '%',
+            'subtotal'   => currency_format($order->subtotal, $order->country->currency_key),
+            'points'     => $order->points,
+            'management' => currency_format($order->management, $order->country->currency_key),
+            'taxes'      => currency_format($order->total_taxes, $order->country->currency_key),
+            'total'      => currency_format($order->total, $order->country->currency_key),
+        ];
     }
 }

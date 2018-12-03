@@ -69,7 +69,7 @@ trait ShoppingCartPayment {
 
                 $salesWeb['no_trans'] = SessionHdl::getTransaction();
                 $salesWeb['type_mov'] = 'VENTA';
-                $salesWeb['codepaid'] = $paymentCodes[SessionHdl::getPaymentMethod()];
+                $salesWeb['codepaid'] = $paymentCodes[SessionHdl::getPaymentMethod()] ?? $paymentCodes['default'];
                 $salesWeb['zcreate']  = true;
             }
         }
@@ -120,7 +120,7 @@ trait ShoppingCartPayment {
 
                 $salesWeb['no_trans'] = $order->corbiz_transaction;
                 $salesWeb['type_mov'] = 'VENTA';
-                $salesWeb['codepaid'] = $paymentCodes[$order->bank_id];
+                $salesWeb['codepaid'] = $paymentCodes[$order->bank_id] ?? $paymentCodes['default'];
                 $salesWeb['zcreate']  = true;
             }
         }
@@ -230,7 +230,7 @@ trait ShoppingCartPayment {
             'total_taxes'         => $quotation['taxes'],
             'total'               => $quotation['total'],
             'subtotal'            => $quotation['subtotal'],
-            'discount'            => '',
+            'discount'            => $quotation['discount'],
             'shipping_company'    => $salesWeb['shippingcompany'],
             'guide_number'        => '',
             'corbiz_order_number' => '0',
@@ -433,12 +433,12 @@ trait ShoppingCartPayment {
      * @param $countryID        ID del país
      * @return mixed
      */
-    private function getBanners($type, $purpose, $countryID) {
+    private function getBanners($type, $purpose, $countryID, $brandID) {
         return ConfirmationBanner::whereHas('type', function ($q) use ($type) {
             $q->where('type', $type);
         })->whereHas('purpose', function ($q) use ($purpose) {
             $q->where('purpose', $purpose);
-        })->where('country_id', $countryID)->where('active', 1)->where('delete', 0)->get();
+        })->where('country_id', $countryID)->where('brand_id', $brandID)->where('active', 1)->where('delete', 0)->get();
     }
 
     /**
@@ -454,32 +454,34 @@ trait ShoppingCartPayment {
             $quotation    = SessionHdl::getQuotation();
             $itemsInOrder = $order->orderDetail->toArray();
 
-            $results = [];
-            foreach ($quotation['items'] as $item) {
-                $result = false;
+            if (isset($quotation['items'])) {
+                $results = [];
+                foreach ($quotation['items'] as $item) {
+                    $result = false;
+
+                    foreach ($itemsInOrder as $itemInOrder) {
+                        if ( ((int)$item['id']) == ((int)$itemInOrder['product_id']) && ((int)$item['quantity']) == ((int)$itemInOrder['quantity']) ) {
+                            $result = true;
+                        }
+                    }
+
+                    $results[] = $result;
+                }
 
                 foreach ($itemsInOrder as $itemInOrder) {
-                    if ( ((int)$item['id']) == ((int)$itemInOrder['product_id']) && ((int)$item['quantity']) == ((int)$itemInOrder['quantity']) ) {
-                        $result = true;
+                    $result = false;
+
+                    foreach ($quotation['items'] as $item) {
+                        if ( ((int)$item['id']) == ((int)$itemInOrder['product_id']) && ((int)$item['quantity']) == ((int)$itemInOrder['quantity']) ) {
+                            $result = true;
+                        }
                     }
+
+                    $results[] = $result;
                 }
 
-                $results[] = $result;
+                return in_array(false, $results);
             }
-
-            foreach ($itemsInOrder as $itemInOrder) {
-                $result = false;
-
-                foreach ($quotation['items'] as $item) {
-                    if ( ((int)$item['id']) == ((int)$itemInOrder['product_id']) && ((int)$item['quantity']) == ((int)$itemInOrder['quantity']) ) {
-                        $result = true;
-                    }
-                }
-
-                $results[] = $result;
-            }
-
-            return in_array(false, $results);
         }
 
         return false;

@@ -12,9 +12,11 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Mockery\Exception;
+use Modules\Admin\Entities\BrandCountry;
 use Modules\Admin\Entities\Country;
 use Modules\Admin\Entities\Language;
 use Modules\Shopping\Entities\ConfirmationBanner;
@@ -30,20 +32,22 @@ class RegisterCustomerController extends Controller
         $this->CommonMethods = new CommonMethods();
     }
 
-    /* Register Customer - Step 1 y Step 2
-     * 1. Generamos la sesion.
-     * 2. Validamos el webservice e incripcion.
-     * 3. Declaramos las variables codEo y numEo para metodo GET
-     * 4. Obtenemos listado de meses y paises.
-     * 5. Creamos la variable de sesion request_businessman en false para metodo GET y registro inconcluso
-     * 6. Validamos el metodo GET y si contiene valores asignamos true a la variable de sesion request_businessman */
+    /* Register Customer - Step 1 y Step 2 */
     public function index(Request $request)
     {
-        if (config('settings::frontend.webservices') != 1 || !SessionRegisterHdl::isInscriptionActive() || SessionHdl::hasEo())
+        /* Si el webservice o la inscripcion no esta activa y si la IP del usuario no es permitida redirigir al inicio */
+        if ((config('settings::frontend.webservices') != 1 || !SessionRegisterHdl::isInscriptionActive()) && !allow_by_ip(\Request::ip()))
         {
             return redirect('/');
         }
 
+        /* Si hay sesion iniciada redirigimos a la url de client-register con el segmento de distributor_code */
+        if(!isset($request->distributor_code) && SessionHdl::hasEo())
+        {
+            return Redirect::route(\App\Helpers\TranslatableUrlPrefix::getRouteName(session()->get('portal.main.app_locale'), ['registercustomer']), array('distributor_code' => Session::get('portal.eo.distId')));
+        }
+
+        /* Generamos la sesion register_customer */
         $this->getGenerateSession();
 
         $codEo      = '';
@@ -51,11 +55,13 @@ class RegisterCustomerController extends Controller
         $months     = Config::get('shopping.months');
         $countries  = $this->CommonMethods->getCountries();
 
+        /* Declaramos la variable de sesion request_businessman en false para el manejo de la url con distributor_code */
         Session::put('portal.request_businessman', false);
 
+        /* Si la url contiene distributor_code le asiganmos valores a las variables $numEo y $codEo, y la variable de sesion request_businessman a true */
         if (count($request->all()) > 0)
         {
-            $numEo  = !empty($request->empresario_id) ? $request->empresario_id : '';
+            $numEo  = !empty($request->distributor_code) ? $request->distributor_code : '';
             $codEo  = 1;
 
             Session::put('portal.request_businessman', true);
@@ -87,6 +93,7 @@ class RegisterCustomerController extends Controller
 
         if ($request->ajax())
         {
+            Session::put('portal.register_customer.step', 1);
             Session::put('portal.register_customer.data', $request->all());
 
             $key_messages = array();
@@ -121,8 +128,6 @@ class RegisterCustomerController extends Controller
                 ]);
             }
 
-            Session::put('portal.register_customer.step', 2);
-
             $bornDate = checkdate($request->month, $request->day, $request->year);
 
             if ($bornDate == false) {
@@ -133,6 +138,8 @@ class RegisterCustomerController extends Controller
                     ],
                 ]);
             }
+
+            Session::put('portal.register_customer.step', 2);
 
             $response   = [
                 'success'   => true,
@@ -275,20 +282,38 @@ class RegisterCustomerController extends Controller
             try
             {
                 $date       = new \DateTime('now', new \DateTimeZone(Session::get('portal.register_customer.time_zone')));
-                $country    = Country::find($request->country);
+                $country    = Country::find(Session::get('portal.register_customer.country_id'));
+
+                $paramsWarehouse = $this->CommonMethods->getCountryConfiguration(SessionRegisterHdl::getRouteWS(), SessionRegisterHdl::getCorbizCountryKey(), SessionRegisterHdl::getCorbizLanguage());
                 $warehouse  = '';
 
-                $result_wh  = $this->CommonMethods->getAvailableWH(Session::get('portal.register_customer.webservice'), Session::get('portal.register_customer.country_corbiz'), Session::get('portal.register_customer.language_corbiz'), '', '', $request->zip);
-
-                if ($result_wh['success'] == true)
+                if ($paramsWarehouse['status'])
                 {
-                    $warehouse  = WarehouseCountry::where(['country_id' => $country->id, 'warehouse' => $result_wh['message']['warehouse']])->first();
+                    $isUnique   = $paramsWarehouse['WHUnique'];
+                    $idWH       = isset($paramsWarehouse['idWH']) ? $paramsWarehouse['idWH'] : '';
+                    $stateKey   = $paramsWarehouse['UseCity'] ? $request->state_hidden : '';
+                    $cityKey    = $paramsWarehouse['UseCity'] ? $request->city_hidden : '';
+                    $zip        = $paramsWarehouse['UseZipCode'] ? $request->zip : '';
+
+                    $result_wh  = $this->CommonMethods->getAvailableWH(Session::get('portal.register_customer.webservice'), Session::get('portal.register_customer.country_corbiz'), Session::get('portal.register_customer.language_corbiz'), $stateKey, $cityKey, $zip);
+
+                    if ($result_wh['success'] == true)
+                    {
+                        $warehouse  = WarehouseCountry::where(['country_id' => $country->id, 'warehouse' => $result_wh['message']['warehouse']])->first();
+                    }
+                    else
+                    {
+                        return response()->json([
+                            'success'   => false,
+                            'message'   => $result_wh['message'],
+                        ]);
+                    }
                 }
                 else
                 {
                     return response()->json([
                         'success'   => false,
-                        'message'   => $result_wh['message'],
+                        'message'   => trans('shopping::register_customer.error_rest'),
                     ]);
                 }
 
@@ -297,7 +322,7 @@ class RegisterCustomerController extends Controller
                 $ca = new Customer();
 
                 $ca->country_id                 = $country->id;
-                $ca->sponsor                    = $request->distributor_code;
+                $ca->sponsor                    = strtoupper($request->distributor_code);
                 $ca->sponsor_name               = $request->distributor_name;
                 $ca->sponsor_email              = ($request->distributor_email == '' || $request->distributor_email == null) ? '' : $request->distributor_email;
                 $ca->ca_name                    = $request->name;
@@ -321,9 +346,15 @@ class RegisterCustomerController extends Controller
                 $ca->shipping_company           = $request->shipping_company;
                 $ca->warehouse_id               = $warehouse->id;
                 $ca->birthdate                  = $request->year . '-' . $request->month . '-' . $request->day;
-                $ca->is_pool                    = $request->invited;
+                $ca->is_pool                    = ($request->invited == 0) ? 1 : 0;
                 $ca->registration_reference_id  = ($request->invited == 0) ? $request->references : '';
                 $ca->status                     = 'VALIDATION';
+
+                if (Session::has('portal.cart.' . Session::get('portal.register_customer.country_corbiz') . '.items'))
+                {
+                    $ca->info_cart = json_encode(Session::get('portal.cart.' . Session::get('portal.register_customer.country_corbiz') . '.items'));
+                }
+
                 $ca->created_at                 = $date->format('Y-m-d H:i:s');
                 $ca->updated_at                 = $date->format('Y-m-d H:i:s');
 
@@ -349,16 +380,22 @@ class RegisterCustomerController extends Controller
 
                 DB::commit();
 
-                $customer = $request->all();
                 Session::put('portal.register_customer.code', Crypt::encryptString($ca->id));
 
                 $emailsSend = Config::get('cms.email_send');
                 $emailSend  = $emailsSend[Session::get('portal.main.country_corbiz')];
 
-                Mail::send('shopping::frontend.customer.mails.code', ['customer' => $customer, 'code' => Session::get('portal.register_customer.code')], function($m) use ($customer, $emailSend) {
-                    $m->from($emailSend, trans('shopping::register_customer.mail_address.title'));
-                    $m->to($customer['email'], $customer['name'] . ' ' . $customer['lastname'])->subject(trans('shopping::register_customer.mail_address.subject'));
-                });
+                $data_customer = [
+                    'view_mail'         => 'shopping::frontend.customer.mails.verify-email',
+                    'from_email'        => $emailSend,
+                    'title'             => trans('shopping::register_customer.mail.verify.title'),
+                    'to_email'          => $request->email,
+                    'name'              => !empty($request->lastname) ? $request->name . ' ' . $request->lastname : $request->name . ' ' . $request->lastname2,
+                    'subject'           => trans('shopping::register_customer.mail.verify.subject'),
+                    'code'              => Session::get('portal.register_customer.code'),
+                ];
+
+                $this->CommonMethods->getSendMail($data_customer);
 
                 $response   = [
                     'success'   => true,
@@ -401,9 +438,9 @@ class RegisterCustomerController extends Controller
             Session::forget('portal.register_customer.data');
             Session::forget('portal.request_businessman');
 
-            if (empty($ca) || $ca->status == 'COMPLETED' || SessionHdl::hasEo())
+            if (empty($ca) || $ca->status == 'COMPLETED')
             {
-                return redirect('/');
+                return redirect('/')->with('modalNotificationActivationClient', true)->with('codeNotificationActivationClient', $ca->ca_number);
             }
 
             $this->getGenerateSession();
@@ -431,15 +468,21 @@ class RegisterCustomerController extends Controller
      * 2. Reenviamos el correo. */
     public function getSendMail()
     {
-        $code       = Session::get('portal.register_customer.code');
         $customer   = Session::get('portal.register_customer.data');
         $emailsSend = Config::get('cms.email_send');
         $emailSend  = $emailsSend[Session::get('portal.main.country_corbiz')];
 
-        Mail::send('shopping::frontend.customer.mails.code', ['customer' => $customer, 'code' => $code], function($m) use ($customer, $emailSend) {
-            $m->from($emailSend, trans('shopping::register_customer.mail_address.title'));
-            $m->to($customer['email'], $customer['name'] . ' ' . $customer['lastname'])->subject(trans('shopping::register_customer.mail_address.subject'));
-        });
+        $data_customer = [
+            'view_mail'         => 'shopping::frontend.customer.mails.verify-email',
+            'from_email'        => $emailSend,
+            'title'             => trans('shopping::register_customer.mail.verify.title'),
+            'to_email'          => $customer['email'],
+            'name'              => $customer['name'] . ' ' . $customer['lastname'],
+            'subject'           => trans('shopping::register_customer.mail.verify.subject'),
+            'code'              => Session::get('portal.register_customer.code'),
+        ];
+
+        $this->CommonMethods->getSendMail($data_customer);
 
         return response()->json([
             'success'   => true,
@@ -459,37 +502,6 @@ class RegisterCustomerController extends Controller
         Session::put('portal.register_customer.language_corbiz', Session::get('portal.main.language_corbiz'));
     }
 
-    /* Register Customer - Actualizamos variables de sesion */
-    public function postUpdateSession(Request $request)
-    {
-        if ($request->ajax())
-        {
-            $glob_country   = Country::where(['id' => $request->country, 'active' => 1, 'delete' => 0])->first();
-
-            if (!empty($glob_country))
-            {
-                Session::put('portal.register_customer.time_zone', $glob_country->timezone);
-                Session::put('portal.register_customer.webservice', $glob_country->webservice);
-                Session::put('portal.register_customer.country_id', $glob_country->id);
-                Session::put('portal.register_customer.currency_key', $glob_country->currency_key);
-                Session::put('portal.register_customer.country_corbiz', $glob_country->corbiz_key);
-
-                $lang_default   = Language::find($glob_country->default_locale);
-
-                if (!empty($lang_default))
-                {
-                    Session::put('portal.register_customer.language_id', $lang_default->id);
-                    Session::put('portal.register_customer.language_name', $lang_default->language_country);
-                    Session::put('portal.register_customer.language_corbiz', $lang_default->corbiz_key);
-                }
-
-                return response()->json([
-                    'country_name'  => $glob_country->corbiz_key
-                ]);
-            }
-        }
-    }
-
     /* Register Customer - Referencias de como nos conocio */
     public function postReferences(Request $request)
     {
@@ -504,7 +516,7 @@ class RegisterCustomerController extends Controller
     {
         if ($request->ajax())
         {
-            return $this->CommonMethods->getPool($request->country);
+            return $this->CommonMethods->getPool($request->country, 'register_customer');
         }
     }
 
@@ -599,7 +611,6 @@ class RegisterCustomerController extends Controller
     {
         if ($request->ajax())
         {
-            Session::forget('portal.' . $request->name_session);
             Session::put('portal.unfinished_register', true);
 
             return response()->json([
@@ -618,26 +629,47 @@ class RegisterCustomerController extends Controller
         $response   = [
             'success'   => false,
             'message'   => [
-                'messUser'  => trans('shopping::register_customer.error_rest'),
+                0   => [
+                    'messUser'  => trans('shopping::register_customer.error_rest'),
+                ],
             ],
+            'details'   => '',
         ];
 
         if ($request->ajax())
         {
             $idcenter   = '';
             $warehouse  = '';
-            $result_wh  = $this->CommonMethods->getAvailableWH(Session::get('portal.register_customer.webservice'), Session::get('portal.register_customer.country_corbiz'), Session::get('portal.register_customer.language_corbiz'), '', '', $request->zip);
+            $paramsWarehouse = $this->CommonMethods->getCountryConfiguration(SessionRegisterHdl::getRouteWS(), SessionRegisterHdl::getCorbizCountryKey(), SessionRegisterHdl::getCorbizLanguage());
 
-            if ($result_wh['success'] == true)
+            if ($paramsWarehouse['status'])
             {
-                $idcenter   = $result_wh['message']['distCenter'];
-                $warehouse  = $result_wh['message']['warehouse'];
+                $isUnique   = $paramsWarehouse['WHUnique'];
+                $idWH       = isset($paramsWarehouse['idWH']) ? $paramsWarehouse['idWH'] : '';
+                $stateKey   = $paramsWarehouse['UseCity'] ? $request->state_hidden : '';
+                $cityKey    = $paramsWarehouse['UseCity'] ? $request->city_hidden : '';
+                $zip        = $paramsWarehouse['UseZipCode'] ? $request->zip : '';
+
+                $result_wh  = $this->CommonMethods->getAvailableWH(Session::get('portal.register_customer.webservice'), Session::get('portal.register_customer.country_corbiz'), Session::get('portal.register_customer.language_corbiz'), $stateKey, $cityKey, $zip);
+
+                if ($result_wh['success'] == true)
+                {
+                    $idcenter   = $result_wh['message']['distCenter'];
+                    $warehouse  = $result_wh['message']['warehouse'];
+                }
+                else
+                {
+                    return response()->json([
+                        'success'   => false,
+                        'message'   => $result_wh['message'],
+                    ]);
+                }
             }
             else
             {
                 return response()->json([
                     'success'   => false,
-                    'message'   => $result_wh['message'],
+                    'message'   => trans('shopping::register_customer.error_rest'),
                 ]);
             }
 
@@ -680,8 +712,8 @@ class RegisterCustomerController extends Controller
                                 'countrysale'           => Session::get('portal.register_customer.country_corbiz'),
                                 'idtransaction'         => '',
                                 'sponsor'               => $request->distributor_code,
-                                'lastnamef'             => $request->lastname2,
-                                'lastnamem'             => $request->lastname,
+                                'lastnamef'             => $request->lastname,
+                                'lastnamem'             => $request->lastname2,
                                 'names'                 => $request->name,
                                 'birthdate'             => $request->year . '-' . $request->month . '-' . $request->day,
                                 'address'               => $request->street,
@@ -695,6 +727,7 @@ class RegisterCustomerController extends Controller
                                 'city'                  => $request->city_hidden,
                                 'county'                => (Config::get('shopping.registercustomer.validate_form.' . Session::get('portal.register_customer.country_corbiz') . '.county')) ? $request->colony : '',
                                 'zipcode'               => (Config::get('shopping.registercustomer.validate_form.' . Session::get('portal.register_customer.country_corbiz') . '.zipcode')) ? $request->zip : '',
+                                'shipping_company'      => $request->shipping_company,
                                 'email'                 => $request->email,
                                 'sex'                   => ($request->sex == 0) ? 'M' : 'F',
                                 'idcenter'              => $idcenter,
@@ -724,13 +757,26 @@ class RegisterCustomerController extends Controller
                 $response = [
                     'success' => true,
                     'message' => '',
+                    'details' => '',
                 ];
             }
             else if ($result['success'] == false && isset($result['responseWS']['response']) && $result['responseWS']['response']['Success'] == 'false' && isset($result['responseWS']['response']['Error']['dsError']['ttError']))
             {
+                $details = [];
+
+                foreach ($result['responseWS']['response']['Error']['dsError']['ttError'] as $key => $value)
+                {
+                    $details[] = [
+                        'err_code' => $value['idError'],
+                        'err_msg' => $value['messUser'],
+                        'err_tech' => $value['messTech'],
+                    ];
+                }
+
                 $response = [
                     'success' => false,
                     'message' => $result['responseWS']['response']['Error']['dsError']['ttError'],
+                    'details' => $details,
                 ];
             }
             else
@@ -745,6 +791,13 @@ class RegisterCustomerController extends Controller
                             'messUser'  => $result['responseWS']['_errors'][0]['_errorMsg']
                         ],
                     ],
+                    'details' => [
+                        [
+                            'err_code' => '500',
+                            'err_msg' => $result['responseWS']['_errors'][0]['_errorMsg'],
+                            'err_tech' => $result['message'],
+                        ]
+                    ]
                 ];
             }
         }
@@ -768,6 +821,7 @@ class RegisterCustomerController extends Controller
                     'messUser'  => trans('shopping::register_customer.error_rest'),
                 ],
             ],
+            'details'   => '',
         ];
 
         if ($request->ajax())
@@ -803,7 +857,8 @@ class RegisterCustomerController extends Controller
                                 'shippingcompany'   => $customer->shipping_company,
                                 'altAddress'        => 0,
                                 'email'             => $customer->email,
-                                'phone'             => (Config::get('shopping.registercustomer.validate_form.' . Session::get('portal.register_customer.country_corbiz') . '.tel')) ? $customer->telephone : '',
+                                'phone'             => (Config::get('shopping.registercustomer.validate_form.' . Session::get('portal.register_customer.country_corbiz') . '.tel')) ? (!empty($customer->telephone) ? $customer->telephone : '') : '',
+                                'cellphone'         => (Config::get('shopping.registercustomer.validate_form.' . Session::get('portal.register_customer.country_corbiz') . '.cel')) ? (!empty($customer->cell_number) ? $customer->cell_number : '') : '',
                                 'previousperiod'    => false,
                                 'type_mov'          => 'INGRESA',
                                 'source'            => 'WEB',
@@ -834,11 +889,23 @@ class RegisterCustomerController extends Controller
                     $error_user .= $err['messUser'] . PHP_EOL;
                 }
 
+                $details = [];
+
+                foreach ($result['responseWS']['response']['Error']['dsError']['ttError'] as $key => $value)
+                {
+                    $details[] = [
+                        'err_code' => $value['idError'],
+                        'err_msg' => $value['messUser'],
+                        'err_tech' => $value['messTech'],
+                    ];
+                }
+
                 $this->getUpdateCustomer($customer->id, $error_corbiz, $error_user);
 
                 return response()->json([
                     'success'   => false,
                     'message'   => $result['responseWS']['response']['Error']['dsError']['ttError'],
+                    'details'   => $details,
                 ]);
             }
             else
@@ -855,6 +922,13 @@ class RegisterCustomerController extends Controller
                             'messUser'  => $result['responseWS']['_errors'][0]['_errorMsg']
                         ],
                     ],
+                    'details' => [
+                        [
+                            'err_code' => '500',
+                            'err_msg' => $result['responseWS']['_errors'][0]['_errorMsg'],
+                            'err_tech' => $result['message'],
+                        ]
+                    ]
                 ]);
             }
 
@@ -863,20 +937,36 @@ class RegisterCustomerController extends Controller
                 $docsCustomer   = [];
                 $idcenter       = '';
                 $warehouse      = '';
-                $result_wh      = $this->CommonMethods->getAvailableWH(Session::get('portal.register_customer.webservice'), Session::get('portal.register_customer.country_corbiz'), Session::get('portal.register_customer.language_corbiz'), '', '', $customer->zip_code);
+                $paramsWarehouse = $this->CommonMethods->getCountryConfiguration(SessionRegisterHdl::getRouteWS(), SessionRegisterHdl::getCorbizCountryKey(), SessionRegisterHdl::getCorbizLanguage());
 
-                if ($result_wh['success'] == true)
+                if ($paramsWarehouse['status'])
                 {
-                    $idcenter   = $result_wh['message']['distCenter'];
-                    $warehouse  = $result_wh['message']['warehouse'];
+                    $isUnique   = $paramsWarehouse['WHUnique'];
+                    $idWH       = isset($paramsWarehouse['idWH']) ? $paramsWarehouse['idWH'] : '';
+                    $stateKey   = $paramsWarehouse['UseCity'] ? $customer->state : '';
+                    $cityKey    = $paramsWarehouse['UseCity'] ? $customer->city : '';
+                    $zip        = $paramsWarehouse['UseZipCode'] ? $customer->zip_code : '';
+
+                    $result_wh  = $this->CommonMethods->getAvailableWH(Session::get('portal.register_customer.webservice'), Session::get('portal.register_customer.country_corbiz'), Session::get('portal.register_customer.language_corbiz'), $stateKey, $cityKey, $zip);
+
+                    if ($result_wh['success'] == true)
+                    {
+                        $idcenter   = $result_wh['message']['distCenter'];
+                        $warehouse  = $result_wh['message']['warehouse'];
+                    }
+                    else
+                    {
+                        return response()->json([
+                            'success'   => false,
+                            'message'   => $result_wh['message'],
+                        ]);
+                    }
                 }
                 else
                 {
-                    $this->getUpdateCustomer($customer->id, $result_wh['message'], $result_wh['message']);
-
                     return response()->json([
                         'success'   => false,
-                        'message'   => $result_wh['message'],
+                        'message'   => trans('shopping::register_customer.error_rest'),
                     ]);
                 }
 
@@ -917,8 +1007,8 @@ class RegisterCustomerController extends Controller
                                     'countrysale'           => Session::get('portal.register_customer.country_corbiz'),
                                     'idtransaction'         => $transaction,
                                     'sponsor'               => $customer->sponsor,
-                                    'lastnamef'             => $customer->ca_lastnamef,
-                                    'lastnamem'             => $customer->ca_lastname,
+                                    'lastnamef'             => $customer->ca_lastname,
+                                    'lastnamem'             => $customer->ca_lastnamef,
                                     'names'                 => $customer->ca_name,
                                     'birthdate'             => $customer->birthdate,
                                     'address'               => $customer->address,
@@ -932,6 +1022,7 @@ class RegisterCustomerController extends Controller
                                     'city'                  => $customer->city,
                                     'county'                => (Config::get('shopping.registercustomer.validate_form.' . Session::get('portal.register_customer.country_corbiz') . '.county')) ? $customer->county : '',
                                     'zipcode'               => (Config::get('shopping.registercustomer.validate_form.' . Session::get('portal.register_customer.country_corbiz') . '.zipcode')) ? $customer->zip_code : '',
+                                    'shipping_company'      => $customer->shipping_company,
                                     'email'                 => $customer->email,
                                     'sex'                   => $customer->gender,
                                     'idcenter'              => $idcenter,
@@ -943,7 +1034,7 @@ class RegisterCustomerController extends Controller
                                     'zsource'               => 'WEB',
                                     'zcreate'               => true,
                                     'lang'                  => Session::get('portal.register_customer.language_corbiz'),
-                                    'pool'                  => ($customer->is_pool == 1) ? false : true,
+                                    'pool'                  => ($customer->is_pool == 1) ? true : false,
                                     'client_type'           => 'CFINAL',
                                 ]
                             ],
@@ -971,11 +1062,23 @@ class RegisterCustomerController extends Controller
                         $error_user .= $err['messUser'] . PHP_EOL;
                     }
 
+                    $details = [];
+
+                    foreach ($resultAddFormEntrepreneur['responseWS']['response']['Error']['dsError']['ttError'] as $key => $value)
+                    {
+                        $details[] = [
+                            'err_code' => $value['idError'],
+                            'err_msg' => $value['messUser'],
+                            'err_tech' => $value['messTech'],
+                        ];
+                    }
+
                     $this->getUpdateCustomer($customer->id, $error_corbiz, $error_user);
 
                     return response()->json([
                         'success'   => false,
                         'message'   => $resultAddFormEntrepreneur['responseWS']['response']['Error']['dsError']['ttError'],
+                        'details'   => $details,
                     ]);
                 }
                 else
@@ -992,6 +1095,13 @@ class RegisterCustomerController extends Controller
                                 'messUser'  => $resultAddFormEntrepreneur['responseWS']['_errors'][0]['_errorMsg']
                             ],
                         ],
+                        'details' => [
+                            [
+                                'err_code' => '500',
+                                'err_msg' => $result['responseWS']['_errors'][0]['_errorMsg'],
+                                'err_tech' => $result['message'],
+                            ]
+                        ]
                     ]);
                 }
             }
@@ -1006,6 +1116,7 @@ class RegisterCustomerController extends Controller
                             'messUser'  => trans('shopping::register_customer.error_rest'),
                         ]
                     ],
+                    'details'   => '',
                 ]);
             }
 
@@ -1045,11 +1156,23 @@ class RegisterCustomerController extends Controller
                         $error_user .= $err['messUser'] . PHP_EOL;
                     }
 
+                    $details = [];
+
+                    foreach ($resultAddEntrepreneur['responseWS']['response']['Error']['dsError']['ttError'] as $key => $value)
+                    {
+                        $details[] = [
+                            'err_code' => $value['idError'],
+                            'err_msg' => $value['messUser'],
+                            'err_tech' => $value['messTech'],
+                        ];
+                    }
+
                     $this->getUpdateCustomer($customer->id, $error_corbiz, $error_user);
 
                     return response()->json([
                         'success'   => false,
                         'message'   => $resultAddEntrepreneur['responseWS']['response']['Error']['dsError']['ttError'],
+                        'details'   => $details,
                     ]);
                 }
                 else
@@ -1066,6 +1189,13 @@ class RegisterCustomerController extends Controller
                                 'messUser'  => $resultAddEntrepreneur['responseWS']['_errors'][0]['_errorMsg'],
                             ],
                         ],
+                        'details' => [
+                            [
+                                'err_code' => '500',
+                                'err_msg' => $result['responseWS']['_errors'][0]['_errorMsg'],
+                                'err_tech' => $result['message'],
+                            ]
+                        ]
                     ]);
                 }
             }
@@ -1080,6 +1210,7 @@ class RegisterCustomerController extends Controller
                             'messUser'  => trans('shopping::register_customer.error_rest'),
                         ]
                     ],
+                    'details'   => '',
                 ]);
             }
 
@@ -1103,26 +1234,12 @@ class RegisterCustomerController extends Controller
 
                     DB::commit();
 
-                    $banner = ConfirmationBanner::where(['country_id' => Session::get('portal.register_customer.ca.country_id'), 'purpose_id' => 3, 'type_id' => 1])->first();
-
-                    $response   = [
-                        'success'   => true,
-                        'message'   => [
-                            'url_image' => ($banner != null || $banner != '') ? $banner->image : '',
-                            'code'      => $data_corbiz['EntrepreneurId'],
-                            'password'  => $data_corbiz['Password'],
-                            'question'  => $data_corbiz['Question'],
-                            'country'   => Session::get('portal.register_customer.country_corbiz'),
-                            'language'  => Session::get('portal.register_customer.language_corbiz'),
-                        ],
-                    ];
-
                     $emailsSend = Config::get('cms.email_send');
                     $from_email = $emailsSend[Session::get('portal.main.country_corbiz')];
-                    $eo = Crypt::encryptString(Session::get('portal.register_customer.country_corbiz') . ' ' . Session::get('portal.register_customer.language_corbiz') .  ' ' . $data_corbiz['EntrepreneurId'] . ' ' . $data_corbiz['Password']);
+                    $eo         = Crypt::encryptString(Session::get('portal.main.country_corbiz') . ' ' . Session::get('portal.main.language_corbiz') .  ' ' . $data_corbiz['EntrepreneurId'] . ' ' . $data_corbiz['Password']);
 
                     $data_customer  = [
-                        'view_mail'     => 'shopping::frontend.customer.mails.customer',
+                        'view_mail'     => 'shopping::frontend.customer.mails.welcome-customer',
                         'from_email'    => $from_email,
                         'title'         => trans('shopping::register_customer.mail.customer.title'),
                         'to_email'      => $customer->email,
@@ -1131,21 +1248,21 @@ class RegisterCustomerController extends Controller
                         'code'          => $data_corbiz['EntrepreneurId'],
                         'password'      => $data_corbiz['Password'],
                         'question'      => $data_corbiz['Question'],
-                        'name_sponsor'  => $customer->sponsor_name,
-                        'email_sponsor' => $customer->sponsor_email,
+                        'answer'        => $request->answer,
                         'url_login'     => '/login?eo=' . $eo,
+                        'url_banner'    => '/uploads/images/mailing/cresiendo/' . Session::get('portal.main.app_locale') . '/banner_kit_de_bienvenida.png'
                     ];
 
-                    if (($from_email != null || $from_email != '') && ($customer->email != '' || $customer->email != null))
+                    if (!empty($from_email) && !empty($customer->email))
                     {
                         $this->CommonMethods->getSendMail($data_customer);
                     }
 
                     $data_sponsor   = [
-                        'view_mail'         => 'shopping::frontend.customer.mails.sponsor',
+                        'view_mail'         => 'shopping::frontend.customer.mails.new-customer-notice-to-sponsor',
                         'from_email'        => $from_email,
                         'title'             => trans('shopping::register_customer.mail.sponsor.title'),
-                        'to_email'          => 'daniel.herrera@omnilife.com',//$customer->sponsor_email,
+                        'to_email'          => $customer->sponsor_email,
                         'name'              => $customer->sponsor_name,
                         'subject'           => trans('shopping::register_customer.mail.sponsor.subject'),
                         'name_customer'     => $customer->ca_name . ' ' . $customer->ca_lastname,
@@ -1154,10 +1271,55 @@ class RegisterCustomerController extends Controller
                         'email_customer'    => $customer->email
                     ];
 
-                    if (($from_email != null || $from_email != '') && ($customer->sponsor_email != '' || $customer->sponsor_email != null))
+                    if (!empty($from_email) && !empty($customer->sponsor_email))
                     {
                         $this->CommonMethods->getSendMail($data_sponsor);
                     }
+
+                    $items = 0;
+
+                    if (Session::has('portal.cart.' . Session::get('portal.main.country_corbiz') . '.items'))
+                    {
+                        $items = count(Session::get('portal.cart.' . Session::get('portal.main.country_corbiz') . '.items'));
+                    }
+
+                    $banner = ConfirmationBanner::where([
+                        'country_id'    => Session::get('portal.main.country_id'),
+                        'brand_id'      => Session::get('portal.main.brand.id'),
+                        'purpose_id'    => 3,
+                        'type_id'       => 1,
+                        'active'        => 1,
+                        'delete'        => 0])
+                        ->first();
+
+                    if (!$banner) {
+                        $banner = ConfirmationBanner::where([
+                            'country_id'    => Session::get('portal.main.country_id'),
+                            'brand_id'      => 1,
+                            'purpose_id'    => 3,
+                            'type_id'       => 1,
+                            'active'        => 1,
+                            'delete'        => 0])
+                            ->first();
+                    }
+
+                    $response   = [
+                        'success'   => true,
+                        'message'   => [
+                            'url_image' => !empty($banner) ? $banner->image : '',
+                            'code'      => $data_corbiz['EntrepreneurId'],
+                            'password'  => $data_corbiz['Password'],
+                            'question'  => $data_corbiz['Question'],
+                            'country'   => Session::get('portal.register_customer.country_corbiz'),
+                            'language'  => Session::get('portal.register_customer.language_corbiz'),
+                            'items'     => ($items > 0) ? true : false,
+                        ],
+                        'details'   => '',
+                    ];
+
+                    Session::forget('portal.register_customer');
+                    Session::forget('portal.request_businessman');
+                    Session::forget('portal.unfinished_register');
                 }
                 catch (Exception $e)
                 {
@@ -1169,7 +1331,8 @@ class RegisterCustomerController extends Controller
                         'success'   => false,
                         'message'   => [
                             'error__box_ul_step3'   => $e->getMessage(),
-                        ]
+                        ],
+                        'details'   => '',
                     ];
                 }
             }
@@ -1183,6 +1346,7 @@ class RegisterCustomerController extends Controller
                             'messUser'  => trans('shopping::register_customer.error_rest'),
                         ]
                     ],
+                    'details'   => '',
                 ]);
             }
         }
@@ -1201,5 +1365,48 @@ class RegisterCustomerController extends Controller
         ];
 
         Customer::query()->where('id', '=', $id_customer)->update($update);
+    }
+
+    public function backStep2(Request $request)
+    {
+        if ($request->ajax()) {
+            Session::put('portal.register_customer.step', 1);
+
+            return [
+                'status'    => true,
+                'data'      => [],
+                'messages'  => []
+            ];
+        }
+    }
+
+    public function validateStreet(Request $request)
+    {
+        $response = [
+            'passes'    => false,
+            'message'   => trans('shopping::register.info.address.street_message')
+        ];
+
+        if ($request->ajax() && !empty($request->street))
+        {
+            $hasRestricteds = str_contains(strtoupper($request->street),config('shopping.validation_po_box'));
+
+            if ($hasRestricteds)
+            {
+                $response = [
+                    'passes'    => false,
+                    'message'   => trans('shopping::register.info.address.street_message_fail')
+                ];
+            }
+            else
+            {
+                $response = [
+                    'passes'    => true,
+                    'message'   => trans('shopping::register.info.address.street_message')
+                ];
+            }
+        }
+
+        return $response;
     }
 }

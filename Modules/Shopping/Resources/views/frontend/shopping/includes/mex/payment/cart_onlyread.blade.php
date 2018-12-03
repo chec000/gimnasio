@@ -1,9 +1,13 @@
 <div id="cart-preview" class="cart-preview fade-in-down cart__right">
     <div class="cart-preview__head">
         <p>{{ trans('shopping::checkout.payment.resume_payment') }}</p>
-        <button class="icon-btn icon-cross close" type="button"></button>
+        <button onclick="closeCart()" class="icon-btn icon-cross close" type="button"></button>
     </div>
     <div class="cart-preview__content">
+        <div id="divResumeQuotationErrors" style="width: 100%">
+            @include("shopping::frontend.shopping.includes.resume_quotation_errors")
+        </div>
+
         <ul class="cart-product__list list-nostyle ps ps--active-y">
             @if (isset($sessionCart['items']))
                 @forelse ($sessionCart['items'] as $i => $item)
@@ -33,11 +37,16 @@
             @endif
         </ul>
         <div class="cart-preview__resume list-nostyle">
+            <li>{{ trans('shopping::checkout.quotation.resume_cart.discount') }}: {{ isset($sessionCart['discount']) ? $sessionCart['discount'].'%' : '0%' }}</li>
             <li>{{ trans('cms::cart_aside.subtotal') }}: {{ isset($sessionCart['subtotal']) ?  currency_format($sessionCart['subtotal'], \App\Helpers\SessionHdl::getCurrencyKey()) : '$00.00' }}</li>
+            <li>{{ trans('cms::cart_aside.points') }}: {{ isset($sessionCart['points']) ? $sessionCart['points'] : '0000' }}</li>
             <li>{{ trans('shopping::checkout.payment.handling') }}: {{ isset($sessionCart['handling']) ? currency_format($sessionCart['handling'], \App\Helpers\SessionHdl::getCurrencyKey()) : '$00.00' }}</li>
             <li>{{ trans('shopping::checkout.payment.taxes') }}: {{ isset($sessionCart['taxes']) ? currency_format($sessionCart['taxes'], \App\Helpers\SessionHdl::getCurrencyKey()) : '$00.00' }}</li>
-            <li>{{ trans('cms::cart_aside.points') }}: {{ isset($sessionCart['points']) ? $sessionCart['points'] : '0000' }}</li>
-            @php $total = (((float)$sessionCart['subtotal']) + ((float)$sessionCart['taxes']) + ((float)$sessionCart['handling'])) @endphp
+            @php $total = 0;
+                if (isset($sessionCart['subtotal']) && isset($sessionCart['taxes']) && isset($sessionCart['handling'])) {
+                    $total = (((float)$sessionCart['subtotal']) + ((float)$sessionCart['taxes']) + ((float)$sessionCart['handling']));
+                }
+            @endphp
             <li class="total">@lang('cms::cart_aside.total'): {{ currency_format($total, \App\Helpers\SessionHdl::getCurrencyKey()) }}</li>
         </div>
     </div>

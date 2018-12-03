@@ -38,7 +38,6 @@ return [
             'mobile'    => 'Activaci&oacute;n',
         ]
     ],
-
     'account' => [
         'country' => [
             'label'     => 'Pa&iacute;s',
@@ -106,15 +105,16 @@ return [
         ],
 
         'address' => [
-            'label'         => 'Address',
+            'label'         => 'Direcci&oacute;n',
             'placeholders'  => [
                 'zip'               => 'C&oacute;digo Postal',
-                'street'            => 'Calle',
+                'street'            => 'Direcci&oacute;n',
                 'ext_num'           => 'N&uacute;mero Exterior',
                 'int_num'           => 'N&uacute;mero Interior',
                 'state'             => 'Estado',
                 'city'              => 'Ciudad',
-                'colony'            => 'Condado',
+                'county'            => 'Condado',
+                'suburb'            => 'Colonia',
                 'betweem_streets'   => 'Entre Calles',
                 'shipping_company'  => 'Compa&ntilde;ia de Env&iacute;o',
             ],
@@ -158,6 +158,66 @@ return [
     ],
 
     'mail' => [
+        'verify' => [
+            'title'     => 'Verificación de correo',
+            'subject'   => 'Verifica tu cuenta',
+            'h6'        => 'Verifica tu cuenta',
+            'h3'        => '¡Hola, :name!',
+            'p1'        => 'Para completar tu registro, por favor verifica tu cuenta dando clic al siguiente bot&oacute;n',
+            'p2'        => 'Esta es una respuesta autom&aacute;tica de OMNILIFE. Por favor, no responda a este correo electr&oacute;nico.',
+            'a1'        => 'CONFIRMAR MI CORREO ELECTR&Oacute;NICO',
+            'a2'        => 'Pol&iacute;tica de Privacidad',
+        ],
+
+        'customer' => [
+            'title'     => '¡Bienvenido a OMNILIFE!',
+            'subject'   => 'Bienvenido',
+            'h6'        => 'Bienvenido',
+            'h3'        => '¡Bienvenido a OMNILIFE!',
+            'p5'        => 'Te informamos que tu registro como Cliente ha sido exitoso. A partir de ahora, podrás realizar tus compras y disfrutar de los beneficios de ser cliente OMNILIFE.',
+            'p1'        => 'Esta es la información de tu cuenta',
+            'li'        => [
+                1   => 'Código de Cliente',
+                2   => 'Contraseña',
+                3   => 'Pregunta Secreta',
+                4   => 'Respuesta de pregunta secreta',
+            ],
+            'p2'        => 'Te sugerimos no compartir tu código de cliente y contraseña, ya que son datos privados y necesarios para realizar tus compras en nuestro sitio web.',
+            'p3'        => [
+                'text1' => '¡Te invitamos a visitar nuestro sitio y realizar',
+                'text2' => '¡tu primera compra ahora!',
+            ],
+            'p4'    => [
+                'text1' => '“Si no reconoces esta operación o quieres oponerte al tratamiento de tus Datos Personales, reenvíanos este correo a la dirección',
+                'text2' => 'con el asunto Derecho de Oposición, tu nombre completo, país y número telefónico o comunícate a nuestras líneas de atención {CREO}”.',
+            ],
+            'a1'        => 'Pol&iacute;tica de Privacidad',
+        ],
+
+        'sponsor' => [
+            'title'     => 'Nuevo Cliente en red de Empresario',
+            'subject'   => 'Nuevo Cliente en red de Empresario',
+            'h6'        => 'Nuevo Cliente en red de Empresario',
+            'h3'        => '¡Felicidades, :name!',
+            'p1'        => [
+                'text1' => 'Tu Negocio Independiente con nosotros est&aacute; creciendo,',
+                'text2' => 'se ha registrado a tu red como Cliente.',
+            ],
+            'p2'        => 'Mantente en contacto para alcanzar más f&aacute;cilmente tu meta mensual',
+            'li'        => [
+                1   => 'C&oacute;digo de Empresario',
+                2   => 'Nombre',
+                3   => 'Tel&eacute;fono',
+                4   => 'Email',
+            ],
+            'ul'        => 'Motiva a tu nuevo Cliente a mantenerse activo, ya que por cada una de sus compras obtendr&aacute;s m&aacute;s puntos para ir m&aacute;s all&aacute; y alcanzar tus metas.',
+            'p3'        => [
+                'text1' => '“Si no reconoces esta operaci&oacute;n o quieres oponerte al tratamiento de tus Datos Personales, reenv&iacute;anos este correo a la direcci&oacute;n',
+                'text2' => 'con el asunto Derecho de Oposici&oacute;n, tu nombre completo, pa&iacute;s y n&uacute;mero telef&oacute;nico o comun&iacute;cate a nuestras l&iacute;neas de atenci&oacute;n {CREO}”.',
+            ],
+            'a1'        => 'Pol&iacute;tica de Privacidad',
+        ],
+
         'hello'             => 'Hola',
         'title'             => 'Confirmación de Correo Electrónico',
         'text'              => 'Para continuar con el proceso de registro, haz clic en el botón siguiente.',
@@ -165,52 +225,22 @@ return [
         'regards'           => 'Saludos cordiales',
         'team'              => 'Equipo Omnilife',
         'privacy_policy'    => 'Política de Privacidad',
-
-        'customer'          => [
-            'title'         => 'Bienvenido a Omnilife',
-            'subject'       => '¡Felicidades! Ahora eres un Cliente Admirable de Omnilife',
-            'h6'            => 'Bienvenido',
-            'p1'            => 'Gracias<strong> :name</strong> por completar tu registro, estás en el camino hacia una vida m&aacute;s sana y hermosa disfrutando de los productos de Omnilife',
-            'h4'            => '¡Tu vida esta a punto de cambiar!',
-            'p2'            => 'Guarda tu c&oacute;digo de cliente y contraseña, que ser&aacute;n necesarios para realizar sus compras.',
-            'p3'            => 'Esta es la informaci&oacute;n de tu cuenta',
-            'client_code'   => 'C&oacute;digo de Cliente',
-            'password'      => 'Contraseña',
-            'question'      => 'Pregunta Secreta',
-            'sponsor'       => 'Informaci&oacute;n del Patrocinador',
-            'name_sponsor'  => 'Nombre',
-            'email_sponsor' => 'Correo',
-        ],
-
-        'sponsor'           => [
-            'title'         => 'Nuevo Cliente Admirable en su red',
-            'subject'       => 'Felicidades, un maravilloso nuevo cliente ha sido registrado en su red',
-            'p1'            => '<strong>:name_sponsor</strong>, Nos gustar&iacute;a informarle que <strong>:name_customer</strong> ahora es parte de su red. Ahora que &eacute;l / ella est&aacute; en el camino hacia una vida m&aacute;s saludable y m&aacute;s hermosa disfrutando de los productos nutricionales de Omnilife. Obtendr&aacute; puntos por las compras que realice, para que pueda alcanzar su meta mensual m&aacute;s f&aacute;cilmente.',
-            'p2'            => 'Informaci&oacute;n del Nuevo Cliente',
-            'text1'         => 'Es muy importante recordar que como presentador, puedes',
-            'text2'         => '¡Trabaja con tux clientes, para ir m&aacute;s all&aacute; y alcanzar tus objetivos!',
-            'client_code'   => 'C&oacute;digo de Cliente',
-            'name'          => 'Nombre',
-            'telephone'     => 'Tel&eacute;fono',
-            'email'         => 'Correo',
-            'li1'           => 'Responda las dudas al cliente',
-            'li2'           => 'Promover la compra de productos Omnilife',
-            'li3'           => 'Recomiende el uso de productos',
-            'li4'           => 'Soporte en el proceso de compra',
-        ],
     ],
 
     'fields' => [
         'required'      => 'El campo :attribute es obligatorio.',
-        'in'            => 'El campo :attribute es inválido.',
-        'not_in'        => 'El campo :attribute seleccionado es inválido.',
-        'email'         => 'El campo :attribute debe ser una dirección de correo válida.',
-        'numeric'       => 'El campo :attribute debe ser un número.',
+        'in'            => 'El campo :attribute es inv&aacute;lido.',
+        'not_in'        => 'El campo :attribute seleccionado es inv&aacute;lido.',
+        'email'         => 'El campo :attribute debe ser una direcci&oacute;n de correo v&aacute;lida.',
+        'numeric'       => 'El campo :attribute debe ser un n&uacute;mero.',
         'same'          => 'Los campos :attribute y :other deben coincidir.',
+        'min'           => 'El campo :attribute debe contener al menos :min caracteres.',
         'max'           => 'El campo :attribute no debe contener más de :max caracteres.',
-        'date'          => 'El campo :attribute no corresponde con una fecha válida.',
+        'date'          => 'El campo :attribute no corresponde con una fecha v&aacute;lida.',
         'date_format'   => 'El campo :attribute no corresponde con el formato de fecha :format.',
-        'unique'        => 'El valor del campo :attribute ya está en uso.',
+        'unique'        => 'El valor del campo :attribute ya est&aacute; en uso.',
+        'regex'         => 'El formato del campo :attribute es inválido.',
+        'street_corbiz' => 'Direcci&oacute;n Incorrecta',
     ],
 
     'btn' => [
@@ -218,12 +248,15 @@ return [
         'continue'      => 'Continuar',
         'activate'      => 'Activar',
         'resend_mail'   => 'Reenviar Correo',
-        'finish'        => 'Continuar Comprando',
+        'finish'        => [
+            'shopping'  => 'Continuar Comprando',
+            'login'     => 'Iniciar Sesi&oacute;n'
+        ],
     ],
 
     'modal_exit' => [
-        'title' => 'Registro inconcluso',
-        'body'  => 'Al salir de esta página sin concluir tu inscripción perderás la información que llevas, ¿deseas continuar?',
+        'title' => 'Registro incompleto',
+        'body'  => 'No has completado tu registro. Si abandonas esta p&aacute;gina se perder&aacute; tu informaci&oacute;n. ¿Deseas continuar?',
         'btn' => [
             'accept'    => 'Aceptar',
             'cancel'    => 'Cancelar',

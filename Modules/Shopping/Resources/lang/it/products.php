@@ -19,6 +19,7 @@ return [
         'system_price'  => 'Prezzo del set',
         'total'         => 'Totale',
         'buy_system'    => 'ACQUISTARE IL SET',
+        'other'         => 'Altri sistemi',
     ],
     'detail' => [
         'benefits'               => 'Benefici',
@@ -28,7 +29,7 @@ return [
         'complementary_products' => '<h1>Prodotti <span class="small-proportion">complementari</span></h1>',
         'complementary_des'      => 'Altre opzioni per integrare uno stile di vita sano',
         'nutritional_table'      => 'Tabella nutrizionale',
-
+        'back_products'          => 'Ritorna alla lista prodotti'
     ],
     'see_all'    => 'VEDI TUTTO',
     'add_to_car' => 'AGGIUNGERE AL CARRELLO',
@@ -36,6 +37,10 @@ return [
     'products'   => 'PRODOTTI',
     'share'      => 'Condividi',
     'close_m'    => 'CHIUDERE',
+    'disclaimer' => '* I prezzi indicati per ogni prodotto non includono IVA né spese di gestione. Per questo motivo, i suddetti prezzi potrebbero variare a seconda del luogo di consegna',
+    'disclaimer_eo' => '* Prices don\'t include your discount, taxes or additional charges and may vary in final price according to your location.',
+    'confirmation' => 'Confirmation',
+    'confirmation_msg' => 'Are you sure you want to delete all the products from your shopping cart?',
 
     'country'        => 'Paese',
     'country_select' => 'Seleziona il tuo paese',

@@ -1,10 +1,6 @@
 {!! PageBuilder::section('head', [
-    'socialTags'   => $socialTags,
-    'shoppingCart' => $shoppingCart,
-    'currency'     => $currency,
-    'subtotal'     => $subtotal,
-    'points'       => $points,
-    'title'        => $countryProduct->name
+    'socialTags' => $socialTags,
+    'title'      => $countryProduct->name
 ]) !!}
 
 <div class="products-page inner {{ $backgroundColor }} detail">
@@ -32,7 +28,7 @@
 
             <div class="principal__desc">
                 <ul class="list-nostyle principal__breadcrumbs">
-                    <li><a href="{{ route(\App\Helpers\TranslatableUrlPrefix::getRouteName(session()->get('portal.main.app_locale'), ['products', 'index'])) }}">@lang('shopping::products.products')</a></li>
+                    <li><a href="{{ route(\App\Helpers\TranslatableUrlPrefix::getRouteName(session()->get('portal.main.app_locale'), ['products', 'index'])) }}">@lang('shopping::products.detail.back_products')</a></li>
                     @if (!is_null($category))
                         <li><a href="{{ route(\App\Helpers\TranslatableUrlPrefix::getRouteName(session()->get('portal.main.app_locale'), ['products', 'category']), $category->slug) }}">{{ $category->name }}</a></li>
                     @endif
@@ -41,14 +37,15 @@
 
                 <h1 class="principal__title">{{ $countryProduct->name }}</h1>
                 <h2 class="principal__subtitle">{{ $countryProduct->short_description }}</h2>
-                @if (!hide_price())
+                @if (show_price())
                     <p class="principal__price">{{ currency_format($countryProduct->price, $currency) }}</p>
                 @endif
-                @if ($isWSActive && !hide_price() && \App\Helpers\SessionHdl::hasEo())
+
+                @if (show_points())
                     <p class="principal__pts">{{ $countryProduct->points }} @lang('shopping::products.pts')</p>
                 @endif
 
-                @if (($isShoppingActive && $isWSActive) && !hide_price())
+                @if (show_add_to_car())
                     <div class="principal__ctrls">
                         <div class="form-group numeric transparent principal__quantity">
                             <span class="minus">
@@ -56,7 +53,7 @@
                                     <line x1="0" y1="8" x2="14" y2="8"></line>
                                 </svg>
                             </span>
-                            <input class="form-control" type="numeric" name="qty#{val}" value="1">
+                            <input min="0" max="9999" oninput="maxLengthCheck(this)" onkeypress="return isNumeric(event)" class="form-control" type="numeric" name="qty#{val}" value="1">
                             <span class="plus">
                                 <svg height="14" width="14">
                                     <line x1="0" y1="7" x2="14" y2="7"></line>
@@ -69,6 +66,13 @@
                 @endif
 
                 <p class="principal__text">{{ $countryProduct->description }}</p>
+                @if (show_disclaimer())
+                    @if (\App\Helpers\SessionHdl::hasEo())
+                        <p class="disclaimer">@lang('shopping::products.disclaimer_eo')</p>
+                    @else
+                        <p class="disclaimer">@lang('shopping::products.disclaimer')</p>
+                    @endif
+                @endif
 
                 <footer class="principal__footer">
                     <div class="principal__social dropdown light hasicons">
@@ -115,18 +119,15 @@
             </div>
             <div class="tabs__content">
                 <div class="tabs__pane active" id="ben">
-                    <h1>@lang('shopping::products.detail.benefits')</h1>
                     <p>{{ $countryProduct->benefits }}</p>
                 </div>
                 @if (!empty($countryProduct->ingredients))
                     <div class="tabs__pane" id="ing">
-                        <h1>@lang('shopping::products.detail.ingredients')</h1>
                         <p>{{ $countryProduct->ingredients }}</p>
                     </div>
                 @endif
                 @if (!empty($countryProduct->comments))
                     <div class="tabs__pane" id="com">
-                        <h1>@lang('shopping::products.detail.comments')</h1>
                         <p>{{ $countryProduct->comments }}</p>
                     </div>
                 @endif
@@ -134,14 +135,14 @@
         </div>
         <!-- end Info tabs -->
 
-        @if ($relatedProducts->count() == 3)
+        @if ($relatedProducts->count() >= 2)
             @php $cost = 0.0; @endphp
 
             <!-- Products block complement -->
             <div class="products-block complementary">
                 <div class="products slider" id="products-complementary">
                     <div class="products__wrap slider__wrap">
-                        @for ($i = 0; $i < 3; $i++)
+                        @for ($i = 0; $i < $relatedProducts->count(); $i++)
                             @php $cost += $relatedProducts[$i]->relatedProduct->price; @endphp
 
                             <div class="product slider__item">
@@ -151,13 +152,16 @@
                                         <img src="{{ asset($relatedProducts[$i]->relatedProduct->image) }}" alt=""/>
                                     </figure>
                                     <span class="product__nums">
-                                    @if (!hide_price())<span class="product__price">{{ currency_format($relatedProducts[$i]->relatedProduct->price, $currency) }}</span>@endif
-                                    @if ($isWSActive && !hide_price() && \App\Helpers\SessionHdl::hasEo())
+                                    @if (show_price())
+                                            <span class="product__price">{{ currency_format($relatedProducts[$i]->relatedProduct->price, $currency) }}</span>
+                                    @endif
+
+                                    @if (show_points())
                                         <span class="product__pts">{{ $relatedProducts[$i]->relatedProduct->points }} @lang('shopping::products.pts')</span>
                                     @endif
                                 </span>
                                 </a>
-                                @if (($isShoppingActive && $isWSActive) && !hide_price())
+                                @if (show_add_to_car())
                                     <footer class="product__f">
                                         <div class="product__sep"></div>
                                         <button onclick="ShoppingCart.add_one('{{ $relatedProducts[$i]->relatedProduct->id }}')" class="button clean" type="button">@lang('shopping::product_detail.add_to_cart')</button>
@@ -170,11 +174,20 @@
                 <div class="products-desc wrapper">
                     <h1 class="products-desc__title purple">@lang('shopping::products.detail.complementary_products')</h1>
                     <p class="products-desc__description visible">@lang('shopping::products.detail.complementary_des')</p>
-                    @if (!hide_price())
+                    @if (show_price())
                         <span class="products-desc__price">{{ currency_format($cost, $currency) }}</span>
                     @endif
-                    @if (($isShoppingActive && $isWSActive) && !hide_price())
+
+                    @if (show_add_to_car())
                         <a onclick="ShoppingCart.add_related_products('{{ $countryProduct->id }}')" class="button small visible" href="#">@lang('shopping::product_detail.add_to_cart')</a>
+                    @endif
+
+                    @if (show_disclaimer())
+                        @if (\App\Helpers\SessionHdl::hasEo())
+                            <p class="disclaimer">@lang('shopping::products.disclaimer_eo')</p>
+                        @else
+                            <p class="disclaimer">@lang('shopping::products.disclaimer')</p>
+                        @endif
                     @endif
                 </div>
             </div>
@@ -210,7 +223,6 @@
 
 {!! PageBuilder::section('footer') !!}
 <input type="hidden" id="shop_secret" value="{{ csrf_token() }}">
-<script src="{{ PageBuilder::js('shopping_cart_old_browsers') }}"></script>
 <script>
     var SHARE_URL = "{{ $socialTags['facebook']['url'] ?: '' }}";
     $(document).ready(function () {
@@ -236,14 +248,8 @@
             document.products[i] = product;
         });
 
-        var shopping_cart = {!! ShoppingCart::sessionToJson(session()->get('portal.main.country_corbiz')) !!};
-        if (shopping_cart.constructor === Array && shopping_cart.length == 0) {
-            shopping_cart = {};
-        }
-        document.shopping_cart = shopping_cart;
-
         document.related_products = {};
-        @if ($relatedProducts->count() == 3)
+        @if ($relatedProducts->count() >= $relatedProducts->count())
             document.related_products['{{ $countryProduct->id }}'] = {!! ShoppingCart::relatedProductsToJson($relatedProducts) !!};
 
             var productsRel = {!! ShoppingCart::relatedProductsToJson($relatedProducts) !!};
@@ -251,7 +257,5 @@
                 document.products[i] = product;
             });
         @endif
-
-        ShoppingCart.update_items();
     });
 </script>

@@ -9,6 +9,6 @@ return [
     */
 
     'add_to_cart' => 'AGGIUNGERE AL CARRELLO',
-    'share'       => 'Condividi',
+    'share'       => 'Condividere',
 
 ];

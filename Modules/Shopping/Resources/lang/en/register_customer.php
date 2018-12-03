@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'title' => 'Customer Registration',
+    'title' => 'Client Register',
 
     'months'        => [
         1   => 'January',
@@ -46,7 +46,7 @@ return [
 
         'invited' => [
             'label' => [
-                'desktop'   => 'Were you invited by a Omnilife\'s business man',
+                'desktop'   => 'Were you invited by an OMNILIFE Distributor?',
                 'mobile'    => 'Were you invited',
             ],
 
@@ -57,26 +57,26 @@ return [
         ],
 
         'businessman_code' => [
-            'label'         => 'Businessman Code',
-            'placeholder'   => 'Enter your businessman code',
+            'label'         => 'Distributor Code',
+            'placeholder'   => 'Enter code',
         ],
 
         'meet_us' => [
-            'label'     => 'How did you meet us?',
+            'label'     => 'How did you hear about us? ',
         ],
 
         'sex' => [
-            'label'     => 'Sex',
+            'label'     => 'Gender',
             'male'      => 'Male',
             'female'    => 'Female',
         ],
 
         'borndate' => [
-            'label' => 'Born Date',
+            'label' => 'Date of birth',
             'day'   => 'Day',
             'month' => 'Month',
             'year'  => 'Year',
-            'alert' => 'The Born Date is not a valid date.',
+            'alert' => 'The Date of birth field is not valid.',
         ],
 
         'full_name' => [
@@ -98,7 +98,6 @@ return [
             'label'         => 'Identification',
             'option'        => 'ID Type',
             'placeholder'   => 'Identification number',
-
         ],
 
         'expiration' => [
@@ -111,7 +110,8 @@ return [
                 'zip'               => 'Zip Code',
                 'ext_num'           => 'Exterior Number',
                 'int_num'           => 'Interior Number',
-                'colony'            => 'County',
+                'county'            => 'County',
+                'suburb'            => 'Suburb',
                 'betweem_streets'   => 'On the streets',
                 'state'             => 'State',
                 'city'              => 'City',
@@ -153,51 +153,78 @@ return [
         'option'        => 'Select one question',
         'placeholder'   => 'Write your answer',
         'label'         => 'Registration completed successfully, your data are as follows',
-        'code'          => 'Businessman Code',
+        'code'          => 'Customer Code',
         'password'      => 'Password',
     ],
 
     'mail' => [
+        'verify' => [
+            'title'     => 'Verify your account',
+            'subject'   => 'Verify your account',
+            'h6'        => 'Verify your account',
+            'h3'        => 'Hello, :name!',
+            'p1'        => 'To complete your register, please verify your account by clicking on the following button',
+            'p2'        => 'This is an automatic response from OMNILIFE. Please, do not reply to this e-mail address.',
+            'a1'        => 'CONFIRM MY E-MAIL ADDRESS',
+            'a2'        => 'Privacy Policy',
+        ],
+
+        'customer'      => [
+            'title'     => 'Welcome to OMNILIFE',
+            'subject'   => 'Welcome',
+            'h6'        => 'Welcome',
+            'h3'        => 'Welcome to OMNILIFE!',
+            'p5'        => 'We\'d like to let you know that your registration as a Customer has been successful. Starting now, you are able to make purchases and enjoy the benefits of being an OMNILIFE customer.',
+            'p1'        => 'This is your account information',
+            'li'        => [
+                1   => 'Customer Code',
+                2   => 'Password',
+                3   => 'Security question',
+                4   => 'Answer to security question',
+            ],
+            'p2'        => 'We recommend that you do not share your customer code and password as it is considered private and necessary information to make purchases on our website',
+            'p3'        => [
+                'text1' => 'We invite you to visit our website and make',
+                'text2' => 'your first purchase today!',
+            ],
+            'p4'        => [
+                'text1' => '"If you don\'t recognize this operation or would like to oppose to the handling of your Personal Data, forward this email to',
+                'text2' => 'with subject line: Right to Oppose, your full name, country and telephone number, or call our {CREO} service lines".',
+            ],
+            'a1'        => 'Privacy Policies',
+        ],
+
+        'sponsor' => [
+            'title'     => 'New customer in your Distributor Network',
+            'subject'   => 'New customer in your Distributor Network',
+            'h6'        => 'New customer in your Distributor Network',
+            'h3'        => 'Congratulations, :name!',
+            'p1'        => [
+                'text1' => 'Your Independent Business with us is growing,',
+                'text2' => 'has registered under your network as a Customer.',
+            ],
+            'p2'        => 'Stay in touch to reach your monthly goal more easily',
+            'li'        => [
+                1   => 'Distributor Code',
+                2   => 'Name',
+                3   => 'Telephone',
+                4   => 'Email',
+            ],
+            'ul'        => 'Encourage your new Customer to stay active because with every purchase she makes, you make more points to move you forward and reach your goals.',
+            'p3'        => [
+                'text1' => '"If you don\'t recognize this operation or would like to oppose to the handling of your Personal Data, forward this email to',
+                'text2' => 'with subject line: Right to Oppose, your full name, country and telephone number, or call our {CREO} service lines".',
+            ],
+            'a1'        => 'Privacy Policies',
+        ],
+
         'hello'             => 'Hello',
         'title'             => 'Email Confirmation',
-        'text'              => 'To continue with the registration process, click on the following button.',
+        'text'              => 'To continue with the registration process, click on the next button. .',
         'confirm'           => 'Go to Email Confirmation',
-        'regards'           => 'Regards',
+        'regards'           => 'Best regards',
         'team'              => 'Team Omnilife',
         'privacy_policy'    => 'Privacy Policy',
-
-        'customer'          => [
-            'title'         => 'Welcome to Omnilife',
-            'subject'       => 'Congratulations! You are now an Admirable Customer Omnilife.',
-            'h6'            => 'Welcome',
-            'p1'            => 'Thank you<strong> :name</strong> By having completed your registration, you are on the road to a healthier and more beautiful life enjoying Omnilife products',
-            'h4'            => 'Your life is about to change!',
-            'p2'            => 'Save your Client Code and Password, which will be necessary to make your purchases.',
-            'p3'            => 'This is your account information',
-            'client_code'   => 'Client Code',
-            'password'      => 'Password',
-            'question'      => 'Secret Question',
-            'sponsor'       => 'Sponsor Information',
-            'name_sponsor'  => 'Name',
-            'email_sponsor' => 'Email',
-        ],
-
-        'sponsor'           => [
-            'title'         => 'New Admirable Customer to your network',
-            'subject'       => 'Congratulations, a wonderful new customer has been registered to your network!',
-            'p1'            => '<strong>:name_sponsor</strong>, We would like to inform you that <strong>:name_customer </strong>Is now part of your network. Now that he / she is on the way to a healthier and more beautiful life enjoying the nutritional products of Omnilife. You will earn points for purchases that he / she makes, so you can reach your monthly goal more easily.',
-            'p2'            => 'The new customer information is',
-            'text1'         => 'It is very important to remember that as a presenter, you can',
-            'text2'         => 'Work with your Admirable Clients, to go beyond and reach your goals!',
-            'client_code'   => 'Client Code',
-            'name'          => 'Name',
-            'telephone'     => 'Telephone',
-            'email'         => 'Email',
-            'li1'           => 'Answer the customer&#039;s doubts',
-            'li2'           => 'Promoting the purchase of Omnilife products',
-            'li3'           => 'Recommend the use of products',
-            'li4'           => 'Support in the buying process',
-        ],
     ],
 
     'fields' => [
@@ -207,10 +234,13 @@ return [
         'email'         => 'The :attribute must be a valid email address.',
         'numeric'       => 'The :attribute must be a number.',
         'same'          => 'The :attribute and :other must match.',
+        'min'           => 'The :attribute must be at least :min characters.',
         'max'           => 'The :attribute may not be greater than :max characters.',
         'date'          => 'The :attribute is not a valid date.',
         'date_format'   => 'The :attribute does not match the format :format.',
         'unique'        => 'The :attribute has already been taken.',
+        'regex'         => 'The :attribute format is invalid.',
+        'street_corbiz' => 'Wrong Address',
     ],
 
     'btn' => [
@@ -218,12 +248,15 @@ return [
         'continue'      => 'Continue',
         'activate'      => 'Activate',
         'resend_mail'   => 'Resend Mail',
-        'finish'        => 'Continue Shopping',
+        'finish'        => [
+            'shopping'  => 'Continue Shopping',
+            'login'     => 'Login'
+        ],
     ],
 
     'modal_exit' => [
-        'title' => 'Unfinished Registration',
-        'body'  => 'When leaving this page without concluding your registration you will lose the information that you have, do you want to continue?',
+        'title' => 'Incomplete register',
+        'body'  => 'You haven\'t completed the register. If you leave this page, you will lose the unsaved information. Do you want to continue?',
         'btn' => [
             'accept'    => 'Accept',
             'cancel'    => 'Cancel',

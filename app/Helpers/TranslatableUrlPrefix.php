@@ -11,6 +11,8 @@ namespace App\Helpers;
 
 
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Session;
+use Modules\CMS\Entities\Page;
 
 class TranslatableUrlPrefix {
 
@@ -53,5 +55,17 @@ class TranslatableUrlPrefix {
         }
 
         return $itIs;
+    }
+
+    public static function getUrlPagesByCode($code) {
+        $brand_id = Session::get('portal.main.brand.id');
+        $country_id = Session::get('portal.main.country_id');
+        $language_id = Session::get('portal.main.language_id');
+        $url_page_code = Page::getUrlPagesByCode($brand_id, $country_id, $language_id, $code);
+        if($url_page_code != null){
+            return $url_page_code->url;
+        } else {
+            return 'contact';
+        }
     }
 }

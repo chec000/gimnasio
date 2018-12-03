@@ -1,9 +1,5 @@
 {!! PageBuilder::section('head', [
-    'shoppingCart' => $shoppingCart,
-    'currency'     => $currency,
-    'subtotal'     => $subtotal,
-    'points'       => $points,
-    'title'        => $category->name
+    'title' => $category->name
 ]) !!}
 
 <div class="products-page inner {{ $category->color }} category">
@@ -86,15 +82,16 @@
                                 <figure class="product__image"><img src="{{ asset($product->countryProduct->image) }}" alt=""/></figure>
                                 <p class="product__description">{{ str_limit2($product->countryProduct->description, 74) }}</p>
                                 <span class="product__nums">
-                                    @if (!hide_price())
+                                    @if (show_price())
                                         <span class="product__price">{{ currency_format($product->countryProduct->price, $currency) }}</span>
                                     @endif
-                                    @if ($isWSActive && !hide_price() && \App\Helpers\SessionHdl::hasEo())
+
+                                    @if (show_points())
                                         <span class="product__pts">{{ $product->countryProduct->points }} @lang('shopping::products.pts')</span>
                                     @endif
                                 </span>
                             </a>
-                            @if (($isShoppingActive && $isWSActive) && !hide_price())
+                            @if (show_add_to_car())
                                 <footer class="product__f">
                                     <div class="product__sep"></div>
                                     <button onclick="ShoppingCart.add_one('{{ $product->countryProduct->id }}')" class="button clean" type="button">@lang('shopping::products.add_to_car')</button>
@@ -102,6 +99,15 @@
                             @endif
                         </div>
                     @endforeach
+
+                    @if (show_disclaimer() && $products->count() > 0)
+                        @if (\App\Helpers\SessionHdl::hasEo())
+                            <p class="disclaimer theme--white">@lang('shopping::products.disclaimer_eo')</p>
+                        @else
+                            <p class="disclaimer theme--white">@lang('shopping::products.disclaimer')</p>
+                        @endif
+
+                    @endif
                 </div>
 
                 @empty ($products->items())
@@ -125,17 +131,8 @@
 
 {!! PageBuilder::section('footer') !!}
 <input type="hidden" id="shop_secret" value="{{ csrf_token() }}">
-<script src="{{ PageBuilder::js('shopping_cart_old_browsers') }}"></script>
 <script>
     $(document).ready(function () {
         document.products = {!! ShoppingCart::productsToJson(collect($products->items())) !!};
-
-        var shopping_cart = {!! ShoppingCart::sessionToJson(session()->get('portal.main.country_corbiz')) !!};
-        if (shopping_cart.constructor === Array && shopping_cart.length == 0) {
-            shopping_cart = {};
-        }
-        document.shopping_cart = shopping_cart;
-
-        ShoppingCart.update_items();
     });
 </script>

@@ -1,11 +1,22 @@
-<div class="step step3 fade-in-down active cart__confirm" id="step3">
+<div class="step step4 fade-in-down active cart__confirm" id="step4">
     <header class="cart__confirm-head">
         <p>@lang('shopping::checkout.confirmation.pending.info')</p>
         <br>
         <h5>@lang('shopping::checkout.confirmation.pending.pending')</h5>
     </header>
 
+    @if (isset($banners))
+        @foreach ($banners as $banner)
+            @if (!empty($banner->link))<a target="_blank" href="{{ $banner->link }}">@endif
+                <figure class="cart__confirm-banner">
+                    <img src="{{ asset($banner->image) }}" alt="">
+                </figure>
+                @if (!empty($banner->link))</a>@endif
+        @endforeach
+    @endif
+    {{dd("pending",$order)}}
     <br>
+
 
     {{--<p>Tu pedido llegará en 10 días hábiles.</p>--}}
     <div class="cart__confirm-info">
@@ -27,15 +38,5 @@
             @endforeach
         @endif
     </ul>
-    <div class="cart__confirm-banners">
-        @if (isset($banners))
-            @foreach ($banners as $banner)
-                @if (!empty($banner->link))<a target="_blank" href="{{ $banner->link }}">@endif
-                    <figure class="cart__confirm-banner">
-                        <img src="{{ asset($banner->image) }}" alt="">
-                    </figure>
-                    @if (!empty($banner->link))</a>@endif
-            @endforeach
-        @endif
-    </div>
+
 </div>

@@ -9,12 +9,14 @@
     /**
      * Mostrar mensajes
      * */
-    function showAlert(messages, node, type) {
-        if (type === 'error') { $(node).replaceWith(getErrorAlert(messages)); }
+    function showAlert(messages, node, type, showLink) {
+        if (type === 'error') { $(node).replaceWith(getErrorAlert(messages, showLink)); }
         if (type === 'warning') { $(node).replaceWith(getWarningAlert(messages)); }
+
+
     }
 
-    function getErrorAlert(messages) {
+    function getErrorAlert(messages, showLink) {
         var messagesHTML = '';
         $.each(messages, function (index, message) {
             messagesHTML += '<li>'+message+'</li>';
@@ -26,6 +28,7 @@
             '        <img src="{{ asset('themes/omnilife2018/images/icons/warning.svg') }}">{{ trans("shopping::checkout.payment.errors.default") }}:\n' +
             '    </span>\n' +
             '    <ul id="error__boxSA_ul_step1">'+messagesHTML+'</ul>\n' +
+            '' + (showLink ? '<a href="#" class="detail-err-open" style="text-align: right;font-size: 12px;color: #F44336;text-decoration: underline;">{{ trans('cms::errors.modal.more') }}</a>' : '') +
             '</div>'
     }
 
@@ -72,6 +75,7 @@
             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
             method: 'POST',
             dataType: 'HTML',
+            statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
         })
         .done(function (response, textStatus, jqXHR) {
             return callback(null, response);
@@ -85,9 +89,15 @@
      * Cargar las vistas de métodos de pago y el resúmen de la cotización
      * */
     $('.buttons-container').on('click', '[data-to=step2]', function () {
+
+        $('#generic_error').replaceWith('<div id="generic_error"></div>');
+        $('.payment-container').hide();
+
         if ($('#step2').hasClass('active')) {
             $('#icart').replaceWith('<a class="icon-btn icon-cart" id="icart"></a>');
             $('#paypal-button').show();
+
+            $('#title-checkout').text("{{ trans('shopping::shopping_cart.tabs.payment.mobile') }}");
 
             getView('{{ route('checkout.getPaymentView') }}', function (err, response) {
                 if (err) return console.log(err);
@@ -108,6 +118,10 @@
                 $('#cart-preview-mov li.points').text($('#points').text());
             });
         }
+
+        $('input:radio[name="payment"]').each(function(i) {
+            this.checked = false;
+        });
     });
 
     /**
@@ -119,6 +133,7 @@
             method: 'POST',
             data: {paymentMethod: $(this).val()},
             dataType: 'JSON',
+            statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
             beforeSend: function () {
                 showModalPayment();
             }
@@ -134,7 +149,15 @@
                 }
 
             } else if (response.status === false && response.errors && Array.isArray(response.errors) && response.errors.length > 0) {
-                showAlert(response.errors, '#generic_error', 'error');
+
+                var showErrorDetail = false;
+                if (response.err) {
+                    showErrorDetail = true;
+                    setErrors(response.err);
+                }
+
+                showAlert(response.errors, '#generic_error', 'error', showErrorDetail);
+                window.scrollTo(0, 0);
             }
 
             hideModalPayment();
@@ -154,13 +177,14 @@
     /**
      * Generar la transacción de inscripcion en corbiz
      * */
-    $('#banks').on('click', '[name=payment]', function () {
+    $('#banks').on('change', '[name=payment]', function () {
         if($('input[name=kit]:checked').val()){
             $.ajax('{{ route('register.transactionFromCorbiz') }}', {
                 headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 method: 'POST',
                 data: {paymentMethod: $(this).val(),'shipping_company': $("#shipping_way_hidden").val()},
                 dataType: 'JSON',
+                statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
                 beforeSend: function () {
                     $("#error__box_ul_step3").html("");
                     $("#error_step").hide();
@@ -205,19 +229,30 @@
     /**
      * Paypal
      * */
+    var showDefaultError = true;
+
     paypal.Button.render({
         env: '{{ config("paymentmethods.paypal.{$country}.{$env}.mode_checkout") }}',
         locale: '{{ config("paymentmethods.paypal.{$country}.locale") }}',
         style: {
-            size: 'medium', // tiny, small, medium
+            size: 'responsive', // tiny, small, medium
+            height: 35,
             color: 'gold',  // gold, blue, silver
             shape: 'pill',  // pill, rect
         },
         commit: true,
         payment: function(resolve, reject) {
-            paypal.request.post('{{ route('paypal.create') }}', {order: $('#order').val(),type: $('#type').val(), _token: '{{ csrf_token() }}'})
+            paypal.request.post('{{ route('paypal.create') }}', {order: $('#order').val(),type: $('#type_action').val(), _token: '{{ csrf_token() }}'})
                 .then(function(data) {
-                    resolve(data.paymentId);
+                    if (data.success) {
+                        resolve(data.paymentId);
+                    } else {
+                        window.scrollTo(0, 0);
+                        showAlert(data.messages, '#generic_error', 'error', false);
+
+                        showDefaultError = false;
+                        throw data.messages;
+                    }
                 })
                 .catch(function(err) {
                     reject(err);
@@ -226,32 +261,39 @@
         onAuthorize: function(data, actions) {
             showModalPayment(true);
 
-            paypal.request.post('{{ route('paypal.process') }}', { paymentID: data.paymentID, payerID: data.payerID,type: $('#type').val(), _token: '{{ csrf_token() }}'} )
+            paypal.request.post('{{ route('paypal.process') }}', { paymentID: data.paymentID, payerID: data.payerID,type: $('#type_action').val(), _token: '{{ csrf_token() }}'} )
                 .then(function(data) {
                     if (data.success) {
                         if(data.type == 'register'){
-                            $.redirect('{{ route('register.confirmation') }}', {'data': data,_token: '{{ csrf_token() }}'});
+                            $.redirect('{{ route(\App\Helpers\TranslatableUrlPrefix::getRouteName(session()->get('portal.main.app_locale'), ['register', 'confirmation'])) }}', {'data': data,_token: '{{ csrf_token() }}'});
+                            hasSession = false;
                         }else{
-                            $.redirect('{{ route('checkout.confirmation') }}', {'order': data.order.order_number, _token: '{{ csrf_token() }}'});
+                            $.redirect('{{ route(\App\Helpers\TranslatableUrlPrefix::getRouteName(session()->get('portal.main.app_locale'), ['checkout', 'confirmation'])) }}', {'order': data.order.order_number, _token: '{{ csrf_token() }}'});
                         }
                     } else {
-                        showAlert([data.message], '#generic_error', 'error');
+                        showAlert([data.message], '#generic_error', 'error', false);
+
+                        window.scrollTo(0, 0);
                         hideModalPayment(true);
                     }
                 })
                 .catch(function(err) {
-                    showAlert(['{{ trans("shopping::checkout.payment.errors.sys103") }}'], '#generic_error', 'error');
+                    window.scrollTo(0, 0);
+
+                    showAlert(['{{ trans("shopping::checkout.payment.errors.sys103") }}'], '#generic_error', 'error', false);
                     console.log(err);
                     hideModalPayment(true);
                 });
         },
         onCancel: function(data, actions) {
-            showAlert(['{{ trans("shopping::checkout.payment.errors.cancel_paypal") }}'], '#generic_error', 'warning');
+            showAlert(['{{ trans("shopping::checkout.payment.errors.cancel_paypal") }}'], '#generic_error', 'warning', false);
+            window.scrollTo(0, 0);
 
             $.ajax('{{ route('paypal.cancel') }}', {
                 headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 method: 'POST',
-                data: {order: $('#order').val(),type: $('#type').val()},
+                data: {order: $('#order').val(),type: $('#type_action').val()},
+                statusCode: { 419: function() { window.location.href = URL_PROJECT; }},
                 dataType: 'JSON'
             })
             .done(function (response, textStatus, jqXHR) {
@@ -262,9 +304,13 @@
             });
         },
         onError: function(err) {
-            showAlert(['{{ trans("shopping::checkout.payment.errors.sys101") }}'], '#generic_error', 'error');
-            console.log(err);
-            throw new Error(err);
+            if (showDefaultError) {
+                window.scrollTo(0, 0);
+                showAlert(['{{ trans("shopping::checkout.payment.errors.sys101") }}'], '#generic_error', 'error', false);
+
+                console.log(err);
+                throw new Error(err);
+            }
         },
     }, '#paypal-button');
 </script>

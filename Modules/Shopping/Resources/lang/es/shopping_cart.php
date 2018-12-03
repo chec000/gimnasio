@@ -10,85 +10,85 @@ return [
 
     'tabs' => [
       'address' => [
-        'desktop' => '1. Shipping address',
-        'mobile' => 'Address'
+        'desktop' => '1. Dirección de envío',
+        'mobile' => 'Envío'
       ],
       'payment' => [
-        'desktop' => '2. Payment method',
-        'mobile' => 'Payment'
+        'desktop' => '2. Método de pago',
+        'mobile' => 'Pago'
       ],
       'confirm' => [
-        'desktop' => '3. Confirm',
-        'mobile' => 'Confirm'
+        'desktop' => '3. Confirmar',
+        'mobile' => 'Confirmar'
       ],
     ],
 
     'header' => [
-      'title' => 'Check out',
+      'title' => 'Proceder a pago',
       'subtitles' => [
-        'step1' => 'Choose a shipping address',
-        'step2' => 'Choose payment method'
+        'step1' => 'Elegir dirección de envío',
+        'step2' => 'Elegir dirección de envío'
       ],
     ],
 
     'new_address' => [
-      'header' => 'New address',
-      'subheader1' => 'Fill form for another shipping address.',
-      'subheader2' => 'This address can change shipping costs.',
+      'header' => 'Nuevo domicilio',
+      'subheader1' => 'Completar forma para otra dirección de envío.',
+      'subheader2' => 'Este domicilio puede alterar los costos de envío.',
       'placeholders' => [
-        'name' => 'Name',
-        'last_name' => 'Last name',
-        'last_name2' => 'Last name',
-        'street' => 'Street',
-        'ext_num' => 'Exterior number',
-        'int_num' => 'Interior number',
-        'streets' => 'On the streets',
-        'colony' => 'Colony',
-        'state' => 'State',
-        'city' => 'City',
-        'zip' => 'Zip code',
+        'name' => 'Nombre',
+        'last_name' => 'Apellido paterno',
+        'last_name2' => 'Apellido materno',
+        'street' => 'Calle',
+        'ext_num' => 'Número interior',
+        'int_num' => 'Número exterior',
+        'streets' => 'Entre calles',
+        'colony' => 'Colonia',
+        'state' => 'Estado',
+        'city' => 'Ciudad',
+        'zip' => 'Código postal',
       ],
-      'save_button' => 'Save address.',
-      'save_fav_button' => 'This is my default shipping address.',
+      'save_button' => 'Guardar domicilio',
+      'save_fav_button' => 'Este es mi domicilio de envío principal.',
     ],
 
-    'continue_buying' => 'Continue buying',
-    'continue_payment' => 'Payment',
+    'continue_buying' => 'Seguir comprando',
+    'continue_payment' => 'Pago',
 
     'accept_conditions' => [
-      'text' => 'I accept',
-      'link' => 'Terms and conditions.',
+      'text' => 'Acepto',
+      'link' => 'Términos y condiciones.',
     ],
 
-    'checkout' => 'Check out',
+    'checkout' => 'Proceder a pago',
 
     'cart' => [
-      'header' => 'Buy order',
-      'product_code' => 'Code',
-      'points' => 'pts',
+      'header' => 'Pagar orden',
+      'product_code' => 'Código',
+      'points' => 'puntos',
       'bill' => [
         'subtotal' => 'Subtotal',
-        'management' => 'Management',
-        'taxes' => 'Taxes',
-        'points' => 'Points',
+        'management' => 'Manejo',
+        'taxes' => 'Impuestos',
+        'points' => 'Puntos',
         'total' => 'Total',
       ]
     ],
 
     'modal' => [
-      'header' => 'Processing payment',
-      'text_highlight' => 'You are closer from your financial freedom.',
-      'text' => 'Don\'t close or reload this window.'
+      'header' => 'Procesando pago',
+      'text_highlight' => '¡Estás cerca de tu libertad financiera!',
+      'text' => 'No cerrar o refrescar esta ventana.'
     ],
 
     'confirm' => [
-      'header' => 'Thank you for you order',
-      'subheader' => 'Succesfull charge',
-      'order_arrive' => 'You order will arrive in',
-      'order_number' => 'Order number',
-      'card_payment' => 'Payment with card',
+      'header' => 'Gracias por tu orden.',
+      'subheader' => 'Cargo exitoso.',
+      'order_arrive' => 'Tu orden llegará en',
+      'order_number' => 'Número de orden',
+      'card_payment' => 'Pago con tarjeta',
       'total' => 'Total',
-      'send_to' => 'Send to',
+      'send_to' => 'Enviar a',
     ]
 
 ];

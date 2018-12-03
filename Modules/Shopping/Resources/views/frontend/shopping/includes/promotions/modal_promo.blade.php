@@ -1,12 +1,11 @@
 <div class="modal alert modal-promos" id="promo">
-    <button class="button secondary close modal-close" type="button">X</button>
     <div class="form-group">
         <header class="modal__head">
             <h5 class="modal__title highlight">@lang('shopping::checkout.promotions.title_modal')</h5>
         </header>
         <div class="form-label">@lang('shopping::checkout.promotions.msg_select_promotions')</div>
 
-        <div class="modal__body">
+        <div class="modal__body promotions-modal">
             {{ Form::open(array('url' => 'getQuantityPomotions','id'=>'form_quantityPromotions')) }}
             <input type="hidden" name="process" class="process" value="{{ isset($process) ? $process : "" }}">
             @if(isset($promotions['head']) && !empty($promotions['head']))

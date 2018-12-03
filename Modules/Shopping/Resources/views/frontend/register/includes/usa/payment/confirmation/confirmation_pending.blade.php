@@ -14,7 +14,9 @@
                 @if (!empty($banner->link))</a>@endif
         @endforeach
     @endif
+    {{dd("pending",$order)}}
     <br>
+
 
     {{--<p>Tu pedido llegará en 10 días hábiles.</p>--}}
     <div class="cart__confirm-info">

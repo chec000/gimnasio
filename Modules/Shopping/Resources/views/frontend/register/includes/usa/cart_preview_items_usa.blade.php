@@ -19,7 +19,7 @@
                 <div class="cart-product__bottom">
                     <div class="form-group numeric">
                         <input class="form-control" {{ ((isset($item['promo']) && $item['promo']) || (isset($item['is_special']) && $item['is_special']) || (isset($item['iskit']) && $item['iskit'])) ? 'readonly' : '' }}
-                        type="numeric" name="qty#{val}" value="{{ $item['quantity'] }}">
+                        type="numeric" name="qty#{val}" value="{{ $item['quantity'] }}" min="0" max="9999" onkeypress="return esNumero(event)">
                     </div>
                     <div class="cart-product__nums">
                         <div class="cart-product__pts">{{ $item['points'] }} @lang('shopping::checkout.quotation.resume_cart.pts')</div>
