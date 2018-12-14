@@ -7,10 +7,8 @@
             <table class="table table-striped " id="tbl_table">
                 <thead>
                     <tr>
-                        <th scope="col">id</th>
-                        <th scope="col">Foto</th>
-                        <th>Clave unica</th>
-                        <th scope="col">Codigo de usuario</th>
+                      <th scope="col">Codigo de usuario</th>
+                        <th scope="col">Foto</th>              
                         <th scope="col">Nombre</th>
                         <th scope="col">Apellidos</th>
                         <th scope="col">Telefono</th>
@@ -26,12 +24,12 @@
                     @if(count($clientes)>0)
                     @foreach ($clientes as $c)
                     <tr>
-                        <th scope="row">{{$c->id}}</th>
+                      <td>{{$c->codigo_cliente}}</td>
                         @if($c->usuario!=null)            
                         <td><img style="height: 100px" src="{{$c->usuario->foto}}"></td>
                         <td>{{$c->usuario->clave_unica}}</td>
                         <td>{{$c->usuario->name}}</td>
-                        <td>{{$c->codigo_cliente}}</td>
+                        
                         <td>{{$c->usuario->apellido_paterno.' '.$c->usuario->apellido_materno}}</td>
                         <td>{{$c->usuario->telefono}}</td>
                         <td>{{$c->usuario->direccion}}</td>
