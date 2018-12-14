@@ -23,7 +23,7 @@ class Venta extends Eloquent
      *
      * @var array
      */
-public $timestamps = false;
+    public $timestamps = true;
      public function  detalleVenta(){
     return $this->hasMany('Modules\Admin\Entities\Gym\DetalleVenta');          
     }
@@ -36,4 +36,8 @@ public $timestamps = false;
                    public function  usuario(){
                               return $this->belongsTo('Modules\Admin\Entities\Gym\User','id_cliente','id');
            }
+                   public function  seller(){
+                              return $this->belongsTo('Modules\Admin\Entities\ACL\User','id_empleado','id');
+           }
+           
 }

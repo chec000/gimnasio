@@ -61,10 +61,17 @@ class ClienteController extends Controller {
         }else{
                     $cliente = User::where('name', '=',$request->cliente)->first();
         }
-        
         if ($cliente != null) {
-            $membresias = UsuarioCliente::find($cliente->id)->compraMembresia()->get();
+        $cl=UsuarioCliente::find($cliente->id);   
+        if($cl!=null){
+            $membresias = $cl->compraMembresia()->get();
+                
+            }else{
+                $membresias=[];
+            }
             $view = View::make('admin::gym.membresia.list_membresias_compradas', array('membresias' => $membresias))->render();
+            session()->put('portal.main.gym.cliente.id',$cliente->id);
+             session()->put('portal.main.gym.cliente.tipo_venta',2);
 
             return array(
                 "data" => $cliente,
@@ -233,7 +240,7 @@ class ClienteController extends Controller {
         return $view->render();
     }
 
-    private function buidCheckout($membresias, $tipo) {
+    public function buidCheckout($membresias, $tipo) {
         $articulos = [];
         if ($tipo == 1) {
             $m = Membresia::find(1);
@@ -250,7 +257,7 @@ class ClienteController extends Controller {
             $articulo->setImagen($m->imagen);
             array_push($articulos, $articulo);
         }
-        foreach ($membresias as $m) {
+        foreach ($membresias as $key=> $m) {            
             $articulo = new Articulo();
             $articulo->setNombre($m->nombre);
             $articulo->setDescripcion($m->descripcion);
@@ -261,9 +268,23 @@ class ClienteController extends Controller {
             $articulo->setImagen($m->imagen);
             $articulo->setTipo($m->tipo_id);
             $this->total_pagar = $this->total_pagar + $articulo->getSubtotal();
-            array_push($articulos, $articulo);
+            $retu=$this->verificarArticulo($articulos, $m);        
+            if(!$retu){
+                            array_push($articulos, $articulo);            
+                 }
         }
         return $articulos;
+    }
+
+    private function verificarArticulo($articulos, $articulo){       
+        foreach ($articulos as $a){
+            if($a->id==$articulo->id){
+                return true;
+            }
+        }
+   
+
+  return false;                        
     }
 
     public function generateReport($membresias, $user, $path) {
@@ -346,7 +367,7 @@ class ClienteController extends Controller {
         $this->layoutData['content'] = $view->render();
     }
 
-    private function getCarrito() {
+    public function getCarrito() {
         $membresias_view = "";
 
         if (session()->has('portal.main.gym.cliente.membresias')) {
@@ -371,7 +392,7 @@ class ClienteController extends Controller {
     }
 
     public function saveCliente(Request $request) {
-
+      
         if (!User::where('clave_unica', '=', $request->clave_unica)->count() > 0) {
             if (!session()->has('portal.main.gym.cliente')) {
                 $v = Validator::make($request->all(), array(
@@ -416,9 +437,9 @@ class ClienteController extends Controller {
             }
         } else {
             $result = array(
-                "status" => false,
-                "code" => 600,
-                'data' => "Ya existe un usuario con la clave unica "
+                  "status" => true,
+                   "code" => 200,
+                  'data' => session()->get('portal.main.gym.cliente')
             );
         }
 
@@ -427,13 +448,17 @@ class ClienteController extends Controller {
     }
 
     public function finalizarCompra(Request $request) {
-//        $date = new \DateTime();
+//        $date = new \DateTime(); 
+        $tipo_venta=1;
+        if(session()->has('portal.main.gym.cliente.tipo_venta')){
+            $tipo_venta=2;
+        }
+        
         $date = Carbon::now();
-
         try {
             $diferencia = 0;
             DB::beginTransaction();
-            $membresias = $this->buidCheckout(session()->get('portal.main.gym.cliente.membresias'), 1);
+            $membresias = $this->buidCheckout(session()->get('portal.main.gym.cliente.membresias'), $tipo_venta);
             $user = UsuarioCliente::find(session()->get('portal.main.gym.cliente.id'));
             $actual = $date->format('Y-m-d');
             $venta = new Venta();
@@ -480,6 +505,8 @@ class ClienteController extends Controller {
 
             if ($this->sendEmailReminder($membresias, $user->usuario, "Inscripcion a gym", $ruta['archivoEmail'])) {
                 session()->forget('portal.main.gym.cliente');
+                session()->forget('portal.main.gym.cliente.id');
+                session()->forget('portal.main.gym.cliente.tipo_venta');
             }
             DB::commit();
             $this->addAlert('success', 'Compra finalizada con exito');
@@ -487,7 +514,8 @@ class ClienteController extends Controller {
                 "data" => "Compra finalizada con exito",
                 'code' => 200,
                 'total' => $venta->total,
-                'diferencia' => $diferencia
+                'diferencia' => $diferencia,
+                'tipo_venta'=>$tipo_venta
             );
         } catch (Exception $ex) {
             DB::rollback();

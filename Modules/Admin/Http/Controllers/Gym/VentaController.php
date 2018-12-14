@@ -21,7 +21,7 @@ class VentaController extends Controller {
 
     public function index() {
        
-        $ventas = Venta::with('usuario')->with('detalleVenta')->get();       
+        $ventas = Venta::with('usuario')->with('detalleVenta')->get();
         $view = View::make('admin::gym.ventas.listVentas', array('ventas' => $ventas,
                     'can_add' => Auth::action('brand.add'),
                     'can_delete' => Auth::action('bread.activeBrand'),
@@ -131,6 +131,24 @@ class VentaController extends Controller {
         
     }
 
+    public function checkoutVentaMembresia(){
+         if (session()->has('portal.main.gym.cliente.membresias')) {
+                $mc= new ClienteController();
+              $articulos = $mc->buidCheckout( session()->get('portal.main.gym.cliente.membresias'), 2);
+              $total=$mc->total_pagar; 
+               $confirmacion_modal = View::make('admin::gym.modals.confirmar_pago_modal')->render();
+                 $view = View::make('admin::gym.ventas.detalle_venta', array(
+                  'membresias'=>$articulos,
+                  'total'=>$total,
+                   'modal'=>$confirmacion_modal                         
+        ));     
+        $this->layoutData['content'] = $view->render();
+         }else{             
+             return redirect()->route('admin.venta.venta');
+         }
+    }
+
+
     public function shoppMembresia($idCliente){
    $mc= new ClienteController();
     $membresias=$mc->listMembresias();   
@@ -138,8 +156,10 @@ class VentaController extends Controller {
         $view = View::make('admin::gym.ventas.venta_cliente_membresia', array(
                     'membresias'=>$membresias,
                     'modal' => $modal,
-                    'cliente_id'=>$idCliente
+                    'cliente_id'=>$idCliente,
+             "venta_aside" => $mc->getCarrito()
         ));
+        
         $this->layoutData['content'] = $view->render();
            
     }    

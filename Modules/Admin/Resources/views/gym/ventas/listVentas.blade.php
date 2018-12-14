@@ -20,6 +20,7 @@
                     <thead>
                         <tr>
                              <th>Cliente</th>
+                              <th>Vendedor</th>
                             <th>Fecha</th>
                             <th>Tipo pago</th>
                             <th>Total</th>
@@ -29,18 +30,22 @@
                     <tbody>
                         
                         @if(count($ventas)>0)
-                                     @foreach($ventas as $v)
-                      <tr>
+                                     @foreach($ventas as $v)                     
+                                     @if($v->usuario!=null)
+                                 <tr>
                              <td>
-                               {{$v->nombre_cliente}}                                                      
+                               {{$v->usuario->name.' '.$v->usuario->apellido_paterno}}                                                      
                              </td>
-                            <td>{{$v->fecha}}</td>
+                             <td>{{$v->seller->name}}</td>
+                            <td>{{$v->created_at->format('l jS F Y')}}</td>
                             <td>{{$v->tipo_pago}}</td>
                             <td>${{$v->total}}</td>
                             <td>                                                     
                     <a class="fa fa-eye" href="{{ route('admin.venta.detalle', ['id' => $v->id]) }}" title="{{ trans('admin::action.edit_action') }}"></a>
                             </td>          
-                        </tr>
+                        </tr>  
+                                     @endif
+
              @endforeach
                         @endif                       
                     </tbody>
