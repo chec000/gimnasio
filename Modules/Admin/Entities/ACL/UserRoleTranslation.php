@@ -15,5 +15,8 @@ class UserRoleTranslation extends Eloquent
     {
         return $this->belongsTo('Modules\Admin\Entities\Language', 'locale_key','locale');
     }
+    
+    
+    
 
 }
