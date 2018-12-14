@@ -181,7 +181,7 @@
                     }
                     
                     function reload(){
-                    
+                    location.reload();
                     }
                     
 </script>

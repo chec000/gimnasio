@@ -483,6 +483,7 @@ Route::get('/admin/venta/detalle/{idVenta}', 'gym\VentaController@detalleVentaFa
 Route::post('/admin/venta/addPago', 'gym\VentaController@updateMembresiaClienteVenta')->name('admin.venta.addPago');
 
 Route::get('/admin/venta/cliente/membresia/{id}', 'gym\VentaController@shoppMembresia')->name('admin.venta.addMembresia');
+Route::get('/admin/venta/cliente/checkout', 'gym\VentaController@checkoutVentaMembresia')->name('admin.venta.cliente_checkout_membresia');
 Route::get('/admin/venta/cliente/actividad/{id}', 'gym\VentaController@shoppActividad')->name('admin.venta.addActividad');
 
 
