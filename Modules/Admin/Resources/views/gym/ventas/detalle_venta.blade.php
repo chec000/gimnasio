@@ -78,7 +78,7 @@
 
 
 <script>
-
+//kAKAJka
     function addMembresia(id_membresia, tipo) {
     $.ajax({
     url: route('admin.Cliente.add_less_membresia'),
