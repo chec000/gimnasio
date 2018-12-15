@@ -10,7 +10,7 @@
                                                 <p><a href="{{ route('admin.Deporte.detail',['id'=>$m->id]) }}">{{str_limit($m->descripcion, $limit = 30, $end = '...')}}</a></p>
                                                 <!--<button type="button" onclick="openNav()" class="btn btn-lg btn-block btn-outline-primary">Seleccionar</button>-->
 
-                                                <button type="button" onclick="agregarMembresia({{$m->id}},'{{$m->nombre}}',{{$m->precio}})" class="btn btn-lg btn-block btn-outline-primary">Seleccionar</button>
+                                                <button type="button" onclick="agregarDeportes({{$m->id}},'{{$m->nombre}}',{{$m->precio}})" class="btn btn-lg btn-block btn-outline-primary">Seleccionar</button>
 
                                             </div>
                                         </div>

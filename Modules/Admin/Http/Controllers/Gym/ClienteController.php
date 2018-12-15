@@ -91,8 +91,14 @@ class ClienteController extends Controller {
     }
 
     public function saveMembresia(Request $request) {
-
-        $membresia_existente = $this->verificarMembresia($request->id_membresia);
+        $tipo_servicio=1;
+        
+        if($request->tipo_servicio==2){
+            $tipo_servicio=2;
+        }
+        
+        if($tipo_servicio==1){
+                    $membresia_existente = $this->verificarMembresia($request->id_membresia);
         if ($membresia_existente == null) {
             $membresia = Membresia::find($request->id_membresia);
             $membresia['cantidad'] = $request->cantidad;
@@ -114,6 +120,10 @@ class ClienteController extends Controller {
             $this->updateMembresiaSession($subtotal, $index, $cantidad);
             return $membresia_existente;
         }
+        }else{
+            //Aqui va lo de actividades
+        }
+
     }
 
     private function updateMembresiaSession($subtotal, $index, $cantidad) {

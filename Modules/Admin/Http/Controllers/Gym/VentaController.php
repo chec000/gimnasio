@@ -164,12 +164,13 @@ class VentaController extends Controller {
            
     }    
     public function shoppActividad($idCliente){
-        $modal = View::make('admin::gym.modals.actualizar_pago_membresia')->render();
-       $dc= new DeporteController();        
+//        $modal = View::make('admin::gym.modals.actualizar_pago_membresia')->render();
+       $dc= new DeporteController();       
+       $mc= new ClienteController();
          $list_deportes=     View::make('admin::gym.deporte.list_item_deporte',array('deportes'=>$dc->getListDeportes()))->render();     
          $view = View::make('admin::gym.ventas.venta_evento', array(            
            'actividades'=>$list_deportes,
-            'modal' => $modal,
+            'venta_aside' => $mc->getCarrito(),
             'cliente_id'=>$idCliente
 
         ));
