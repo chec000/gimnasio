@@ -35,12 +35,10 @@
                             <h4 class="text-right">Total $<strong id="total_membresia">{{Session::get('portal.main.gym.cliente.total_pagar')}}</strong></h4>
                         </div>
                         <div class="col-xs-6">
-                            @if(count($membresias)>0)
                             <button type="button" class="btn btn-success btn-block next-step" onclick="detalleVenta()">
                                 Pagar
                             </button>                                                       
-                            @endif
-
+                            
                         </div>
                     </div>
                 </div>
