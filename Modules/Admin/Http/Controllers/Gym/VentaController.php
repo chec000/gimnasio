@@ -2,19 +2,21 @@
 
 namespace Modules\Admin\Http\Controllers\gym;
 
-use View;
-use Illuminate\Http\Request;
 use Modules\Admin\Http\Controllers\AdminController as Controller;
-use Modules\Admin\Entities\Gym\Venta;
-use Modules\Admin\Entities\Gym\DetalleVenta;
 use Modules\Admin\Http\Controllers\gym\ClienteController;
 use Modules\Admin\Http\Controllers\gym\DeporteController;
-
-use Modules\Admin\Entities\Gym\User;
-use Modules\Admin\Entities\Gym\Membresia;
 use Modules\Admin\Entities\Gym\ClienteMembresia;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+//use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Modules\Admin\Entities\Gym\DetalleVenta;
+use Modules\Admin\Entities\Gym\Membresia;
 use Modules\Admin\Entities\Gym\Articulo;
+use Modules\Admin\Entities\Gym\Venta;
+use Modules\Admin\Entities\Gym\User;
+use Illuminate\Http\Request;
 use Carbon\Carbon;
+use View;
 use Auth;
 
 class VentaController extends Controller {
@@ -29,6 +31,8 @@ class VentaController extends Controller {
         ));
         $this->layoutData['content'] = $view->render();
     }
+
+
 
     public function detalleVentaFactura($idVenta) {
         $venta = Venta::find($idVenta);

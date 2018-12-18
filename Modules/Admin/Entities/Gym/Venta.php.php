@@ -30,7 +30,7 @@ class Venta extends Eloquent
     
     
         public function  cliente(){
-                              return $this->belongsTo('Modules\Admin\Entities\Gym\UsuarioCliente','id_cliente','id_usuario');
+               return $this->belongsTo('Modules\Admin\Entities\Gym\UsuarioCliente','id_cliente','id_usuario');
            }
            
                    public function  usuario(){

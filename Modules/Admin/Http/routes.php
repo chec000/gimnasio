@@ -486,6 +486,10 @@ Route::get('/admin/venta/cliente/membresia/{id}', 'gym\VentaController@shoppMemb
 Route::get('/admin/venta/cliente/checkout', 'gym\VentaController@checkoutVentaMembresia')->name('admin.venta.cliente_checkout_membresia');
 Route::get('/admin/venta/cliente/actividad/{id}', 'gym\VentaController@shoppActividad')->name('admin.venta.addActividad');
 
+//REPORTES
+Route::get('/admin/venta/reporte-ventas', 'gym\VentaController@reporteVenta')->name('admin.venta.reporte');
+Route::get('/admin/venta/reporte-clientes', 'gym\ReportController@reportClientes')->name('admin.venta.reporte.clientes');
+Route::get('/admin/venta/reportes/index', 'gym\ReportController@index')->name('report.index');
 
 Route::get('/admin/deporte/add', 'gym\DeporteController@addDeporte')->name('admin.Deporte.addDeporte');
 Route::post('/admin/deporte/add', 'gym\DeporteController@saveDeporte')->name('admin.Deporte.save_deporte');

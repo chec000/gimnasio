@@ -364,8 +364,9 @@ class ClienteController extends Controller {
     }
 
     public function addClienteGet() {
-
-        $cliente = session()->get('portal.main.gym.cliente');
+        session()->forget('portal.main.gym.cliente.id');
+        session()->forget('portal.main.gym.cliente.tipo_venta');
+        $cliente = session()->get('portal.main.gym.cliente');            
         $paises = Pais::where('activo', '=', 1)->get();
         $list_membresias = $this->listMembresias();
         $view = View::make('admin::gym.cliente.addCliente'
@@ -514,9 +515,9 @@ class ClienteController extends Controller {
             $venta->save();
 
             if ($this->sendEmailReminder($membresias, $user->usuario, "Inscripcion a gym", $ruta['archivoEmail'])) {
-                session()->forget('portal.main.gym.cliente');
                 session()->forget('portal.main.gym.cliente.id');
-                session()->forget('portal.main.gym.cliente.tipo_venta');
+                session()->forget('portal.main.gym.cliente.tipo_venta');           
+                session()->forget('portal.main.gym.cliente');
             }
             DB::commit();
             $this->addAlert('success', 'Compra finalizada con exito');

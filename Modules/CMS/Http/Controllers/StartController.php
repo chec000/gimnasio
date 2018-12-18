@@ -355,7 +355,8 @@ class StartController extends Controller {
     public function sessionData() {
 
         //     app()->getTimeZone();         
-        return session()->all();
+        dd(session()->all());
+        return json_encode(session()->all());
     }
 
     public function existSession() {
