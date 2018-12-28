@@ -76,8 +76,10 @@ public function index() {
         );
         $this->layoutData['content'] = $view->render();
 }
-    public function reportClientes() {
-//        dd($request->all());
+    public function reportClientes(Request $request) {
+        
+        dd($request->all());
+        
         $fecha_inicio='2018-12-18';
         $fecha_fin='2018-12-18';
     $cl = UsuarioCliente::where('estado_cliente','=','atrasado')->whereBetween('created_at',array($fecha_inicio, $fecha_fin))->get();

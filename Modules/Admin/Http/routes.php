@@ -440,7 +440,7 @@ Route::group(['middleware' => ['web','admin.guest'], 'prefix' => 'support','as'=
 
 });
 
-Route::group(['middleware' => 'web', 'prefix' => 'gym', 'namespace' => 'Modules\Admin\Http\Controllers'], function()
+Route::group(['middleware' =>['web','admin.auth', 'admin.langLocale'], 'prefix' => 'gym', 'namespace' => 'Modules\Admin\Http\Controllers'], function()
 {
 
     
@@ -492,7 +492,8 @@ Route::get('reports/reporte-clientes', 'gym\ReportController@reportClientes')->n
 //Route::get('/admin/venta/reportes/index', 'gym\ReportController@index')->name('report.index');
 Route::get('/admin/reports', 'gym\ReportController@index')->name('admin.reportVenta.index');
 
-Route::get('reports/general', 'gym\ReportController@reporteGeneral')->name('admin.reporte-general');
+Route::post('reports/general', 'gym\ReportController@reporteGeneral')->name('admin.reporte-general');
+
 Route::get('deporte/add', 'gym\DeporteController@addDeporte')->name('admin.Deporte.addDeporte');
 Route::post('deporte/add', 'gym\DeporteController@saveDeporte')->name('admin.Deporte.save_deporte');
 Route::get('deporte/list', 'Gym\DeporteController@index')->name('admin.Deporte.list_deportes');
@@ -513,7 +514,6 @@ Route::get('membresia/index', 'gym\MembresiaController@index')->name('admin.Memb
 Route::post('membresia/changeStatus', 'gym\MembresiaController@activeInactiveMembresia')->name('admin.Membresia.activeInactive_membresia');
 Route::get('membresia/membresia/{id}', 'gym\MembresiaController@getMembresiaById')->name('admin.Membresia.getMembresia');
 Route::post('membresia/membresia/save', 'gym\MembresiaController@updateMembrecia')->name('admin.Membresia.editMembresia');
-
 Route::get('membresia/detalle-membresia/{id}', 'gym\MembresiaController@detailMembresia')->name('admin.Membresia.detail-membresia');
 
 
