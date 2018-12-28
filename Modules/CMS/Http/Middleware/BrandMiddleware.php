@@ -28,10 +28,10 @@ class BrandMiddleware
         $urlHost = parse_url($url, PHP_URL_HOST);
         $domain = preg_replace('/^www\./', '', $urlHost);
 
-        $share = $request->input('share');;
+        $share = $request->input('share');        
         if (isset($share)) {
             $this->share($share, $url);
-        }
+        }        
         if (Session::get('portal.main.domain') != $domain) {
             //set new domain
             $this->setBrandSession($domain);
@@ -44,11 +44,11 @@ class BrandMiddleware
         }
 
         // if it's home route don't redirect
-        $urlStart = url('/start');
+        $urlStart = url('/start');        
         // check session country
         
         if ($url !== $urlStart) {
-            $countries = Session::get('portal.main.brand.countries');
+            $countries = Session::get('portal.main.brand.countries');            
             $brandInCountry = false;
             if (!empty($countries)) {
                 $currentCountryId = Session::get('portal.main.country_id', 0);

@@ -38,11 +38,11 @@
         <meta name="twitter:image" content="{!! asset('themes/omnilife2018/images/logos/' . $brandName . '.png') !!}">   
             <script async src="https://www.googletagmanager.com/gtag/js?id={!!config('cms.analytics.'.session()->get('portal.main.brand.id'));!!}"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', '{!!config('cms.analytics.'.session()->get('portal.main.brand.id'))!!}');
+//  window.dataLayer = window.dataLayer || [];
+//  function gtag(){dataLayer.push(arguments);}
+//  gtag('js', new Date());
+//
+//  gtag('config', '{!!config('cms.analytics.'.session()->get('portal.main.brand.id'))!!}');
 </script>
 
     
@@ -51,9 +51,9 @@
         @include('themes.omnilife2018.sections.loader')
         <div class="overlay"></div>
         <!--<div class="select-country" style="background: url('{{ asset('themes/omnilife2018/images/country-'.$brandName.'.jpg') }}'); background-size: cover;">-->        
-            <div class="select-country" style="background: url('https://hdqwalls.com/download/gym-women-image-1920x1080.jpg'); background-size: cover;">                                                
+            <div class="select-country" style="background: url({{asset('themes/omnilife2018/images/header-bg.jpg')}}); background-size: cover;">                                                
                 <img src="{{ asset($brand['logo']) }}" alt="" class="brand-country">
-            <div class="select-countries--start sistem has-dropdown">
+            <div class="select-countries--start sistem has-dropdown">              
                 <div id="productsCategory" class="select-country--form wrapper">
                     <h1 class="products-desc__title">
                         @lang('cms::country.title')<br>

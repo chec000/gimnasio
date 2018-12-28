@@ -35,13 +35,14 @@ class StartController extends Controller {
     public function index() {
 
         session()->put('portal.main.varsChangeLangStart.changeStartLocale', 0);
-
+        
         if (session()->get('portal.main.brand_not_in_country') === 1) {
             session()->forget('portal.main.brand_not_in_country');
         } else {
             if ($this->existSession()) {
                 if (config('settings::frontend.webservices') == 1 && (session()->has("portal.main.shopping_active") && session()->get("portal.main.shopping_active") == 1)) {
                     if ($this->existVariablesSessionWareHouse()) {
+   
                         return redirect('/');
                     }
                 } else {
@@ -67,8 +68,7 @@ class StartController extends Controller {
         $brand_1 = session()->get('portal.main.brand');
 
         //session()->put('portal.main.FrontEndWebServices', config('settings::frontend.webservices'));
-
-        return View::make('cms::frontend.country', ['brand' => $brand_1,
+      return View::make('cms::frontend.country', ['brand' => $brand_1,
                     'countries' => session()->get('portal.main.brand.countries'),
                     'languages' => $languages,
                     'active_zip' => $active_zip,

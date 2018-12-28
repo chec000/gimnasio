@@ -17,7 +17,7 @@
                             <label for="tipo" class=" ">{{ __('Tipo') }}</label>
 
 
-                            <select name="tipo" class="form-control">
+                            <select name="tipo" class="form-control" required="required">
                                 @foreach ($tipos as $t)                                             
                                 <option value="{{$t->id}}">{{$t->nombre}}</option>
                                 @endforeach    
@@ -72,7 +72,7 @@
                             <div class="form-group">
                                 <label>{{ trans('admin::countries.add_flag') }}</label>
                                 <div class="input-group">
-                                    <input id="flag" class="img_src form-control" name="flag" value=''  type="text">
+                                    <input required  id="flag" class="img_src form-control" name="flag" value=''  type="text">
                                     <span class="input-group-btn">
                                         <a href="{!! URL::to(config('admin.config.public').'/filemanager/dialog.php?type=1&field_id=flag') !!}" class="btn btn-default iframe-btn">{{ trans('admin::countries.add_btn_image') }}</a>
                                     </span>
@@ -138,8 +138,8 @@
                         </div> 
 
                     </div>
-                    <div class="form-group row mb-0">
-                        <div class="col-md-6 offset-md-4">
+                    <div class="row">
+                        <div class="col-md-12 text-center">
                             <button type="submit" class="btn btn-primary">
                                 {{ __('Agregar') }}
                             </button>

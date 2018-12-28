@@ -21,7 +21,8 @@ class UsuarioCliente extends Eloquent
     {
          return $this->belongsTo('Modules\Admin\Entities\Gym\User','id_usuario','id');
     }
-  public $timestamps = false;
+    
+        public $timestamps = true;
      public function  membresias(){
                               return $this->belongsToMany('Modules\Admin\Entities\Gym\Membresia', 'gym_cliente_membresia', 'cliente_id', 'membresia_id');
 
