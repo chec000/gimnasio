@@ -20,7 +20,7 @@ class VentaController extends Controller {
 
     public function index() {
        
-        $ventas = Venta::with('usuario')->with('detalleVenta')->get();
+        $ventas = Venta::with('usuario')->with('detalleVenta')->orderBy('created_at', 'DESC')->get();
         $view = View::make('admin::gym.ventas.listVentas', array('ventas' => $ventas,
                     'can_add' => Auth::action('brand.add'),
                     'can_delete' => Auth::action('bread.activeBrand'),

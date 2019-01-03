@@ -13,7 +13,6 @@ use Modules\Admin\Http\Controllers\gym\MembresiaController;
 use Modules\Admin\Http\Controllers\gym\GymController;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade as PDF;
-use Modules\CMS\Libraries\Builder\FormMessage;
 use Illuminate\Support\Facades\Mail;
 use Modules\Admin\Entities\Gym\Articulo;
 use Modules\Admin\Entities\Gym\Venta;
@@ -61,8 +60,9 @@ class ClienteController extends Controller {
         }else{
                     $cliente = User::where('name', '=',$request->cliente)->first();
         }
-        if ($cliente != null) {
-        $cl=UsuarioCliente::find($cliente->id);   
+        
+        $cl=UsuarioCliente::where('id_usuario','=',$cliente->id)->first();   
+        if ($cliente != null&&$cl!=null) {
         if($cl!=null){
             $membresias = $cl->compraMembresia()->get();
                 

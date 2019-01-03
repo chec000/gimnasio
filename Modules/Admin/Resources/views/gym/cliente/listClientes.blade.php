@@ -8,7 +8,8 @@
                 <thead>
                     <tr>
                       <th scope="col">Codigo de usuario</th>
-                        <th scope="col">Foto</th>              
+                        <th scope="col">Foto</th>       
+                         <th scope="col">Clave unica</th>
                         <th scope="col">Nombre</th>
                         <th scope="col">Apellidos</th>
                         <th scope="col">Telefono</th>
@@ -28,9 +29,8 @@
                         @if($c->usuario!=null)            
                         <td><img style="height: 100px" src="{{$c->usuario->foto}}"></td>
                         <td>{{$c->usuario->clave_unica}}</td>
-                        <td>{{$c->usuario->name}}</td>
-                        
-                        <td>{{$c->usuario->apellido_paterno.' '.$c->usuario->apellido_materno}}</td>
+                        <td>{{$c->usuario->name}}</td>                        
+                        <td>{{$c->usuario->apellido_paterno}}</td>
                         <td>{{$c->usuario->telefono}}</td>
                         <td>{{$c->usuario->direccion}}</td>
                         @else
