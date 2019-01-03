@@ -30,11 +30,11 @@
                 <span class="icon-bar"></span>
             </button>
             <a class="logo" href="{{ route('admin.home') }}">
-                <img src="{{ URL::to(config('admin.config.public')) }}/app/img/logo.png" alt="Omnilife CMS"/>
+                <img style="height: 63px" src="{{ URL::to(config('admin.config.public')) }}/app/img/logo.png" alt="Omnilife CMS"/>
             </a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav navbar-right">
+            <ul class="nav navbar-nav navbar-right" style="color:black">
                 @if (isset($system_menu))
                     {!! $system_menu !!}
                 @endif

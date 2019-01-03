@@ -82,7 +82,7 @@ class HomeController extends Controller
 //           $sections_menu=AdminMenu::getMenuDashboard();
           
 $menu_aside= View::make('admin::commons.menu_aside',array("sections_menu"=>$sections_menu))->render();
-   
+
         $this->layoutData['content'] = View::make('admin::commons.menu_admin',array("data"=> $data,"menu_aside"=>$menu_aside))->render();
 
     }

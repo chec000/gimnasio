@@ -12,7 +12,7 @@
                 </div>
                 <div class="col-md-5 text-center">
                     <a href="{{ route('admin.account.index') }}" class="btn btn-default" style="margin-top:30px;">
-                        <i class="fa fa-lock"></i>  &nbsp; {{ trans('admin::dashboard.account_settings') }}
+                        <i class="fa fa-lock"></i>  &nbsp; {{ trans('admin::dashboard.account_asasettings') }}
                     </a>
                 </div>
             </div>

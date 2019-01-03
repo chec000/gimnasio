@@ -16,7 +16,9 @@ h3{font-size:23px;}
 label{font-family: 'Helvetica', sans-serif !important; font-weight:500; font-size:15px;}
 
 .loginpanel{margin-top:100px; margin-bottom:100px;}
-.loginpanel > .row > div{ border:1px solid rgba(0,0,0,0.1); box-shadow:3px 3px 30px rgba(0,0,0,0.1); padding:100px 30px 30px 30px; background:url(../img/logo.png) no-repeat 50% 25px;  }
+.loginpanel > .row > div{ border:1px solid rgba(0,0,0,0.1); box-shadow:3px 3px 30px rgba(0,0,0,0.1); padding:100px 30px 30px 30px;
+
+}
 .loginpanel .forgot-pw{border-top:1px solid rgba(0,0,0,0.1); padding-top:25px;}
 .loginpanel h1{font-size:26px !important; margin-bottom:20px; }
 
@@ -35,7 +37,7 @@ label{font-family: 'Helvetica', sans-serif !important; font-weight:500; font-siz
     background: -moz-linear-gradient(left, #7f47a5, #fffafa);
      Opera 11.1 - 12 
     background: -o-linear-gradient(left, #7f47a5, #fffafa);*/
-    background: #4878a0!important;
+    background: #52cc51!important;
     /* Opera 15+, Chrome 25+, IE 10+, Firefox 16+, Safari 6.1+, iOS 7+, Android 4.4+ */
     /*background: linear-gradient(to left, #7f47a5, #fffafa) !important;*/
     margin-bottom:0;
@@ -43,7 +45,7 @@ label{font-family: 'Helvetica', sans-serif !important; font-weight:500; font-siz
     border-radius:0;
 }
 
-.navbar-inverse{border:none !important; background:#a7a4ac; border-radius:0;}
+.navbar-inverse{border:none !important; background:#1d3f55; border-radius:0;}
 
 
 
