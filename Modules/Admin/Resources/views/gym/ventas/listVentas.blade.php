@@ -37,7 +37,7 @@
                                {{$v->usuario->name.' '.$v->usuario->apellido_paterno}}                                                      
                              </td>
                              <td>{{$v->seller->name}}</td>
-                            <td>{{$v->created_at->format('l jS F Y')}}</td>
+                            <td>{{$v->created_at}}</td>
                             <td>{{$v->tipo_pago}}</td>
                             <td>${{$v->total}}</td>
                             <td>                                                     

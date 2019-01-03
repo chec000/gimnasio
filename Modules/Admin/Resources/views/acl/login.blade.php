@@ -1,5 +1,18 @@
 {!! Form::open(['url' => Request::url()]) !!}
         <!-- username field -->
+        
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-center">
+                    <span style="font-size: 24px;
+                 font-weight: 400;
+                         line-height: 1.3333;">   {{trans('admin::pages.login')}}</span>
+                </div>
+            </div>
+            
+        </div>
+        
+        
 <div class="form-group {!! FormMessage::getErrorClass('username') !!}">
     {!! Form::label('username', trans('admin::pages.username'), ['class' => 'control-label']) !!}
     {!! Form::text('username', Request::input('username'), ['class' => 'form-control']) !!}
