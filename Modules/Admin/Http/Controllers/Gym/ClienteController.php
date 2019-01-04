@@ -164,7 +164,7 @@ class ClienteController extends Controller {
             }
         }
 
-        $this->cotizarMembresia();
+        $this->cotizarMembresia($this->total_pagar);
         return array(
             'subtotal' => $subtotal,
             'cantidad' => $cantidad,
@@ -172,12 +172,15 @@ class ClienteController extends Controller {
         );
     }
 
-    public function cotizarMembresia() {
+    public function cotizarMembresia($pago_inscripcion=null) {
         $total = 0;
         $membresias = session()->get('portal.main.gym.cliente.membresias');
         if ($membresias != null) {
             foreach ($membresias as $m) {
                 $total = $total + $m->subtotal;
+            }
+            if($pago_inscripcion!=null){
+            $total=$total+$pago_inscripcion;     
             }
             session()->put('portal.main.gym.cliente.total_pagar', $total);
         }
@@ -302,19 +305,21 @@ class ClienteController extends Controller {
          * toma en cuenta que para ver los mismos 
          * datos debemos hacer la misma consulta
          * */
+
         $directorio = public_path() . '\uploads\facturas';
 
         if (file_exists($directorio)) {
             $date = new \DateTime();
             $pdf = PDF::loadView('admin::gym.ventas.factura_venta', ['date' => $date->format('d-M-Y'), "membresias" => $membresias, "user" => $user, "total" => $this->total_pagar]);
-
             file_put_contents($directorio . '/' . "factura-" . $user->name . ".pdf", $pdf->stream());
         } else {
             mkdir($directorio, 7777, true);
             $pdf = PDF::loadView('admin::gym.ventas.factura_venta', ['date' => $date->format('d-M-Y')]);
+         
             file_put_contents($directorio . '/' . "factura-" . $user->name . ".pdf", $pdf->stream());
         }
-        $archivo = $path . '/uploads/facturas/' . 'factura-' . trim($user->name) . '.pdf';
+        $archivo = $directorio. 'factura-' . trim($user->name) . '.pdf';
+        
         $archivoEmail = $directorio . "/" . "factura-" . ($user->name) . ".pdf";
 
         return array("archivo" => $archivo, "archivoEmail" => $archivoEmail);
@@ -421,15 +426,25 @@ class ClienteController extends Controller {
                 );
 
                 if ($v->passes()) {
+               
                     $cliente = $this->confirmarGuardado($request);
-                    session()->put('portal.main.gym.cliente', $request->all());
+                    if($cliente!=null){
+                                         session()->put('portal.main.gym.cliente', $request->all());
                     session()->put('portal.main.gym.cliente.id', $cliente->id);
 
                     $result = array(
                         "status" => true,
                         "code" => 200,
                         'data' => session()->get('portal.main.gym.cliente')
+                    );   
+                    }else{
+                                 $result = array(
+                        "status" => false,
+                        "code" => 500,
+                        'data' => $v->messages()
                     );
+                    }
+
                 } else {
                     $result = array(
                         "status" => false,
@@ -467,7 +482,7 @@ class ClienteController extends Controller {
         $date = Carbon::now();
         try {
             $diferencia = 0;
-            DB::beginTransaction();
+            DB::beginTransaction();         
             $membresias = $this->buidCheckout(session()->get('portal.main.gym.cliente.membresias'), $tipo_venta);
             $user = UsuarioCliente::find(session()->get('portal.main.gym.cliente.id'));
             $actual = $date->format('Y-m-d');
@@ -476,7 +491,7 @@ class ClienteController extends Controller {
             $venta->id_cliente = session()->get('portal.main.gym.cliente.id');
             $venta->nombre_cliente=session()->get('portal.main.gym.cliente.name').' '.session()->get('portal.main.gym.cliente.apellido_paterno');
             $venta->id_empleado = Auth::user()->id;
-            $venta->tipo_pago = $request->tipo_pago;
+            $venta->tipo_pago = $request->tipo_pago;        
             $venta->total = session()->get('portal.main.gym.cliente.total_pagar');
             $venta->estatus = "terminado";
             $venta->diferencia = $diferencia;

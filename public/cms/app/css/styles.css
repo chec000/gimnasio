@@ -64,11 +64,11 @@ and open the template in the editor.
 }
 
 .panel-heading-violet {
-    background-color:#3b2453 !important;
-    border-color: #3b2453 !important;
+    background-color:#1d3f55!important;
+    border-color: #1d3f55!important;
 }
 .border-violet {
-  border-color: #3b2453 !important;
+  border-color: #1d3f55!important;
 }
 .degradado-violeta-blanco{
     background: linear-gradient(to left, #7f47a5, #fffafa) !important;
@@ -125,7 +125,7 @@ legend.legend_gray  {
 }
 
 .tab_background_violet a {
-    background-color: #5bc0de  !important;
+    background-color: #1d3f55  !important;
     color:white !important;
 }
 .tab_background_violet a:hover{

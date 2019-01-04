@@ -295,6 +295,8 @@
 
                     function  realizarPago(tipo) {
                         $('.loader').addClass("show");
+                        $total_a_pagar=$("#total_pagar_cliente").text();
+                        
                         if (tipo_pago === "efectivo") {
                             var pago_cliente = $("#pago_cliente").val();
                         } else {
