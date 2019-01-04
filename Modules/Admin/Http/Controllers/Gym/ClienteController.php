@@ -302,10 +302,10 @@ class ClienteController extends Controller {
          * toma en cuenta que para ver los mismos 
          * datos debemos hacer la misma consulta
          * */
-        $directorio = public_path() . '\uploads\facturas';
-
+        $directorio = public_path() . '/uploads\facturas';           
+        $date = new \DateTime();
         if (file_exists($directorio)) {
-            $date = new \DateTime();
+
             $pdf = PDF::loadView('admin::gym.ventas.factura_venta', ['date' => $date->format('d-M-Y'), "membresias" => $membresias, "user" => $user, "total" => $this->total_pagar]);
 
             file_put_contents($directorio . '/' . "factura-" . $user->name . ".pdf", $pdf->stream());
