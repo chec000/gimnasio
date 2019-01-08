@@ -302,7 +302,7 @@ class ClienteController extends Controller {
          * toma en cuenta que para ver los mismos 
          * datos debemos hacer la misma consulta
          * */
-        $directorio = public_path() . '/uploads\facturas';           
+        $directorio = public_path() . '/uploads/facturas';           
         $date = new \DateTime();
         if (file_exists($directorio)) {
 
