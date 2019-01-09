@@ -428,6 +428,8 @@ Route::group(['middleware' => ['web','admin.auth', 'admin.langLocale'], 'prefix'
     Route::post('/distributors-pool/upload-file', 'DistributorsPoolController@uploadFile')->name('pool.uploadfile');
     Route::post('/distributors-pool/validate-sponsor', 'DistributorsPoolController@validateSponsor')->name('pool.validatesponsor');
     # DISTRIBUTORS POOL ROUTES END
+    Route::get('clientes/addonly', 'gym\ClienteController@getAddCliente')->name('cliente.add_only_cliente');
+
 });
 
 /*  === ADMIN-GUEST ROUTES === */
@@ -454,6 +456,9 @@ Route::get('/admin', 'HomeController@home')->name('admin');
 
 //Clientes
 Route::get('clientes/addCliente', 'gym\ClienteController@addClienteGet')->name('admin.Cliente.add_cliente');
+
+
+
 Route::post('clientes/add', 'gym\ClienteController@saveCliente')->name('admin.Cliente.save_cliente');
 Route::get('clientes/list', 'Gym\ClienteController@index')->name('admin.Cliente.list_clientes');
 Route::get('clientes/edit/{id}', 'gym\ClienteController@updateCliente')->name('admin.Cliente.edit_cliente');

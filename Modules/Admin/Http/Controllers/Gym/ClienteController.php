@@ -404,7 +404,7 @@ class ClienteController extends Controller {
     }
 
     public function saveCliente(Request $request) {
-      
+        
         if (!User::where('clave_unica', '=', $request->clave_unica)->count() > 0) {
             if (!session()->has('portal.main.gym.cliente')) {
                 $v = Validator::make($request->all(), array(
@@ -424,35 +424,53 @@ class ClienteController extends Controller {
 
                 if ($v->passes()) {
                     $cliente = $this->confirmarGuardado($request);
+                        if ($request->has('only_client')){
+                        return redirect()->route('admin.Cliente.list_clientes');
+                        }else{                        
                     session()->put('portal.main.gym.cliente', $request->all());
                     session()->put('portal.main.gym.cliente.id', $cliente->id);
-
+                    }                                   
                     $result = array(
                         "status" => true,
                         "code" => 200,
                         'data' => session()->get('portal.main.gym.cliente')
-                    );
+                    );                    
                 } else {
-                    $result = array(
+                      if ($request->has('only_client')){
+                        return redirect()->route('admin.Cliente.list_clientes');
+                      }else{
+                           $result = array(
                         "status" => false,
                         "code" => 500,
                         'data' => $v->messages()
                     );
+                      }
+                   
                 }
                 return $result;
             } else {
+                  if ($request->has('only_client')){
+                        return redirect()->route('admin.Cliente.list_clientes');                        
+              }else{                                
                 $result = array(
                     "status" => false,
                     "code" => 300,
                     'data' => "Hay un cliente en proceso de inscripción"
                 );
+              }
+              
             }
         } else {
+              if ($request->has('only_client')){
+                        return redirect()->route('admin.Cliente.list_clientes');                        
+              }else{
             $result = array(
                   "status" => true,
                    "code" => 200,
                   'data' => session()->get('portal.main.gym.cliente')
-            );
+            );                  
+              }
+
         }
 
 
@@ -649,5 +667,18 @@ class ClienteController extends Controller {
                             array('success' => true, 'type_alert' =>'success',
                                 'message_alert' => 'Eliminado correctamente')]);
         
+    }
+        public function getAddCliente() {
+    $paises = Pais::where('activo', '=', 1)->get();
+        $view = View::make('admin::gym.cliente.addOnlyClient', array(
+                        'cliente'=>null,
+                    'paises'=>$paises,
+                    'can_add' => Auth::action('brand.add'),
+                    'can_delete' => Auth::action('bread.activeBrand'),
+                    'can_edit' => Auth::action('brand.editBrand'),
+                    "venta_aside" => $this->getCarrito()
+        ));
+
+        $this->layoutData['content'] = $view->render();
     }
 }

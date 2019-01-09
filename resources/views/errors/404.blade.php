@@ -130,7 +130,7 @@
       <div class="container-fluid">
         <div class="navbar-header">
           <a class="logo" href="{{ url('/admin') }}">
-            <img src="{{ asset('cms/app/img/logo.png') }}" alt="{{ config('settings::site.name') }}"/>
+            <img style="height: 57px;"  src="{{ asset('cms/app/img/logo.png') }}" alt="{{ config('settings::site.name') }}"/>
           </a>
         </div>
       </div>
