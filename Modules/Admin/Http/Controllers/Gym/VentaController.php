@@ -6,6 +6,7 @@ use Modules\Admin\Http\Controllers\AdminController as Controller;
 use Modules\Admin\Http\Controllers\gym\ClienteController;
 use Modules\Admin\Http\Controllers\gym\DeporteController;
 use Modules\Admin\Entities\Gym\ClienteMembresia;
+use Modules\CMS\Libraries\Builder\AssetBuilder;
 use Modules\Admin\Entities\Gym\DetalleVenta;
 use Modules\Admin\Entities\Gym\Membresia;
 use Modules\Admin\Entities\Gym\Articulo;
@@ -32,7 +33,7 @@ class VentaController extends Controller {
 
 
     public function detalleVentaFactura($idVenta) {
-        $venta = Venta::find($idVenta);
+        $venta = Venta::find($idVenta); 
         $view = View::make('admin::gym.ventas.detalle_venta_factura', array('venta' => $venta,
                     'can_add' => Auth::action('brand.add'),
                     'can_delete' => Auth::action('bread.activeBrand'),
@@ -133,6 +134,8 @@ class VentaController extends Controller {
     }
 
     public function checkoutVentaMembresia(){
+
+            AssetBuilder::add('cms-main', ['/ace/ace.js']);
          if (session()->has('portal.main.gym.cliente.membresias')) {
                 $mc= new ClienteController();
               $articulos = $mc->buidCheckout( session()->get('portal.main.gym.cliente.membresias'), 2);
@@ -140,6 +143,7 @@ class VentaController extends Controller {
                $confirmacion_modal = View::make('admin::gym.modals.confirmar_pago_modal')->render();
                  $view = View::make('admin::gym.ventas.detalle_venta', array(
                   'membresias'=>$articulos,
+                     'script'=>true,
                   'total'=>$total,
                    'modal'=>$confirmacion_modal                         
         ));     
