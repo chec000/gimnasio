@@ -427,9 +427,46 @@ Route::group(['middleware' => ['web','admin.auth', 'admin.langLocale'], 'prefix'
 
     Route::post('/distributors-pool/upload-file', 'DistributorsPoolController@uploadFile')->name('pool.uploadfile');
     Route::post('/distributors-pool/validate-sponsor', 'DistributorsPoolController@validateSponsor')->name('pool.validatesponsor');
-    # DISTRIBUTORS POOL ROUTES END
-    Route::get('clientes/addonly', 'gym\ClienteController@getAddCliente')->name('cliente.add_only_cliente');
+    # DISTRIBUTORS POOL ROUTES END GYM
+    //REPORTES
+Route::get('reports/reporte-ventas', 'gym\VentaController@reporteVenta')->name('shopping-report.reporte');
+Route::get('reports/reporte-clientes', 'gym\ReportController@reportClientes')->name('shopping-report.reporte.clientes');
+//Route::get('/admin/venta/reportes/index', 'gym\ReportController@index')->name('report.index');
+Route::get('reports', 'gym\ReportController@index')->name('shopping-report.index');
+Route::post('reports/general', 'gym\ReportController@reporteGeneral')->name('shopping-report.reporte-general');
+       
+Route::get('clientes/addonly', 'gym\ClienteController@getAddCliente')->name('cliente.add_only_cliente');
+Route::get('clientes/addCliente', 'gym\ClienteController@addClienteGet')->name('client.add_cliente');
+Route::post('clientes/add', 'gym\ClienteController@saveCliente')->name('client.save_cliente');
+Route::get('clientes/list', 'Gym\ClienteController@index')->name('client.list_clientes');
+Route::get('clientes/edit/{id}', 'gym\ClienteController@updateCliente')->name('client.edit_cliente');
+Route::post('clientes/edit', 'gym\ClienteController@saveUpdateCliente')->name('client.update_cliente');
+Route::post('cliente/changeStatus', 'gym\ClienteController@deleteCliente')->name('client.activeInactive_cliente');
+Route::get('clientes/delete/{id}', 'gym\ClienteController@eraseCliente')->name('client.delete_cliente');
+Route::post('cliente/add_membresia', 'gym\ClienteController@saveMembresia')->name('client.add_membresia');
+Route::get('cliente/detalle_venta', 'gym\ClienteController@detalleVenta')->name('client.detalle_venta');
+Route::post('cliente/add_membresia_cliente', 'gym\ClienteController@addMembresiaCliente')->name('client.add_less_membresia');
+Route::post('cliente/getCliente', 'gym\ClienteController@getCliente')->name('client.getClienteByName');
+Route::post('cliente/listFilterClientes', 'gym\ClienteController@getUsersAsCliente')->name('client.getListClientes');
+Route::get('cliente/detalle_venta_checkout', 'gym\ClienteController@getDetalleVenta')->name('client.detalle_venta_checkout');
+Route::post('cliente/finalizar_compra', 'gym\ClienteController@finalizarCompra')->name('client.finalizar_compra');
+Route::post('membresia/membresia/view', 'gym\ClienteController@listMembresias')->name('client.list_view');
 
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 });
 
 /*  === ADMIN-GUEST ROUTES === */
@@ -458,7 +495,7 @@ Route::get('/admin', 'HomeController@home')->name('admin');
 Route::get('clientes/addCliente', 'gym\ClienteController@addClienteGet')->name('admin.Cliente.add_cliente');
 
 
-
+//admin.Cliente.list_clientes
 Route::post('clientes/add', 'gym\ClienteController@saveCliente')->name('admin.Cliente.save_cliente');
 Route::get('clientes/list', 'Gym\ClienteController@index')->name('admin.Cliente.list_clientes');
 Route::get('clientes/edit/{id}', 'gym\ClienteController@updateCliente')->name('admin.Cliente.edit_cliente');
@@ -490,15 +527,6 @@ Route::post('venta/addPago', 'gym\VentaController@updateMembresiaClienteVenta')-
 Route::get('venta/cliente/membresia/{id}', 'gym\VentaController@shoppMembresia')->name('admin.venta.addMembresia');
 Route::get('venta/cliente/checkout', 'gym\VentaController@checkoutVentaMembresia')->name('admin.venta.cliente_checkout_membresia');
 Route::get('venta/cliente/actividad/{id}', 'gym\VentaController@shoppActividad')->name('admin.venta.addActividad');
-
-//REPORTES
-Route::get('venta/reporte-ventas', 'gym\VentaController@reporteVenta')->name('admin.venta.reporte');
-Route::get('reports/reporte-clientes', 'gym\ReportController@reportClientes')->name('admin.venta.reporte.clientes');
-//Route::get('/admin/venta/reportes/index', 'gym\ReportController@index')->name('report.index');
-Route::get('/admin/reports', 'gym\ReportController@index')->name('admin.reportVenta.index');
-
-Route::post('reports/general', 'gym\ReportController@reporteGeneral')->name('admin.reporte-general');
-
 Route::get('deporte/add', 'gym\DeporteController@addDeporte')->name('admin.Deporte.addDeporte');
 Route::post('deporte/add', 'gym\DeporteController@saveDeporte')->name('admin.Deporte.save_deporte');
 Route::get('deporte/list', 'Gym\DeporteController@index')->name('admin.Deporte.list_deportes');

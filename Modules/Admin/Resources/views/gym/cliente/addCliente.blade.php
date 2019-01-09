@@ -41,7 +41,7 @@
                             <div class="panel panel-info">                 
                                 <div class="panel-heading"> <h3 class="panel-title">{{ __('Register') }}</h3> </div>
                                 <div class="panel-body">
-                                    {!! Form::open(array('route' => 'admin.Cliente.save_cliente','id'=>'save_client')) !!}
+                                    {!! Form::open(array('route' => 'admin.client.save_cliente','id'=>'save_client')) !!}
 
                                     <input type="hidden" name="tipo_inscripcion" value="1">
                                     <input type="hidden" name="lat" value="0">

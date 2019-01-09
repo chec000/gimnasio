@@ -425,7 +425,7 @@ class ClienteController extends Controller {
                 if ($v->passes()) {
                     $cliente = $this->confirmarGuardado($request);
                         if ($request->has('only_client')){
-                        return redirect()->route('admin.Cliente.list_clientes');
+                        return redirect()->route('admin.client.list_clientes');
                         }else{                        
                     session()->put('portal.main.gym.cliente', $request->all());
                     session()->put('portal.main.gym.cliente.id', $cliente->id);
@@ -437,7 +437,7 @@ class ClienteController extends Controller {
                     );                    
                 } else {
                       if ($request->has('only_client')){
-                        return redirect()->route('admin.Cliente.list_clientes');
+                        return redirect()->route('admin.client.list_clientes');
                       }else{
                            $result = array(
                         "status" => false,
@@ -450,7 +450,7 @@ class ClienteController extends Controller {
                 return $result;
             } else {
                   if ($request->has('only_client')){
-                        return redirect()->route('admin.Cliente.list_clientes');                        
+                        return redirect()->route('admin.client.list_clientes');                        
               }else{                                
                 $result = array(
                     "status" => false,
@@ -462,7 +462,7 @@ class ClienteController extends Controller {
             }
         } else {
               if ($request->has('only_client')){
-                        return redirect()->route('admin.Cliente.list_clientes');                        
+                        return redirect()->route('admin.client.list_clientes');                        
               }else{
             $result = array(
                   "status" => true,
@@ -663,7 +663,7 @@ class ClienteController extends Controller {
             
         }
         
-        return \redirect()->route('admin.Cliente.list_clientes')->with(['resultSaved' => 
+        return \redirect()->route('admin.client.list_clientes')->with(['resultSaved' => 
                             array('success' => true, 'type_alert' =>'success',
                                 'message_alert' => 'Eliminado correctamente')]);
         

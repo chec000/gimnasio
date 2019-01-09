@@ -4,7 +4,7 @@
             <div class="card">
                 <div class="card-header">{{ __('Update') }}
                     <button class="btn btn-success">
-                        <a style="color:black" href="{{route('admin.Cliente.list_clientes')}}">
+                        <a style="color:black" href="{{route('admin.client.list_clientes')}}">
                             <i class="fa fa-undo"></i>
                             Regresar</a>
                     </button>

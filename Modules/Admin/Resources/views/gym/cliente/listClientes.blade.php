@@ -3,7 +3,7 @@
 
     <div class="card" >
         <div class="card-body">
-            <a href="{{route('admin.Cliente.add_cliente')}}" class="small-box-footer">Agregar cliente <i class="fa fa-arrow-circle-right"></i></a>             
+            <a href="{{route('admin.client.add_cliente')}}" class="small-box-footer">Agregar cliente <i class="fa fa-arrow-circle-right"></i></a>             
             <table class="table table-striped " id="tbl_table">
                 <thead>
                     <tr>
@@ -55,8 +55,8 @@
                             <span onclick="activeDesactiveCliente({{$c->id}})" id='inactiveBrand{{$c->id}}' class="{{$c->activo ? 'hide' : ''}}">                                
                                 <i class="glyphicon glyphicon-stop  itemTooltip "  title="{{ trans('admin::action.enable_action') }}"></i>                            
                             </span>                                              
-                            <a class="glyphicon glyphicon-trash itemTooltip" href="{{ route('admin.Cliente.delete_cliente', ['id' => $c->id]) }}" title="{{ trans('admin::action.edit_action') }}"></a>
-                            <a class="glyphicon glyphicon-pencil itemTooltip" href="{{ route('admin.Cliente.edit_cliente', ['id' => $c->id]) }}" title="{{ trans('admin::action.edit_action') }}"></a>
+                            <a class="glyphicon glyphicon-trash itemTooltip" href="{{ route('admin.client.delete_cliente', ['id' => $c->id]) }}" title="{{ trans('admin::action.edit_action') }}"></a>
+                            <a class="glyphicon glyphicon-pencil itemTooltip" href="{{ route('admin.client.edit_cliente', ['id' => $c->id]) }}" title="{{ trans('admin::action.edit_action') }}"></a>
                         </td>
                         @endif
                     </tr>
@@ -75,7 +75,7 @@
     <script type="text/javascript">
                                 function activeDesactiveCliente (id){
                                 $.ajax({
-                                url: route('admin.Cliente.activeInactive_cliente'),
+                                url: route('admin.client.activeInactive_cliente'),
                                         type: 'POST',
                                         data: {id: id},
                                         success: function (data) {
