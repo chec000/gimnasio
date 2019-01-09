@@ -92,14 +92,13 @@ class ClienteController extends Controller {
 
     public function saveMembresia(Request $request) {
         $tipo_servicio=1;
-        
         if($request->tipo_servicio==2){
             $tipo_servicio=2;
         }
-        
+
         if($tipo_servicio==1){
                     $membresia_existente = $this->verificarMembresia($request->id_membresia);
-        if ($membresia_existente == null) {
+                    if ($membresia_existente == null) {
             $membresia = Membresia::find($request->id_membresia);
             $membresia['cantidad'] = $request->cantidad;
             $membresia['subtotal'] = $request->cantidad * $membresia->precio;
@@ -164,7 +163,7 @@ class ClienteController extends Controller {
             }
         }
 
-        $this->cotizarMembresia();
+        $this->cotizarMembresia($request->tipo);
         return array(
             'subtotal' => $subtotal,
             'cantidad' => $cantidad,
@@ -172,7 +171,7 @@ class ClienteController extends Controller {
         );
     }
 
-    public function cotizarMembresia() {
+    public function cotizarMembresia($type=null) {
         $total = 0;
         $membresias = session()->get('portal.main.gym.cliente.membresias');
         if ($membresias != null) {
@@ -283,6 +282,8 @@ class ClienteController extends Controller {
                             array_push($articulos, $articulo);            
                  }
         }
+   
+        session()->put('portal.main.gym.cliente.total_pagar',$this->total_pagar);
         return $articulos;
     }
 
@@ -460,10 +461,7 @@ class ClienteController extends Controller {
 
     public function finalizarCompra(Request $request) {
 //        $date = new \DateTime(); 
-        $tipo_venta=1;
-        if(session()->has('portal.main.gym.cliente.tipo_venta')){
-            $tipo_venta=2;
-        }
+        $tipo_venta=$request->tipo_venta;
         
         $date = Carbon::now();
         try {

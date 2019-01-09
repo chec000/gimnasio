@@ -33,13 +33,6 @@
                                 </span>
                             </a>
                         </li>
-<!--                        <li role="presentation" class="disabled">
-                            <a href="#complete" data-toggle="tab" aria-controls="complete" role="tab" title="Exito">
-                                <span class="round-tab">
-                                    <i class="glyphicon glyphicon-ok"></i>                               
-                                </span>
-                            </a>
-                        </li>-->
                     </ul>
                 </div>         
                 <div class="tab-content">
@@ -294,6 +287,7 @@
                     }
 
                     function  realizarPago(tipo) {
+                        var tipo_transaccion=1;
                         $('.loader').addClass("show");
                         if (tipo_pago === "efectivo") {
                             var pago_cliente = $("#pago_cliente").val();
@@ -303,17 +297,17 @@
 
                         if (tipo_pago === "efectivo") {
                             if (pago_cliente > 0) {
-                                finalizarCheckout(tipo_pago, pago_cliente);
+                                finalizarCheckout(tipo_pago, pago_cliente,tipo_transaccion);
                             }
                         } else {
-                            finalizarCheckout(tipo_pago, pago_cliente);
+                            finalizarCheckout(tipo_pago, pago_cliente,tipo_transaccion);
                         }
                     }
 
-                    function finalizarCheckout(tipo_pago, pago_cliente) {
+                    function finalizarCheckout(tipo_pago, pago_cliente,transaccion) {
                         $.ajax({
                             url: route('admin.Cliente.finalizar_compra'),
-                            data: {tipo_pago: tipo_pago, pago_cliente: pago_cliente},
+                            data: {tipo_pago: tipo_pago, pago_cliente: pago_cliente,tipo_venta:transaccion},
                             type: 'POST',
                             dataType: 'json',
                             success: function (data) {
@@ -449,7 +443,7 @@
                     function prevTab(elem) {
                         $(elem).prev().find('a[data-toggle="tab"]').click();
                     }
-                    function addMembresia(id_membresia, tipo) {
+                    function addMembresia(id_membresia,nombre, tipo) {
                         $.ajax({
                             url: route('admin.Cliente.add_less_membresia'),
                             type: 'POST',
@@ -482,5 +476,7 @@
                     function scrollTop() {
                         $('html, body').animate({scrollTop: 0}, 800);
                     }
-
+                    function reload(){
+                    location.reload();
+                    }
 </script>
