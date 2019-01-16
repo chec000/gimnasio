@@ -14,8 +14,39 @@
                     </div>
                 </div>
                 <div class="panel-body collapse" id="collapse01">
-                    <button class="btn btn-default btn-block" onclick="reporte('cliente')">Mensual</button>
-                      <button class="btn btn-default btn-block">Filtrado </button>
+                           {!! Form::open(array('route' => 'admin.shopping-report.reporte.clientes')) !!}
+                         
+                         <select class="form-control" id="select_dates_clients" name="estado"  required="required">
+                             <option value="" selected="selected">Selecciona una opción</option>
+                             <option value="0">Todos</option>
+                             <option value="1">Al dia</option>
+                              <option value="2">Con atrasos</option>
+                         </select>
+                         <br>
+                         <div class="row" id="date_clientes">
+                             <div class="col-md-6">
+                                  <div class="form-group">
+                            <label for="exampleInputEmail1">Fecha inicial</label>
+                              <input type="date" name="date_start_client" class="form-control"  required="required">
+                          </div>
+                                  
+                             </div>
+                             <div class="col-md-6">
+                                 <div class="form-group">
+                                      <label for="exampleInputEmail1">Fecha final</label>
+                                      <input type="date" name="date_end_client" class="form-control" required="required"> 
+                                 </div>
+                             </div>
+                         </div> 
+                         <br>
+                         <div class="text-center">
+                             
+                             <button class="btn btn-success" type="submit"  name="btnGenerar" >
+                                 Generar
+                             </button>
+                         </div>
+                      
+                        {!! Form::close() !!}
                 </div>
             </div>
             <div class="panel panel-info">
@@ -26,9 +57,40 @@
                     </div>
                 </div>
                 <div class="panel-body collapse" id="collapse02">
-                    <button class="btn btn-default btn-block">Mensual</button>
-                    <button class="btn btn-default btn-block">Filtrado</button>
-
+                         {!! Form::open(array('route' => 'admin.shopping-report.reporte-general')) !!}
+                         
+                         <select class="form-control" id="select_dates_ventas" name="ventas">
+                             <option value="" selected="selected">Selecciona una opción</option>
+                             <option value="0">Mensual</option>
+                             <option value="1">Filtrado</option>
+                              <option value="2">Anual</option>
+                         </select>
+                         <br>
+                         <div class="row" id="dates_reports" style="display: none">
+                             <div class="col-md-6">
+                                  <div class="form-group">
+                            <label for="exampleInputEmail1">Fecha inicial</label>
+                              <input type="date" name="date_start" class="form-control">
+                          </div>
+                                  
+                             </div>
+                             <div class="col-md-6">
+                                 <div class="form-group">
+                                      <label for="exampleInputEmail1">Fecha final</label>
+                                      <input type="date" name="date_end" class="form-control"> 
+                                 </div>
+                             </div>
+                         </div> 
+                         <br>
+                         <div class="text-center">
+                             
+                             <button class="btn btn-success" type="submit"  name="btnGenerar" >
+                                 Generar
+                             </button>
+                         </div>
+                      
+                        {!! Form::close() !!}
+                  
                 </div>
             </div>
             <div class="panel panel-default">
@@ -55,6 +117,7 @@
                 <div class="panel-body collapse" id="collapse03">
                    <button class="btn btn-default btn-block">Mensual</button>
                     <button class="btn btn-default btn-block">Filtrado</button>
+                    
                 </div>
             </div>
             <div class="panel panel-warning">
@@ -90,6 +153,16 @@
 <!--<script src="{{ PageBuilder::js('add') }}"></script>-->
 
 <script type="text/javascript">
+    
+$("#select_dates_ventas").change(function() {
+    var value=$(this).val();
+    if(value==="1"){
+                  $("#dates_reports").show();
+    }else{
+                  $("#dates_reports").hide();
+    }
+});
+    
     function reporte(tipo_reporte) {         
     $.ajax({
             url: route('admin.reporte-general'),

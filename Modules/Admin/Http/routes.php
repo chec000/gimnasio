@@ -430,7 +430,7 @@ Route::group(['middleware' => ['web','admin.auth', 'admin.langLocale'], 'prefix'
     # DISTRIBUTORS POOL ROUTES END GYM
     //REPORTES
 Route::get('reports/reporte-ventas', 'gym\VentaController@reporteVenta')->name('shopping-report.reporte');
-Route::get('reports/reporte-clientes', 'gym\ReportController@reportClientes')->name('shopping-report.reporte.clientes');
+Route::post('reports/reporte-clientes', 'gym\ReportController@reportClientes')->name('shopping-report.reporte.clientes');
 //Route::get('/admin/venta/reportes/index', 'gym\ReportController@index')->name('report.index');
 Route::get('reports', 'gym\ReportController@index')->name('shopping-report.index');
 Route::post('reports/general', 'gym\ReportController@reporteGeneral')->name('shopping-report.reporte-general');

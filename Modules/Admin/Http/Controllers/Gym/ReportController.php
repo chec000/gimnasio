@@ -18,9 +18,7 @@ use Modules\Admin\Http\Controllers\AdminController as Controller;
 use Modules\Admin\Entities\Gym\UsuarioCliente;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\IOFactory;
-//use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Modules\Admin\Entities\Gym\Venta;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -28,7 +26,7 @@ use View;
 
 class ReportController extends Controller {
 
-    public function reporteVenta(Request $request) {
+    public function reporteVenta(Request $request) {        
         $ventas = Venta::with('usuario')->with('detalleVenta')->get();
         $v = $this->buildExcelVenta($ventas);
         $documento = new Spreadsheet();
@@ -77,14 +75,24 @@ public function index() {
         $this->layoutData['content'] = $view->render();
 }
     public function reportClientes(Request $request) {
+               
+        $status="";
+         $ini = new \DateTime($request->date_start_client);
+         $end = new \DateTime($request->date_end_client);
+        if($request->estado==1){
+          $status='Al dia';  
+        }else if($request->estado){
+                      $status='Atrasado';  
+        }
         
-        dd($request->all());
+    $cl = UsuarioCliente::where('estado_cliente','=',$status)->whereBetween('created_at',array($ini, $end))->get();
         
-        $fecha_inicio='2018-12-18';
-        $fecha_fin='2018-12-18';
-    $cl = UsuarioCliente::where('estado_cliente','=','atrasado')->whereBetween('created_at',array($fecha_inicio, $fecha_fin))->get();
-        dd($cl);
-        $listClientes = $this->buildExcelCliente($cl);
+        if($request->estado==0){  
+    $cl = UsuarioCliente::whereBetween('created_at',array($ini, $end))->get();
+        }
+        
+        if(count($cl)>0){
+                    $listClientes = $this->buildExcelCliente($cl);
         $fecha= Carbon::now();
         $documento = new Spreadsheet();
         $documento
@@ -112,13 +120,35 @@ public function index() {
         header('Cache-Control: max-age=0');
         $writer = IOFactory::createWriter($documento, 'Xlsx');
         $writer->save('php://output');
-        exit;
+                exit;
+
+        }else{
+            
+         return   redirect()->route('admin.shopping-report.index');
+        }        
     }
 
+    public function reporteGeneral(Request $request) {
+      $date= Carbon::now();
+    if($request->has('ventas')){
+               switch ($request->ventas) {                  
+            case 0:
+                  $ventas = Venta::whereMonth('created_at','=',$date->month)->whereYear('created_at','=',$date->year)->get();                                  
+                  break;  
+                case 1:
+                  $ventas = Venta::whereBetween('created_at',[$request->date_start, $request->date_end])->get();      
+                
+                break;           
+            case 2:
+                       $ventas = Venta::whereYear('created_at','=',$date->year)->get();                                          
+        break;
     
-        public function reporteGeneral() {
-     $ventas = Venta::orderBy('tipo_pago','ASC')->get();
-        $listVentas = $this->buildReporteGeneral($ventas); 
+    default:
+     $ventas = Venta::orderBy('tipo_pago','ASC')->get();       
+}
+}            
+if (count($ventas)>0){
+    $listVentas = $this->buildReporteGeneral($ventas); 
         $fecha= Carbon::now();
         $documento = new Spreadsheet();
         $documento
@@ -129,9 +159,12 @@ public function index() {
                 ->setDescription('Este documento presenta un informe de clientes')
                 ->setCategory('Clientes');
 
-        $hoja = $documento->getActiveSheet();
-        $hoja->setTitle("Usuarios");
-        
+    $celda=3+count($listVentas['ventas']);
+    $celda='F3:F'.$celda;
+        $documento->getActiveSheet()->getStyle($celda)->getNumberFormat()
+    ->setFormatCode(NumberFormat::FORMAT_CURRENCY_USD);  
+        $hoja = $documento->getActiveSheet();            
+        $hoja->setTitle("Usuarios");        
         $hoja->setCellValue('B1', "REPORTE  DÍA: ".$fecha);
            
         $hoja->setCellValue('A2', "ID");
@@ -142,8 +175,19 @@ public function index() {
         $hoja->setCellValue("F2", "MONTO");
         $hoja->setCellValue("G2", "FECHA");
         $hoja->setCellValue("H2", "VENDEDOR");
-        $hoja->setCellValue("I2", "TIPO PAGO");
-
+        $hoja->setCellValue("I2", "TIPO PAGO");        
+          $celdaLimite=3+count($listVentas['ventas']);          
+           $hoja->setCellValue('E'.($celdaLimite+1), "EFECTIVO");
+        $hoja->setCellValue('F'.($celdaLimite+1), $listVentas['pago_efectivo'])->getStyle('F'.($celdaLimite+1))->getNumberFormat()
+         ->setFormatCode(NumberFormat::FORMAT_CURRENCY_USD);       
+         $hoja->setCellValue('E'.($celdaLimite+2), "TARJETA DE CREDITO Y TRANSFERENCIA BANCARIA");
+        $hoja->setCellValue('F'.($celdaLimite+2), $listVentas['pago_tarjeta'])->getStyle('F'.($celdaLimite+2))->getNumberFormat()
+        ->setFormatCode(NumberFormat::FORMAT_CURRENCY_USD);
+                           
+        $hoja->setCellValue('E'.($celdaLimite+3), "TOTAL");
+        $hoja->setCellValue('F'.($celdaLimite+3), $listVentas['total'])->getStyle('F'.($celdaLimite+3))->getNumberFormat()
+        ->setFormatCode(NumberFormat::FORMAT_CURRENCY_USD);
+              
         $hoja->fromArray($listVentas['ventas'], NULL, 'A3');
         
         $nombreDelDocumento = "Ventas-".$fecha->toDateString().".xlsx";
@@ -153,6 +197,10 @@ public function index() {
         $writer = IOFactory::createWriter($documento, 'Xlsx');
         $writer->save('php://output');
         exit;
+}else{
+            
+         return   redirect()->route('admin.shopping-report.index');
+        }                        
     }
     
     private function buildExcelCliente($data) {
@@ -184,11 +232,11 @@ public function index() {
         if (count($data) > 0) {
             $id=0;
             foreach ($data as $result) {
-                
-                if($result->cliente!=null&&$result->seller!=null){
 
+                if($result->cliente!=null&&$result->seller!=null){
+                    
                 $id=$id+1;
-                $newRow['id'] = $id;
+                $newRow['id'] = $result->cliente->codigo_cliente;
                 $newRow['cliente'] = strtoupper($result->usuario->name . ' ' . '' . $result->usuario->apellido_paterno);
                 $newRow['usuario'] = strtoupper($result->usuario->clave_unica);
                 $newRow['tiket'] = $result->codigo_factura;
