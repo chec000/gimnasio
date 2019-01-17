@@ -148,10 +148,10 @@ public function index() {
      $ventas = Venta::orderBy('tipo_pago','ASC')->get();       
 }
 }
-dd($ventas);
+
 if (count($ventas)>0){
     $listVentas = $this->buildReporteGeneral($ventas); 
-        $fecha= Carbon::now();
+//        $fecha= Carbon::now();
         $documento = new Spreadsheet();
         $documento
                 ->getProperties()
@@ -167,7 +167,7 @@ if (count($ventas)>0){
     ->setFormatCode(NumberFormat::FORMAT_CURRENCY_USD);  
         $hoja = $documento->getActiveSheet();            
         $hoja->setTitle("Usuarios");        
-        $hoja->setCellValue('B1', "REPORTE  DÍA: ".$fecha);
+        $hoja->setCellValue('B1', "REPORTE  DÍA: ");
            
         $hoja->setCellValue('A2', "ID");
         $hoja->setCellValue('B2', "CLIENTE");
