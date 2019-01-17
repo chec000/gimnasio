@@ -130,7 +130,6 @@ public function index() {
     }
 
     public function reporteGeneral(Request $request) {
-        dd($request->all());
         $date= Carbon::now();
       dd($date);
     if($request->has('ventas')){
