@@ -130,8 +130,7 @@ public function index() {
     }
 
     public function reporteGeneral(Request $request) {
-        $date= Carbon::now();
-      dd($date->month);
+        $date= Carbon::now();        
     if($request->has('ventas')){
                switch ($request->ventas) {                  
             case 0:
@@ -244,7 +243,7 @@ if (count($ventas)>0){
                 $newRow['tiket'] = $result->codigo_factura;
                 $newRow['Concepto'] = strtoupper($result->concepto);
                 $newRow['monto'] = $result->total;
-                $newRow['fecha'] = $result->created_at->format('d/m/Y');
+                $newRow['fecha'] = $result->created_at;
                 $newRow['vendedor'] = strtoupper($result->seller->name);
                  $newRow['tipo_pgo'] = strtoupper($result->tipo_pago);
 
