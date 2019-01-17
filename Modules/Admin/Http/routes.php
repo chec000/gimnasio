@@ -429,28 +429,28 @@ Route::group(['middleware' => ['web','admin.auth', 'admin.langLocale'], 'prefix'
     Route::post('/distributors-pool/validate-sponsor', 'DistributorsPoolController@validateSponsor')->name('pool.validatesponsor');
     # DISTRIBUTORS POOL ROUTES END GYM
     //REPORTES
-Route::get('reports/reporte-ventas', 'gym\VentaController@reporteVenta')->name('shopping-report.reporte');
-Route::post('reports/reporte-clientes', 'gym\ReportController@reportClientes')->name('shopping-report.reporte.clientes');
+Route::get('reports/reporte-ventas', 'Gym\VentaController@reporteVenta')->name('shopping-report.reporte');
+Route::post('reports/reporte-clientes', 'Gym\ReportController@reportClientes')->name('shopping-report.reporte.clientes');
 //Route::get('/admin/venta/reportes/index', 'gym\ReportController@index')->name('report.index');
-Route::get('reports', 'gym\ReportController@index')->name('shopping-report.index');
-Route::post('reports/general', 'gym\ReportController@reporteGeneral')->name('shopping-report.reporte-general');
+Route::get('reports', 'Gym\ReportController@index')->name('shopping-report.index');
+Route::post('reports/general', 'Gym\ReportController@reporteGeneral')->name('shopping-report.reporte-general');
        
-Route::get('clientes/addonly', 'gym\ClienteController@getAddCliente')->name('cliente.add_only_cliente');
-Route::get('clientes/addCliente', 'gym\ClienteController@addClienteGet')->name('client.add_cliente');
-Route::post('clientes/add', 'gym\ClienteController@saveCliente')->name('client.save_cliente');
+Route::get('clientes/addonly', 'Gym\ClienteController@getAddCliente')->name('cliente.add_only_cliente');
+Route::get('clientes/addCliente', 'Gym\ClienteController@addClienteGet')->name('client.add_cliente');
+Route::post('clientes/add', 'Gym\ClienteController@saveCliente')->name('client.save_cliente');
 Route::get('clientes/list', 'Gym\ClienteController@index')->name('client.list_clientes');
-Route::get('clientes/edit/{id}', 'gym\ClienteController@updateCliente')->name('client.edit_cliente');
-Route::post('clientes/edit', 'gym\ClienteController@saveUpdateCliente')->name('client.update_cliente');
-Route::post('cliente/changeStatus', 'gym\ClienteController@deleteCliente')->name('client.activeInactive_cliente');
-Route::get('clientes/delete/{id}', 'gym\ClienteController@eraseCliente')->name('client.delete_cliente');
-Route::post('cliente/add_membresia', 'gym\ClienteController@saveMembresia')->name('client.add_membresia');
-Route::get('cliente/detalle_venta', 'gym\ClienteController@detalleVenta')->name('client.detalle_venta');
-Route::post('cliente/add_membresia_cliente', 'gym\ClienteController@addMembresiaCliente')->name('client.add_less_membresia');
-Route::post('cliente/getCliente', 'gym\ClienteController@getCliente')->name('client.getClienteByName');
-Route::post('cliente/listFilterClientes', 'gym\ClienteController@getUsersAsCliente')->name('client.getListClientes');
-Route::get('cliente/detalle_venta_checkout', 'gym\ClienteController@getDetalleVenta')->name('client.detalle_venta_checkout');
-Route::post('cliente/finalizar_compra', 'gym\ClienteController@finalizarCompra')->name('client.finalizar_compra');
-Route::post('membresia/membresia/view', 'gym\ClienteController@listMembresias')->name('client.list_view');
+Route::get('clientes/edit/{id}', 'Gym\ClienteController@updateCliente')->name('client.edit_cliente');
+Route::post('clientes/edit', 'Gym\ClienteController@saveUpdateCliente')->name('client.update_cliente');
+Route::post('cliente/changeStatus', 'Gym\ClienteController@deleteCliente')->name('client.activeInactive_cliente');
+Route::get('clientes/delete/{id}', 'Gym\ClienteController@eraseCliente')->name('client.delete_cliente');
+Route::post('cliente/add_membresia', 'Gym\ClienteController@saveMembresia')->name('client.add_membresia');
+Route::get('cliente/detalle_venta', 'Gym\ClienteController@detalleVenta')->name('client.detalle_venta');
+Route::post('cliente/add_membresia_cliente', 'Gym\ClienteController@addMembresiaCliente')->name('client.add_less_membresia');
+Route::post('cliente/getCliente', 'Gym\ClienteController@getCliente')->name('client.getClienteByName');
+Route::post('cliente/listFilterClientes', 'Gym\ClienteController@getUsersAsCliente')->name('client.getListClientes');
+Route::get('cliente/detalle_venta_checkout', 'Gym\ClienteController@getDetalleVenta')->name('client.detalle_venta_checkout');
+Route::post('cliente/finalizar_compra', 'Gym\ClienteController@finalizarCompra')->name('client.finalizar_compra');
+Route::post('membresia/membresia/view', 'Gym\ClienteController@listMembresias')->name('client.list_view');
 
 
 
