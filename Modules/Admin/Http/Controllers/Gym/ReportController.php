@@ -147,7 +147,8 @@ public function index() {
     default:
      $ventas = Venta::orderBy('tipo_pago','ASC')->get();       
 }
-}            
+}
+dd($ventas);
 if (count($ventas)>0){
     $listVentas = $this->buildReporteGeneral($ventas); 
         $fecha= Carbon::now();
