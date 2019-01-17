@@ -148,7 +148,7 @@ public function index() {
      $ventas = Venta::orderBy('tipo_pago','ASC')->get();       
 }
 }
-dd($ventas);
+
 if (count($ventas)>0){
     $listVentas = $this->buildReporteGeneral($ventas); 
         $fecha= $date;
@@ -245,7 +245,7 @@ if (count($ventas)>0){
                 $newRow['tiket'] = $result->codigo_factura;
                 $newRow['Concepto'] = strtoupper($result->concepto);
                 $newRow['monto'] = $result->total;
-                $newRow['fecha'] = $result->created_at;
+                $newRow['fecha'] = $result->total;
                 $newRow['vendedor'] = strtoupper($result->seller->name);
                  $newRow['tipo_pgo'] = strtoupper($result->tipo_pago);
 
