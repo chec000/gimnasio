@@ -78,6 +78,7 @@ public function index() {
                
         $status="";
          $ini = new \DateTime($request->date_start_client);
+         dd($ini);
          $end = new \DateTime($request->date_end_client);
         if($request->estado==1){
           $status='Al dia';  
