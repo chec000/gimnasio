@@ -131,7 +131,7 @@ public function index() {
 
     public function reporteGeneral(Request $request) {
         $date= Carbon::now();
-      dd($date);
+      dd($date->month);
     if($request->has('ventas')){
                switch ($request->ventas) {                  
             case 0:
