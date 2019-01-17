@@ -77,8 +77,8 @@ public function index() {
     public function reportClientes(Request $request) {
                
         $status="";
-         $ini = new \DateTime($request->date_start_client);
-         dd($ini);
+        $ini = new \DateTime($request->date_start_client);
+         
          $end = new \DateTime($request->date_end_client);
         if($request->estado==1){
           $status='Al dia';  
@@ -130,7 +130,9 @@ public function index() {
     }
 
     public function reporteGeneral(Request $request) {
-      $date= Carbon::now();
+        dd($request->all());
+        $date= Carbon::now();
+      dd($date);
     if($request->has('ventas')){
                switch ($request->ventas) {                  
             case 0:
