@@ -151,7 +151,8 @@ public function index() {
 
 if (count($ventas)>0){
     $listVentas = $this->buildReporteGeneral($ventas); 
-        $fecha= $date;
+    dd($listVentas);   
+    $fecha= $date;
         $documento = new Spreadsheet();
         $documento
                 ->getProperties()
@@ -192,7 +193,7 @@ if (count($ventas)>0){
               
         $hoja->fromArray($listVentas['ventas'], NULL, 'A3');
         
-        $nombreDelDocumento = "Ventas-".$fecha->toDateString().".xlsx";
+        $nombreDelDocumento = "Ventas-".".xlsx";
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $nombreDelDocumento . '"');
         header('Cache-Control: max-age=0');
