@@ -150,8 +150,7 @@ public function index() {
 }
 
 if (count($ventas)>0){
-    $listVentas = $this->buildReporteGeneral($ventas); 
-    dd($listVentas);   
+    $listVentas = $this->buildReporteGeneral($ventas);        
     $fecha= $date;
         $documento = new Spreadsheet();
         $documento
@@ -193,7 +192,7 @@ if (count($ventas)>0){
               
         $hoja->fromArray($listVentas['ventas'], NULL, 'A3');
         
-        $nombreDelDocumento = "Ventas-".".xlsx";
+        $nombreDelDocumento = "Ventas".".xlsx";
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $nombreDelDocumento . '"');
         header('Cache-Control: max-age=0');
@@ -246,7 +245,7 @@ if (count($ventas)>0){
                 $newRow['tiket'] = $result->codigo_factura;
                 $newRow['Concepto'] = strtoupper($result->concepto);
                 $newRow['monto'] = $result->total;
-                $newRow['fecha'] = $result->total;
+                $newRow['fecha'] = $result->created_at;
                 $newRow['vendedor'] = strtoupper($result->seller->name);
                  $newRow['tipo_pgo'] = strtoupper($result->tipo_pago);
 
