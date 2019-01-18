@@ -151,7 +151,7 @@ public function index() {
 
 if (count($ventas)>0){
     $listVentas = $this->buildReporteGeneral($ventas);        
-    $fecha= $date;
+//    $fecha= $date;
         $documento = new Spreadsheet();
         $documento
                 ->getProperties()
@@ -167,7 +167,7 @@ if (count($ventas)>0){
     ->setFormatCode(NumberFormat::FORMAT_CURRENCY_USD);  
         $hoja = $documento->getActiveSheet();            
         $hoja->setTitle("Usuarios");        
-        $hoja->setCellValue('B1', "REPORTE  DÍA: ".$fecha);
+        $hoja->setCellValue('B1', "REPORTE  DÍA: ");
            
         $hoja->setCellValue('A2', "ID");
         $hoja->setCellValue('B2', "CLIENTE");
@@ -245,7 +245,7 @@ if (count($ventas)>0){
                 $newRow['tiket'] = $result->codigo_factura;
                 $newRow['Concepto'] = strtoupper($result->concepto);
                 $newRow['monto'] = $result->total;
-                $newRow['fecha'] = $result->created_at;
+                $newRow['fecha'] = 'fecha creacion';
                 $newRow['vendedor'] = strtoupper($result->seller->name);
                  $newRow['tipo_pgo'] = strtoupper($result->tipo_pago);
 
