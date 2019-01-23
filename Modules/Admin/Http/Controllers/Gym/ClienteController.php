@@ -1,12 +1,13 @@
 <?php
 
 namespace Modules\Admin\Http\Controllers\gym;
-
+use Modules\Admin\Entities\Gym\Abstractas\TipoProducto;
 use Illuminate\Http\Request;
 use View;
 use Modules\Admin\Entities\Gym\UsuarioCliente;
 use Modules\Admin\Entities\Gym\Pais;
 use Modules\Admin\Entities\Gym\Membresia;
+use Modules\Admin\Entities\Gym\Deporte;
 use Modules\Admin\Http\Controllers\gym\Auth\RegisterController;
 use Modules\Admin\Http\Controllers\AdminController as Controller;
 use Modules\Admin\Http\Controllers\gym\MembresiaController;
@@ -29,7 +30,7 @@ class ClienteController extends Controller {
 
     public function index() {
 
-        $clientes = $this->getClientes();    
+        $clientes = $this->getClientes();
         $view = View::make('admin::gym.cliente.listClientes', array('clientes' => $clientes,
                     'can_add' => Auth::action('brand.add'),
                     'can_delete' => Auth::action('bread.activeBrand'),
@@ -55,30 +56,29 @@ class ClienteController extends Controller {
 
     public function getCliente(Request $request) {
 
-        if($request->isId==true){
-                    $cliente = User::find($request->cliente);
-        }else{
-                    $cliente = User::where('name', '=',$request->cliente)->first();
+        if ($request->isId == true) {
+            $cliente = User::find($request->cliente);
+        } else {
+            $cliente = User::where('name', '=', $request->cliente)->first();
         }
-        
-        $cl=UsuarioCliente::where('id_usuario','=',$cliente->id)->first();   
-        if ($cliente != null&&$cl!=null) {
-        if($cl!=null){
-            $membresias = $cl->compraMembresia()->get();
-                
-            }else{
-                $membresias=[];
+
+        $cl = UsuarioCliente::where('id_usuario', '=', $cliente->id)->first();
+        if ($cliente != null && $cl != null) {
+            if ($cl != null) {
+                $membresias = $cl->compraMembresia()->get();
+            } else {
+                $membresias = [];
             }
             $view = View::make('admin::gym.membresia.list_membresias_compradas', array('membresias' => $membresias))->render();
-            session()->put('portal.main.gym.cliente.id',$cliente->id);
-             session()->put('portal.main.gym.cliente.tipo_venta',2);
+            session()->put('portal.main.gym.cliente.id', $cliente->id);
+            session()->put('portal.main.gym.cliente.tipo_venta', 2);
 
             return array(
                 "data" => $cliente,
                 "code" => 200,
                 'membresias_actuales' => $view,
-                'url_membresia'=>route('admin.venta.addMembresia', ['id' => $cliente->id]),
-                'url_add_actividad'=>route('admin.venta.addActividad',['id' => $cliente->id])
+                'url_membresia' => route('admin.venta.addMembresia', ['id' => $cliente->id]),
+                'url_add_actividad' => route('admin.venta.addActividad', ['id' => $cliente->id])
             );
         } else {
             return array(
@@ -91,54 +91,99 @@ class ClienteController extends Controller {
     }
 
     public function saveMembresia(Request $request) {
-        $tipo_servicio=1;
-        if($request->tipo_servicio==2){
-            $tipo_servicio=2;
+        $tipo_servicio = 1;
+        if ($request->tipo_servicio == 2) {
+            $tipo_servicio = 2;
         }
 
-        if($tipo_servicio==1){
-                    $membresia_existente = $this->verificarMembresia($request->id_membresia);
-                    if ($membresia_existente == null) {
-            $membresia = Membresia::find($request->id_membresia);
-            $membresia['cantidad'] = $request->cantidad;
-            $membresia['subtotal'] = $request->cantidad * $membresia->precio;
-            $this->total_pagar = $this->total_pagar + $membresia['subtotal'];
-            session()->push('portal.main.gym.cliente.membresias', $membresia);
-            $this->cotizarMembresia();
-            $view = View::make('admin::gym.ventas.add_membresia', array("membresia" => $membresia))->render();
+        if ($tipo_servicio == 1) {
+            $membresia_existente = $this->verificarMembresia($request->id_membresia);
+            if ($membresia_existente == null) {
+                $membresia = Membresia::find($request->id_membresia);
+                $membresia['cantidad'] = $request->cantidad;
+                $membresia['subtotal'] = $request->cantidad * $membresia->precio;
+                $this->total_pagar = $this->total_pagar + $membresia['subtotal'];
+                session()->push('portal.main.gym.cliente.membresias', $membresia);
+                $this->cotizarMembresia();
+                $view = View::make('admin::gym.ventas.add_membresia', array(
+                            "tipo_servicio" => 1,
+                            "membresia" => $membresia))->render();
+                $array = array(
+                    "data" => $view,
+                    "code" => 100
+                );
+                return $array;
+            } else {
+                $cantidad = $membresia_existente['cantidad'] + $request->cantidad;
+                $subtotal = $membresia_existente['cantidad'] * $membresia_existente['precio'];
+                $this->total_pagar = $subtotal;
+                $index = $this->getIndex($membresia_existente->id);
+                $this->updateMembresiaSession($subtotal, $index, $cantidad);
+                return $membresia_existente;
+            }
+        } else {
+            //Aqui va lo de actividades
+        return     $this->saveActivity($request, $tipo_servicio);
+        }
+    }
+
+    private function saveActivity($request, $tipo_servicio) {
+        $actividad_existente = $this->verificarActividad($request->id_actividad);
+        if ($actividad_existente == null) {
+            $actividad = Deporte::find($request->id_actividad);
+            $actividad['cantidad'] = $request->cantidad;
+            $actividad['subtotal'] = $request->cantidad * $actividad->precio;
+            $this->total_pagar = $this->total_pagar + $actividad['subtotal'];
+            session()->push('portal.main.gym.cliente.actividades', $actividad);
+            $this->cotizarMembresia($tipo_servicio);
+            $view = View::make('admin::gym.ventas.add_membresia', array(
+                        "actividad" => $actividad, 'tipo_servicio' => $tipo_servicio))->render();
             $array = array(
                 "data" => $view,
                 "code" => 100
             );
             return $array;
         } else {
-            $cantidad = $membresia_existente['cantidad'] + $request->cantidad;
-            $subtotal = $membresia_existente['cantidad'] * $membresia_existente['precio'];
+            $cantidad = $actividad_existente['cantidad'] + $request->cantidad;
+            $subtotal = $actividad_existente['cantidad'] * $actividad_existente['precio'];
             $this->total_pagar = $subtotal;
-            $index = $this->getIndex($membresia_existente->id);
-            $this->updateMembresiaSession($subtotal, $index, $cantidad);
-            return $membresia_existente;
+            $index = $this->getIndex($actividad_existente->id, $tipo_servicio);
+            $this->updateMembresiaSession($subtotal, $index, $cantidad, $tipo_servicio);
+            return $actividad_existente;
         }
-        }else{
-            //Aqui va lo de actividades
-        }
-
     }
 
-    private function updateMembresiaSession($subtotal, $index, $cantidad) {
-        session()->get('portal.main.gym.cliente.membresias')[$index]->cantidad = $cantidad;
-        session()->get('portal.main.gym.cliente.membresias')[$index]->subtotal = $subtotal;
+    private function updateMembresiaSession($subtotal, $index, $cantidad, $tipo_servicio = null) {
+        if ($tipo_servicio == 2) {
+            session()->get('portal.main.gym.cliente.actividades')[$index]->cantidad = $cantidad;
+            session()->get('portal.main.gym.cliente.actividades')[$index]->subtotal = $subtotal;
+        } else {
+            session()->get('portal.main.gym.cliente.membresias')[$index]->cantidad = $cantidad;
+            session()->get('portal.main.gym.cliente.membresias')[$index]->subtotal = $subtotal;
+        }
     }
 
-    private function getIndex($id) {
-        $membresias = session()->get('portal.main.gym.cliente.membresias');
-        if ($membresias != null) {
-            foreach ($membresias as $key => $m) {
-                if ($m->id == $id) {
-                    return $key;
+    private function getIndex($id, $tipo_servicio = null) {
+        if ($tipo_servicio == 2) {
+            $actividades = session()->get('portal.main.gym.cliente.actividades');
+            if ($actividades != null) {
+                foreach ($actividades as $key => $m) {
+                    if ($m->id == $id) {
+                        return $key;
+                    }
+                }
+            }
+        } else {
+            $membresias = session()->get('portal.main.gym.cliente.membresias');
+            if ($membresias != null) {
+                foreach ($membresias as $key => $m) {
+                    if ($m->id == $id) {
+                        return $key;
+                    }
                 }
             }
         }
+
         return null;
     }
 
@@ -171,14 +216,25 @@ class ClienteController extends Controller {
         );
     }
 
-    public function cotizarMembresia($type=null) {
+    public function cotizarMembresia($type = null) {
         $total = 0;
-        $membresias = session()->get('portal.main.gym.cliente.membresias');
-        if ($membresias != null) {
-            foreach ($membresias as $m) {
-                $total = $total + $m->subtotal;
+        if ($type == 2) {
+            $actividades = session()->get('portal.main.gym.cliente.actividades');
+            if ($actividades != null) {
+                foreach ($actividades as $m) {
+                    $total = $total + $m->subtotal;
+                }
+                session()->put('portal.main.gym.cliente.total_pagar', $total);
             }
-            session()->put('portal.main.gym.cliente.total_pagar', $total);
+        } else {
+
+            $membresias = session()->get('portal.main.gym.cliente.membresias');
+            if ($membresias != null) {
+                foreach ($membresias as $m) {
+                    $total = $total + $m->subtotal;
+                }
+                session()->put('portal.main.gym.cliente.total_pagar', $total);
+            }
         }
     }
 
@@ -188,6 +244,20 @@ class ClienteController extends Controller {
         if ($membresias != null) {
             foreach ($membresias as $m) {
                 if ($m->id == $id_membresia) {
+                    return $m;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function verificarActividad($id) {
+
+        $actividades = session()->get('portal.main.gym.cliente.actividades');
+        if ($actividades != null) {
+            foreach ($actividades as $m) {
+                if ($m->id == $id) {
                     return $m;
                 }
             }
@@ -261,12 +331,13 @@ class ClienteController extends Controller {
             $articulo->setNombre($m->nombre);
             $articulo->setPrecio($m->precio);
             $articulo->setSubtotal($m->precio);
+             $articulo->setTipo_producto(TipoProducto::membresia);
             $articulo->setTipo(0);
             $this->total_pagar = $this->total_pagar + $articulo->getPrecio();
             $articulo->setImagen($m->imagen);
             array_push($articulos, $articulo);
         }
-        foreach ($membresias as $key=> $m) {            
+        foreach ($membresias as $key => $m) {
             $articulo = new Articulo();
             $articulo->setNombre($m->nombre);
             $articulo->setDescripcion($m->descripcion);
@@ -275,27 +346,51 @@ class ClienteController extends Controller {
             $articulo->setSubtotal($m->subtotal);
             $articulo->setCantidad($m->cantidad);
             $articulo->setImagen($m->imagen);
+             $articulo->setTipo_producto(TipoProducto::membresia);
             $articulo->setTipo($m->tipo_id);
             $this->total_pagar = $this->total_pagar + $articulo->getSubtotal();
-            $retu=$this->verificarArticulo($articulos, $m);        
-            if(!$retu){
-                            array_push($articulos, $articulo);            
-                 }
+            $retu = $this->verificarArticulo($articulos, $m);
+            if (!$retu) {
+                array_push($articulos, $articulo);
+            }
         }
-   
-        session()->put('portal.main.gym.cliente.total_pagar',$this->total_pagar);
+        session()->put('portal.main.gym.cliente.total_pagar', $this->total_pagar);
         return $articulos;
     }
 
-    private function verificarArticulo($articulos, $articulo){       
-        foreach ($articulos as $a){
-            if($a->id==$articulo->id){
+    
+    public function buidCheckoutActividades($actividades) {
+        $articulos = [];
+        foreach ($actividades as $key => $m) {
+            $articulo = new Articulo();
+            $articulo->setNombre($m->nombre);
+            $articulo->setDescripcion($m->descripcion);
+            $articulo->setId($m->id);
+            $articulo->setPrecio($m->precio);
+            $articulo->setSubtotal($m->subtotal);
+            $articulo->setCantidad($m->cantidad);
+            $articulo->setImagen($m->foto);
+            $articulo->setTipo_producto(TipoProducto::deporte);
+            $articulo->setTipo(0);
+            $this->total_pagar = $this->total_pagar + $articulo->getSubtotal();
+            $retu = $this->verificarArticulo($articulos, $m);
+            if (!$retu) {
+                array_push($articulos, $articulo);
+            }
+        }
+        session()->put('portal.main.gym.cliente.total_pagar', $this->total_pagar);
+        return $articulos;
+    }
+    
+    private function verificarArticulo($articulos, $articulo) {
+        foreach ($articulos as $a) {
+            if ($a->id == $articulo->id) {
                 return true;
             }
         }
-   
 
-  return false;                        
+
+        return false;
     }
 
     public function generateReport($membresias, $user, $path) {
@@ -303,7 +398,7 @@ class ClienteController extends Controller {
          * toma en cuenta que para ver los mismos 
          * datos debemos hacer la misma consulta
          * */
-        $directorio = public_path() . '/uploads/facturas';           
+        $directorio = public_path() . '/uploads/facturas';
         $date = new \DateTime();
         if (file_exists($directorio)) {
 
@@ -337,20 +432,20 @@ class ClienteController extends Controller {
 
     public function getUsersAsCliente(Request $request) {
 
-        $clientes = User::where('name', 'like', "%{$request->campo}%")->orWhere('apellido_paterno','like',"%{$request->campo}%"
-        )->orWhere('clave_unica','like', "%{$request->campo}%")->get();        
-        $uc=false;
-     if(!count($clientes)>0){
-                $clientes = UsuarioCliente::where('codigo_cliente', 'like',"%{$request->campo}%")->get(); 
-     $uc=true;
-     }
+        $clientes = User::where('name', 'like', "%{$request->campo}%")->orWhere('apellido_paterno', 'like', "%{$request->campo}%"
+                )->orWhere('clave_unica', 'like', "%{$request->campo}%")->get();
+        $uc = false;
+        if (!count($clientes) > 0) {
+            $clientes = UsuarioCliente::where('codigo_cliente', 'like', "%{$request->campo}%")->get();
+            $uc = true;
+        }
         $output = '<ul class="dropdown-menu" style="display:block; position:relative">';
         if (count($clientes) > 0) {
             foreach ($clientes as $row) {
-                if($uc){
-                $output .= '</li><li data-key='.$row->usuario->id.'><a href="#">' . $row->usuario->name. ' ' . $row->usuario->apellido_paterno . '</a></li>';                    
-                }else{
-                $output .= '</li><li data-key='.$row->id.'><a href="#">' . $row->name . ' ' . $row->apellido_paterno . '</a></li>';                    
+                if ($uc) {
+                    $output .= '</li><li data-key=' . $row->usuario->id . '><a href="#">' . $row->usuario->name . ' ' . $row->usuario->apellido_paterno . '</a></li>';
+                } else {
+                    $output .= '</li><li data-key=' . $row->id . '><a href="#">' . $row->name . ' ' . $row->apellido_paterno . '</a></li>';
                 }
             }
             $output .= '</ul>';
@@ -367,7 +462,7 @@ class ClienteController extends Controller {
     public function addClienteGet() {
         session()->forget('portal.main.gym.cliente.id');
         session()->forget('portal.main.gym.cliente.tipo_venta');
-        $cliente = session()->get('portal.main.gym.cliente');            
+        $cliente = session()->get('portal.main.gym.cliente');
         $paises = Pais::where('activo', '=', 1)->get();
         $list_membresias = $this->listMembresias();
         $view = View::make('admin::gym.cliente.addCliente'
@@ -379,23 +474,39 @@ class ClienteController extends Controller {
         $this->layoutData['content'] = $view->render();
     }
 
-    public function getCarrito() {
+    public function getCarrito($tipo_servicio=null) {
         $membresias_view = "";
-
-        if (session()->has('portal.main.gym.cliente.membresias')) {
-            foreach (session()->get('portal.main.gym.cliente.membresias') as $membresia) {
-                $view = View::make('admin::gym.ventas.add_membresia', array("membresia" => $membresia));
+        if($tipo_servicio==2){
+        if (session()->has('portal.main.gym.cliente.actividades')) {
+            foreach (session()->get('portal.main.gym.cliente.actividades') as $membresia) {
+                $view = View::make('admin::gym.ventas.add_membresia', array("actividad" => $membresia,
+                        "tipo_servicio"=>$tipo_servicio
+                        ));
 
                 $membresias_view .= $view;
             }
         }
         $venta_aside = View::make('admin::gym.ventas.venta_aside', array("membresias" => $membresias_view))->render();
+            
+        }else{
+        if (session()->has('portal.main.gym.cliente.membresias')) {
+            foreach (session()->get('portal.main.gym.cliente.membresias') as $membresia) {
+                $view = View::make('admin::gym.ventas.add_membresia', array("membresia" => $membresia,
+                        "tipo_servicio"=>$tipo_servicio
+                        ));
+
+                $membresias_view .= $view;
+            }
+        }
+        $venta_aside = View::make('admin::gym.ventas.venta_aside', array("membresias" => $membresias_view))->render();
+            
+        }    
 
         return $venta_aside;
     }
 
     public function getClienteUsuario(Request $request) {
-        $users = User::where('nombre', 'like',"%{$request->nombre}%" )->get();
+        $users = User::where('nombre', 'like', "%{$request->nombre}%")->get();
         if (count($users) > 0) {
             return $users;
         } else {
@@ -404,7 +515,7 @@ class ClienteController extends Controller {
     }
 
     public function saveCliente(Request $request) {
-        
+
         if (!User::where('clave_unica', '=', $request->clave_unica)->count() > 0) {
             if (!session()->has('portal.main.gym.cliente')) {
                 $v = Validator::make($request->all(), array(
@@ -424,53 +535,50 @@ class ClienteController extends Controller {
 
                 if ($v->passes()) {
                     $cliente = $this->confirmarGuardado($request);
-                        if ($request->has('only_client')){
+                    if ($request->has('only_client')) {
                         return redirect()->route('admin.client.list_clientes');
-                        }else{                        
-                    session()->put('portal.main.gym.cliente', $request->all());
-                    session()->put('portal.main.gym.cliente.id', $cliente->id);
-                    }                                   
+                    } else {
+                        session()->put('portal.main.gym.cliente', $request->all());
+                        session()->put('portal.main.gym.cliente.id', $cliente->id);
+                    }
                     $result = array(
                         "status" => true,
                         "code" => 200,
                         'data' => session()->get('portal.main.gym.cliente')
-                    );                    
-                } else {
-                      if ($request->has('only_client')){
-                        return redirect()->route('admin.client.list_clientes');
-                      }else{
-                           $result = array(
-                        "status" => false,
-                        "code" => 500,
-                        'data' => $v->messages()
                     );
-                      }
-                   
+                } else {
+                    if ($request->has('only_client')) {
+                        return redirect()->route('admin.client.list_clientes');
+                    } else {
+                        $result = array(
+                            "status" => false,
+                            "code" => 500,
+                            'data' => $v->messages()
+                        );
+                    }
                 }
                 return $result;
             } else {
-                  if ($request->has('only_client')){
-                        return redirect()->route('admin.client.list_clientes');                        
-              }else{                                
-                $result = array(
-                    "status" => false,
-                    "code" => 300,
-                    'data' => "Hay un cliente en proceso de inscripción"
-                );
-              }
-              
+                if ($request->has('only_client')) {
+                    return redirect()->route('admin.client.list_clientes');
+                } else {
+                    $result = array(
+                        "status" => false,
+                        "code" => 300,
+                        'data' => "Hay un cliente en proceso de inscripción"
+                    );
+                }
             }
         } else {
-              if ($request->has('only_client')){
-                        return redirect()->route('admin.client.list_clientes');                        
-              }else{
-            $result = array(
-                  "status" => true,
-                   "code" => 200,
-                  'data' => session()->get('portal.main.gym.cliente')
-            );                  
-              }
-
+            if ($request->has('only_client')) {
+                return redirect()->route('admin.client.list_clientes');
+            } else {
+                $result = array(
+                    "status" => true,
+                    "code" => 200,
+                    'data' => session()->get('portal.main.gym.cliente')
+                );
+            }
         }
 
 
@@ -479,33 +587,43 @@ class ClienteController extends Controller {
 
     public function finalizarCompra(Request $request) {
 //        $date = new \DateTime(); 
-        $tipo_venta=$request->tipo_venta;
-        
+        $tipo_venta = $request->tipo_venta;        
         $date = Carbon::now();
         try {
             $diferencia = 0;
             DB::beginTransaction();
-            $membresias = $this->buidCheckout(session()->get('portal.main.gym.cliente.membresias'), $tipo_venta);
+         
+        if($request->tipo_producto==1){
+            $articulos = $this->buidCheckoutActividades(session()->get('portal.main.gym.cliente.actividades'));            
+        }else{
+            $articulos = $this->buidCheckout(session()->get('portal.main.gym.cliente.membresias'), $tipo_venta);            
+        }
             $user = UsuarioCliente::find(session()->get('portal.main.gym.cliente.id'));
             $actual = $date->format('Y-m-d');
             $venta = new Venta();
             $venta->fecha = $actual;
             $venta->id_cliente = session()->get('portal.main.gym.cliente.id');
-            $venta->nombre_cliente=session()->get('portal.main.gym.cliente.name').' '.session()->get('portal.main.gym.cliente.apellido_paterno');
+            $venta->nombre_cliente = session()->get('portal.main.gym.cliente.name') . ' ' . session()->get('portal.main.gym.cliente.apellido_paterno');
             $venta->id_empleado = Auth::user()->id;
             $venta->tipo_pago = $request->tipo_pago;
             $venta->total = session()->get('portal.main.gym.cliente.total_pagar');
             $venta->estatus = "terminado";
+            $venta->concepto = $request->concepto;
+            $venta->codigo_factura = 89892;
             $venta->diferencia = $diferencia;
             $venta->descuento_id = 2;
             $venta->save();
-
+   
+         
             if ($request->tipo_pago == 'efectivo') {
                 if (session()->get('portal.main.gym.cliente.total_pagar') >= $request->dinero_cliente) {
                     $diferencia = $request->pago_cliente - $venta->total;
                 }
             }
-            foreach ($membresias as $m) {
+            
+            
+            
+            foreach ($articulos as $m) {
                 $user->membresias()->attach($m->id);
                 $cm = new ClienteMembresia;
                 $cm->cliente_id = $user->id;
@@ -518,6 +636,7 @@ class ClienteController extends Controller {
                 $cm->save();
                 $detalle = new DetalleVenta();
                 $detalle->venta_id = $venta->id;
+                $detalle->tipo_producto_id=$m->tipo_producto;
                 $detalle->producto_id = $m->id;
                 $detalle->producto = $m->nombre;
                 $detalle->cantidad = $m->cantidad;
@@ -525,14 +644,14 @@ class ClienteController extends Controller {
                 $venta->detalleVenta()->save($detalle);
             }
 
-            $ruta = $this->generateReport($membresias, $user->usuario, $request->getSchemeAndHttpHost());
+            $ruta = $this->generateReport($articulos, $user->usuario, $request->getSchemeAndHttpHost());
 
             $venta->factura = $ruta['archivo'];
             $venta->save();
 
-            if ($this->sendEmailReminder($membresias, $user->usuario, "Inscripcion a gym", $ruta['archivoEmail'])) {
+            if ($this->sendEmailReminder($articulos, $user->usuario, "Inscripcion a gym", $ruta['archivoEmail'])) {
                 session()->forget('portal.main.gym.cliente.id');
-                session()->forget('portal.main.gym.cliente.tipo_venta');           
+                session()->forget('portal.main.gym.cliente.tipo_venta');
                 session()->forget('portal.main.gym.cliente');
             }
             DB::commit();
@@ -542,7 +661,7 @@ class ClienteController extends Controller {
                 'code' => 200,
                 'total' => $venta->total,
                 'diferencia' => $diferencia,
-                'tipo_venta'=>$tipo_venta
+                'tipo_venta' => $tipo_venta
             );
         } catch (Exception $ex) {
             DB::rollback();
@@ -648,31 +767,30 @@ class ClienteController extends Controller {
         }
     }
 
-        public function eraseCliente($id){
-    
-        $usr=User::find($id);
-        if($usr!=null){
-        $cliente= UsuarioCliente::where('id_usuario','=',$usr->id)->first();
-        $cliente->membresias()->detach();
-        $cliente->delete();
-        $usr->delete();    
-        }else {
-        $cliente= UsuarioCliente::where('id_usuario','=',$id)->first();
-        $cliente->membresias()->delete();
-        $cliente->delete();
-            
+    public function eraseCliente($id) {
+
+        $usr = User::find($id);
+        if ($usr != null) {
+            $cliente = UsuarioCliente::where('id_usuario', '=', $usr->id)->first();
+            $cliente->membresias()->detach();
+            $cliente->delete();
+            $usr->delete();
+        } else {
+            $cliente = UsuarioCliente::where('id_usuario', '=', $id)->first();
+            $cliente->membresias()->delete();
+            $cliente->delete();
         }
-        
-        return \redirect()->route('admin.client.list_clientes')->with(['resultSaved' => 
-                            array('success' => true, 'type_alert' =>'success',
-                                'message_alert' => 'Eliminado correctamente')]);
-        
+
+        return \redirect()->route('admin.client.list_clientes')->with(['resultSaved' =>
+                    array('success' => true, 'type_alert' => 'success',
+                        'message_alert' => 'Eliminado correctamente')]);
     }
-        public function getAddCliente() {
-    $paises = Pais::where('activo', '=', 1)->get();
+
+    public function getAddCliente() {
+        $paises = Pais::where('activo', '=', 1)->get();
         $view = View::make('admin::gym.cliente.addOnlyClient', array(
-                        'cliente'=>null,
-                    'paises'=>$paises,
+                    'cliente' => null,
+                    'paises' => $paises,
                     'can_add' => Auth::action('brand.add'),
                     'can_delete' => Auth::action('bread.activeBrand'),
                     'can_edit' => Auth::action('brand.editBrand'),
@@ -681,4 +799,5 @@ class ClienteController extends Controller {
 
         $this->layoutData['content'] = $view->render();
     }
+
 }

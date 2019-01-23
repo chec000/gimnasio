@@ -430,11 +430,13 @@ Route::group(['middleware' => ['web','admin.auth', 'admin.langLocale'], 'prefix'
     # DISTRIBUTORS POOL ROUTES END GYM
     //REPORTES
 Route::get('reports/reporte-ventas', 'Gym\VentaController@reporteVenta')->name('shopping-report.reporte');
+Route::post('filter/ventas', 'Gym\VentaController@filterVentas')->name('filter.ventas');
+
 Route::post('reports/reporte-clientes', 'Gym\ReportController@reportClientes')->name('shopping-report.reporte.clientes');
 //Route::get('/admin/venta/reportes/index', 'gym\ReportController@index')->name('report.index');
 Route::get('reports', 'Gym\ReportController@index')->name('shopping-report.index');
 Route::post('reports/general', 'Gym\ReportController@reporteGeneral')->name('shopping-report.reporte-general');
-       
+
 Route::get('clientes/addonly', 'Gym\ClienteController@getAddCliente')->name('cliente.add_only_cliente');
 Route::get('clientes/addCliente', 'Gym\ClienteController@addClienteGet')->name('client.add_cliente');
 Route::post('clientes/add', 'Gym\ClienteController@saveCliente')->name('client.save_cliente');
@@ -525,7 +527,8 @@ Route::get('venta/detalle/{idVenta}', 'gym\VentaController@detalleVentaFactura')
 Route::post('venta/addPago', 'gym\VentaController@updateMembresiaClienteVenta')->name('admin.venta.addPago');
 
 Route::get('venta/cliente/membresia/{id}', 'gym\VentaController@shoppMembresia')->name('admin.venta.addMembresia');
-Route::get('venta/cliente/checkout', 'gym\VentaController@checkoutVentaMembresia')->name('admin.venta.cliente_checkout_membresia');
+Route::get('venta/cliente/checkout-membresia', 'gym\VentaController@checkoutVentaMembresia')->name('admin.venta.cliente_checkout_membresia');
+Route::get('venta/cliente/checkout-actividad', 'gym\VentaController@checkoutVentaActividad')->name('admin.venta.cliente_checkout_actividad');
 Route::get('venta/cliente/actividad/{id}', 'gym\VentaController@shoppActividad')->name('admin.venta.addActividad');
 Route::get('deporte/add', 'gym\DeporteController@addDeporte')->name('admin.Deporte.addDeporte');
 Route::post('deporte/add', 'gym\DeporteController@saveDeporte')->name('admin.Deporte.save_deporte');

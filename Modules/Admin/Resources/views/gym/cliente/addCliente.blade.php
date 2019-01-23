@@ -46,7 +46,7 @@
                                     <input type="hidden" name="tipo_inscripcion" value="1">
                                     <input type="hidden" name="lat" value="0">
                                     <input type="hidden" name="lon" value="0">
-
+                                    <input type="hidden" name="concepto" id="concepto" value="Inscripcion y compra membresia" >
                                     <div class="row">
                                         <div class="form-group col-md-6">
                                             <label for="name" class="col-md-4 col-form-label text-md-right">{{ __('Nombre') }}</label>                          
@@ -287,6 +287,7 @@
                     }
 
                     function  realizarPago(tipo) {
+                        var concepto=$("#concepto").val();
                         var tipo_transaccion=1;
                         $('.loader').addClass("show");
                         if (tipo_pago === "efectivo") {
@@ -297,17 +298,17 @@
 
                         if (tipo_pago === "efectivo") {
                             if (pago_cliente > 0) {
-                                finalizarCheckout(tipo_pago, pago_cliente,tipo_transaccion);
+                                finalizarCheckout(tipo_pago, pago_cliente,tipo_transaccion,concepto);
                             }
                         } else {
-                            finalizarCheckout(tipo_pago, pago_cliente,tipo_transaccion);
+                            finalizarCheckout(tipo_pago, pago_cliente,tipo_transaccion,concepto);
                         }
                     }
 
-                    function finalizarCheckout(tipo_pago, pago_cliente,transaccion) {
+                    function finalizarCheckout(tipo_pago, pago_cliente,transaccion,concepto) {
                         $.ajax({
                             url: route('admin.Cliente.finalizar_compra'),
-                            data: {tipo_pago: tipo_pago, pago_cliente: pago_cliente,tipo_venta:transaccion},
+                            data: {tipo_pago: tipo_pago, pago_cliente: pago_cliente,tipo_venta:transaccion,concepto:concepto},
                             type: 'POST',
                             dataType: 'json',
                             success: function (data) {

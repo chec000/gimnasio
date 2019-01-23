@@ -74,8 +74,15 @@
 </div>
 {!!$modal!!}
 
+<input type="hidden" name="tipo_producto" id="tipo_producto" value="{{$tipo_producto}}">
+@if($tipo_producto==1)
+<input type="hidden" name="concepto" id="concepto" value="Compra actividad">
+
+@else
+<input type="hidden" name="concepto" id="concepto" value="Compra membresia">
+@endif
+
 @if(isset($script))
 <script src="{{ URL::to(config('admin.config.public')).'/app/js/ventas.js' }}"></script>
-
 @endif
 

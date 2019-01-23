@@ -1,4 +1,6 @@
-    function addMembresia(id_membresia, tipo) {
+   var tipo_pago = "";
+                    
+function addMembresia(id_membresia, tipo) {
     $.ajax({
     url: route('admin.Cliente.add_less_membresia'),
             type: 'POST',
@@ -17,8 +19,9 @@
                         $("#primary").modal('show');
                     }
                     
-              function  realizarPago(tipo) {
-                 alert(76);
+         function  realizarPago(tipo) {
+                        var concepto=$("#concepto").val();
+                        var tipo_transaccion=2;
                         $('.loader').addClass("show");
                         if (tipo_pago === "efectivo") {
                             var pago_cliente = $("#pago_cliente").val();
@@ -28,14 +31,15 @@
 
                         if (tipo_pago === "efectivo") {
                             if (pago_cliente > 0) {
-                                finalizarCheckout(tipo_pago, pago_cliente);
+                                finalizarCheckout(tipo_pago, pago_cliente,tipo_transaccion,concepto);
                             }
                         } else {
-                            finalizarCheckout(tipo_pago, pago_cliente);
+                            finalizarCheckout(tipo_pago, pago_cliente,tipo_transaccion,concepto);
                         }
                     }
-                        var tipo_pago = "";
-                    function tipoPago(tipo, element) {
+                     
+    
+    function tipoPago(tipo, element) {
                         tipo_pago = tipo;
                         var tarjetas = $('.searchable-container').find('label');
                         if (element.id === "pago_efectivo") {
@@ -51,10 +55,11 @@
                     }
                     
                     
-                          function finalizarCheckout(tipo_pago, pago_cliente) {
-                        $.ajax({
+               function finalizarCheckout(tipo_pago, pago_cliente,transaccion,concepto){
+                   var tipo_producto=$("#tipo_producto").val();       
+                   $.ajax({
                             url: route('admin.Cliente.finalizar_compra'),
-                            data: {tipo_pago: tipo_pago, pago_cliente: pago_cliente},
+                            data: {tipo_producto:tipo_producto,tipo_pago: tipo_pago, pago_cliente: pago_cliente,tipo_venta:transaccion,concepto:concepto},                 
                             type: 'POST',
                             dataType: 'json',
                             success: function (data) {
@@ -70,9 +75,6 @@
                                     $("#mensaje_final").append("<span class='label label-success'>" + data.data + "</span>");
                                     mensajes.append("  <h1>" + data.data + "</h1>");
                                 }else{
-                                                        var $active = $('.wizard .nav-tabs li.active');
-                                $active.next().removeClass('disabled');
-                                nextTab($active);
                              
                                 if (data.code == 200) {
                                     mensajes.css('display', 'block');
@@ -99,7 +101,9 @@
                         });
                     }
                     
+                    function scrollTop() {
+                        $('html, body').animate({scrollTop: 0}, 800);
+                    }
                     function reload(){
                     location.reload();
                     }
-                    

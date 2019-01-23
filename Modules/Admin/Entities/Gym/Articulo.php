@@ -21,8 +21,8 @@ class Articulo {
     public $descripcion;
     public $cantidad;
     public $subtotal;
-    public $duracion_meses;
-    function getDuracion_meses() {
+    public $duracion_meses;       
+            function getDuracion_meses() {
         return $this->duracion_meses;
     }
 
@@ -94,6 +94,12 @@ class Articulo {
     function setSubtotal($subtotal) {
         $this->subtotal = $subtotal;
     }
+    function getTipo_producto() {
+        return $this->tipo_producto;
+    }
 
+    function setTipo_producto($tipo_producto) {
+        $this->tipo_producto = $tipo_producto;
+    }
 
 }

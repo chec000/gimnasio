@@ -60,10 +60,13 @@
                          {!! Form::open(array('route' => 'admin.shopping-report.reporte-general')) !!}
                          
                          <select class="form-control" id="select_dates_ventas" name="ventas">
-                             <option value="" selected="selected">Selecciona una opción</option>
+                             <option value="" selected="selected">Selecciona una opción</option>                             
                              <option value="0">Mensual</option>
                              <option value="1">Filtrado</option>
                               <option value="2">Anual</option>
+                              <option value="3">Venta efectivo</option>
+                              <option value="4">Venta tarjeta</option>
+
                          </select>
                          <br>
                          <div class="row" id="dates_reports" style="display: none">
@@ -156,7 +159,7 @@
     
 $("#select_dates_ventas").change(function() {
     var value=$(this).val();
-    if(value==="1"){
+    if(value==="1"||value==="3"||value==="4"){
                   $("#dates_reports").show();
     }else{
                   $("#dates_reports").hide();
@@ -169,7 +172,6 @@ $("#select_dates_ventas").change(function() {
             type: 'POST',
             data: {tipo_reporte: tipo_reporte},
             success: function (data) {
-        console.log(data);
         
             },
       error: function(data) { 

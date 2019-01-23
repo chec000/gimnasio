@@ -14,7 +14,7 @@ class DetalleVenta extends Eloquent
      * @var array
      */
     protected $fillable = [
-        'venta_id', 'product_id', 'producto','cantidad','subtotal'
+        'venta_id', 'product_id','tipo_producto_id', 'producto','cantidad','subtotal'
     ];
  public $timestamps = false;
     /**
