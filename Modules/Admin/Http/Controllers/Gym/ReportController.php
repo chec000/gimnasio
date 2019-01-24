@@ -197,7 +197,7 @@ class ReportController extends Controller {
 
             $hoja->fromArray($listVentas['ventas'], NULL, 'A3');
 
-            $nombreDelDocumento = "Ventas" . ".xlsx";
+            $nombreDelDocumento = "Ventas-" .$date->toDateString().".xlsx";
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             header('Content-Disposition: attachment;filename="' . $nombreDelDocumento . '"');
             header('Cache-Control: max-age=0');
