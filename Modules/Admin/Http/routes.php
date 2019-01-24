@@ -1,7 +1,7 @@
 <?php
 
 /*  === ADMIN ROUTES === */
-Route::group(['middleware' => ['web','admin.auth', 'admin.langLocale'], 'prefix' => 'support', 'as'=> 'admin.', 'namespace' => 'Modules\Admin\Http\Controllers'], function()
+Route::group(['middleware' => ['web','admin.auth', 'admin.langLocale'], 'prefix' => 'admin', 'as'=> 'admin.', 'namespace' => 'Modules\Admin\Http\Controllers'], function()
 {
     /*  === GENERAL ROUTES === */
 
@@ -472,7 +472,7 @@ Route::post('membresia/membresia/view', 'Gym\ClienteController@listMembresias')-
 });
 
 /*  === ADMIN-GUEST ROUTES === */
-Route::group(['middleware' => ['web','admin.guest'], 'prefix' => 'support','as'=> 'admin.', 'namespace' => 'Modules\Admin\Http\Controllers'], function()
+Route::group(['middleware' => ['web','admin.guest'], 'prefix' => 'admin','as'=> 'admin.', 'namespace' => 'Modules\Admin\Http\Controllers'], function()
 {
     Route::any('login', ['uses' => 'AuthController@login', 'as' => 'login']);
     Route::any('forgotten-password', ['uses' => 'AccountController@forgottenPassword', 'as' => 'login.password.forgotten']);
