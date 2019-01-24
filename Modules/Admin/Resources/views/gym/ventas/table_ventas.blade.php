@@ -21,7 +21,7 @@
             </td>
             <td>{{$v->seller->name}}</td>
             <td>{{$v->concepto}}</td>                         
-            <td>{{$v->created_at}}</td>                         
+             <td>{{$v->fecha}}</td>   
             <td>{{$v->tipo_pago}}</td>
             <td>${{$v->total}}</td>
             <td>                                                     
