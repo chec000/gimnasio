@@ -47,10 +47,10 @@ class VentaController extends Controller {
                 default:
                     $ventas = Venta::orderBy('tipo_pago', 'ASC')->get();
             }    
-    
-return [
+     $view = View::make('admin::gym.ventas.table_ventas', array('ventas' => $ventas))->render();    
+    return [    
     'code'=>200,
-    'ventas'=>$ventas
+    'ventas'=>$view
 ];
 }
 

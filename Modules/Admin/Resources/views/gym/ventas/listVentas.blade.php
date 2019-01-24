@@ -13,37 +13,37 @@
                 <label for="sel1">Filtrar por:</label>
                 <select class="form-control" id="select_dates_ventas" name="select_dates_ventas">
                     <option selected="selected">Selecciona una opción</option>
-                        <option value="0">Mensual</option>
-                         <option value="1">Filtrado</option>
-                         <option value="2">Anual</option>
-                         <option value="3">Venta efectivo</option>
-                         <option value="4">Venta tarjeta</option>
-                         <option value="5">Ventas membresia</option>
-                         <option value="6">Ventas actividad</option>                                   
-                         
+                    <option value="0">Mensual</option>
+                    <option value="1">Filtrado</option>
+                    <option value="2">Anual</option>
+                    <option value="3">Venta efectivo</option>
+                    <option value="4">Venta tarjeta</option>
                 </select>
             </div>
-            
-           <div class="row" id="date_clientes"  style="display: none">
-                             <div class="col-md-6">
-                                  <div class="form-group">
-                            <label for="exampleInputEmail1">Fecha inicial</label>
-                              <input type="date" name="date_start_client" class="form-control"  required="required">
-                          </div>
-                                  
-                             </div>
-                             <div class="col-md-6">
-                                 <div class="form-group">
-                                      <label for="exampleInputEmail1">Fecha final</label>
-                                      <input type="date" name="date_end_client" class="form-control" required="required"> 
-                                 </div>
-                             </div>
-                         </div>
-            
+
+            <div class="row" id="date_clientes"  style="display: none">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Fecha inicial</label>
+                        <input type="date" name="date_start_client" id="date_start_client" class="form-control"  required="required">
+                    </div>
+
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Fecha final</label>
+                        <input type="date" name="date_end_client" id="date_end_client" class="form-control" required="required"> 
+                    </div>
+                </div>
+                <div>
+                    <button onclick="ventas()" class="btn btn-success text-center">Consultar</button>
+                </div>
+            </div>
+
         </div>
 
     </div>
-    
+
     <br>
 
     <div class="row">
@@ -58,7 +58,7 @@
                         </span>
                     </div>
                 </div>
-                <div class="panel-body">
+                <div class="panel-body" id="panel_ventas">
                     <table class="table table-hover" id="tbl_table">
                         <thead>
                             <tr>
@@ -108,42 +108,59 @@
 <script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
 <script>
 
-$('#tbl_table').DataTable({
-    "responsive": true,
-    "ordering": true,
-    "language": {
-        "url": "{{ trans('admin::datatables.lang') }}"
-    }
-});
+                       $('#tbl_table').DataTable({
+                           "responsive": true,
+                           "ordering": true,
+                           "language": {
+                               "url": "{{ trans('admin::datatables.lang') }}"
+                           }
+                       });
 
-$("#select_dates_ventas").change(function() {
-    var value=$(this).val();
-    if(value==="1"||value==="3"||value==="4"){
-                  $("#dates_reports").show();
-    }else{
-                  $("#dates_reports").hide();
-                  $('.loader').addClass("show");
-                  getVentas(value);
-    }
-});
-    function getVentas(tipo_reporte) {         
-    $.ajax({
-            url: route('admin.filter.ventas'),
-            type: 'POST',
-            data: {filtro: tipo_reporte},
-            success: function (data) {
-                if(data.code===200){
-                    $.each( data.ventas, function( key, value ) {
-                                console.log( key + ": " + value.usuario.name );
-                });
-                }
-        $('.loader').removeClass("show");
-    },
-      error: function(data) { 
-        console.log(data);
-        $('.loader').removeClass("show");
-    }
+                       $("#select_dates_ventas").change(function () {
+                           var value = $(this).val();
+                           if (value === "1" || value === "3" || value === "4") {
+                               $("#date_clientes").show();
+                           } else {
+                               $("#date_clientes").hide();
+                               $('.loader').addClass("show");
+                               getVentas(value);
+                           }
+                       });
+                       function ventas() {
+                           var tipo_reporte = $("#select_dates_ventas").val();
+                           var inicio = $("#date_start_client").val();
+                           var fin = $("#date_end_client").val();
+                           if (inicio !== "" && fin !== "") {
+                               $('.loader').addClass("show");
+                               getVentas(tipo_reporte, inicio, fin);
+                           }
+                       }
 
-    });
-    }
+                       function getVentas(tipo_reporte, fecha_inicio = null, fecha_fin = null) {
+                           $.ajax({
+                               url: route('admin.filter.ventas'),
+                               type: 'POST',
+                               data: {filtro: tipo_reporte, date_start: fecha_inicio, date_end: fecha_fin},
+                               success: function (data) {
+                                   if (data.code === 200) {
+                                       $('#panel_ventas').empty();
+                                       $("#panel_ventas").append(data.ventas);
+                                   }
+                                   $('#tbl_table').DataTable({
+                                       "responsive": true,
+                                       "ordering": true,
+                                       "language": {
+                                           "url": "{{ trans('admin::datatables.lang') }}"
+                                       }
+                                   });
+
+                                   $('.loader').removeClass("show");
+                               },
+                               error: function (data) {
+                                   console.log(data);
+                                   $('.loader').removeClass("show");
+                               }
+
+                           });
+                       }
 </script>   
