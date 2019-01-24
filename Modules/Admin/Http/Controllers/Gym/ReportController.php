@@ -130,7 +130,7 @@ class ReportController extends Controller {
     }
 
     public function reporteGeneral(Request $request) {       
-        $date = Carbon::now();
+        $date = Carbon::now();       
         if ($request->has('ventas')) {
             switch ($request->ventas) {
                 case 0:
@@ -173,8 +173,7 @@ class ReportController extends Controller {
                     ->setFormatCode(NumberFormat::FORMAT_CURRENCY_USD);
             $hoja = $documento->getActiveSheet();
             $hoja->setTitle("Usuarios");
-            $hoja->setCellValue('B1', "REPORTE  DÍA: ");
-
+            $hoja->setCellValue('B1', "REPORTE  DÍA: ".$date->toDateString());
             $hoja->setCellValue('A2', "ID");
             $hoja->setCellValue('B2', "CLIENTE");
             $hoja->setCellValue("C2", "USUARIO");
@@ -241,9 +240,7 @@ class ReportController extends Controller {
         if (count($data) > 0) {
             $id = 0;
             foreach ($data as $result) {
-
                 if ($result->cliente != null && $result->seller != null) {
-
                     $id = $id + 1;
                     $newRow['id'] = $result->cliente->codigo_cliente;
                     $newRow['cliente'] = strtoupper($result->usuario->name . ' ' . '' . $result->usuario->apellido_paterno);
@@ -251,7 +248,7 @@ class ReportController extends Controller {
                     $newRow['tiket'] = $result->codigo_factura;
                     $newRow['Concepto'] = strtoupper($result->concepto);
                     $newRow['monto'] = $result->total;
-                    $newRow['fecha'] = 'fecha creacion';
+                        $newRow['fecha'] = $result->fecha_inscripcion;
                     $newRow['vendedor'] = strtoupper($result->seller->name);
                     $newRow['tipo_pgo'] = strtoupper($result->tipo_pago);
 
