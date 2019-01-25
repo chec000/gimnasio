@@ -5,8 +5,9 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <meta name="format-detection" content="telephone=no">
+        <meta name="format-detection" content="telephone=yes">
         <link rel="icon" href="{{ asset(isset($brand['favicon']) ? $brand['favicon'] : '/favicon.ico') }}" type="image/x-icon">
+       
         <title> @lang('cms::country.title_'.config('cms.brand_css.'.session()->get('portal.main.brand.id')))</title>
         <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Barlow+Semi+Condensed:400,500,600" rel="stylesheet">
