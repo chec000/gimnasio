@@ -1,8 +1,6 @@
 <?php namespace Modules\Admin\Http\Controllers;
 
-use Auth;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\App;
+use Auth;;
 use Modules\CMS\Libraries\Builder\FormMessage;
 use Modules\Admin\Http\Controllers\AdminController as Controller;
 use Modules\Admin\Entities\Language;
@@ -28,12 +26,13 @@ class AccountController extends Controller
 
     public function changePassword($code = null)
     {
-        $user = $this->_change_password_checks($code);
+        $user = $this->_change_password_checks($code);             
         if (!empty($user)) {
             $view_data = array(
                 'user' => $user,
                 'level' => 'guest',
-                'form' => View::make('admin::acl.users.forms.password', array('current_password' => false))
+                'form' => View::make('admin::acl.users.forms.password', array('current_password' => false,
+                    'can_change_pass'=>true))
             );
             if (!empty($_POST)) {
                 if ($user->change_password($code)) {

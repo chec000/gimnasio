@@ -19,46 +19,7 @@
             </div>
         @endif
 
-        <ul id="cart-list" class="cart-product__list list-nostyle  cart-list">
-            @if (isset($shoppingCart) && sizeof($shoppingCart) > 0)
-                @foreach ($shoppingCart as $item)
-                    <li data-id="{{ $item['id'] }}" class="cart-product__item item-id-{{ $item['id'] }}">
-                        <figure class="cart-product__img"><img src="{{ $item['image'] }}" alt="{{ $item['name'] }}"></figure>
-                        <div class="cart-product__content">
-                            <div class="cart-product__top">
-                                <div class="cart-product__title">{{ $item['name'] }}</div>
-                                <div class="cart-product__code">@lang('cms::cart_aside.code'): {{ $item['sku'] }}</div>
-                                <div class="bin">
-                                    <figure class="icon-bin"><img src="{{ asset('themes/omnilife2018/images/icons/bin.svg') }}" alt="Eliminar"></figure>
-                                </div>
-                            </div>
-                            <div class="cart-product__bottom">
-                                <div class="form-group numeric">
-                                <span class="minus s r">
-                                    <svg height="14" width="14">
-                                        <line x1="0" y1="8" x2="14" y2="8"></line>
-                                    </svg>
-                                </span>
-                                    <input class="form-control" type="numeric" name="qty#{val}" value="{{ $item['quantity'] }}">
-                                    <span class="plus s r">
-                                    <svg height="14" width="14">
-                                        <line x1="0" y1="7" x2="14" y2="7"></line>
-                                        <line x1="7" y1="0" x2="7" y2="14"></line>
-                                    </svg>
-                                </span>
-                                </div>
-                                <div class="cart-product__nums">
-                                    <div class="cart-product__pts">{{ $item['points'] }} @lang('cms::cart_aside.pts')</div>
-                                    <div class="cart-product__price">x {{ currency_format($item['price'], $currency) }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                @endforeach
-            @else
-                <li id="cart-empty" style="text-align: center; margin-top: 50px;" class="cart-empty">@lang('cms::cart_aside.no_items')</li>
-            @endif
-        </ul>
+
 
         <div id="cart-resume" style="{{ $style }}" class="cart-preview__resume list-nostyle js-empty-cart">
             <li id="subtotal" class="subtotal_checkout">@lang('cms::cart_aside.subtotal'): {{ isset($subtotal) ? $subtotal : '$00.00' }}</li>

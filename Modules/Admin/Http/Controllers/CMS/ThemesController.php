@@ -3,8 +3,6 @@
 use Auth;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
-use Modules\Admin\Entities\Brand;
-use Modules\Admin\Entities\Country;
 use Modules\Admin\Entities\Language;
 use Modules\Admin\Http\Controllers\AdminController as Controller;
 use Modules\CMS\Libraries\Builder\AssetBuilder;

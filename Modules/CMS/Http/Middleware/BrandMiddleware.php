@@ -45,8 +45,7 @@ class BrandMiddleware
 
         // if it's home route don't redirect
         $urlStart = url('/start');        
-        // check session country
-        
+    
         if ($url !== $urlStart) {
             $countries = Session::get('portal.main.brand.countries');            
             $brandInCountry = false;

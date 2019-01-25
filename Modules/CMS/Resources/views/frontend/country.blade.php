@@ -11,8 +11,7 @@
         <title> @lang('cms::country.title_'.config('cms.brand_css.'.session()->get('portal.main.brand.id')))</title>
         <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Barlow+Semi+Condensed:400,500,600" rel="stylesheet">
-        <!--<link href="{{ asset('themes/omnilife2018/css/master.css') }}" rel="stylesheet">-->
-        <link href="{{ asset('themes/omnilife2018/css/'.config('cms.brand_css.'.session()->get('portal.main.brand.id')).'.css') }}" rel="stylesheet">
+        <link href="{{ asset('themes/omnilife2018/css/'.config('cms.brand_css.'.session()->get('portal.main.brand.id')).'.css') }}" rel="stylesheet">       
         @php
             $brandName = config('cms.brand_css.'.session()->get('portal.main.brand.id'));
             $brandName = ($brandName == 'master') ? 'omnilife' : $brandName;
@@ -70,6 +69,9 @@
             </li>
                         <li class="nav-item">
               <a class="nav-link js-scroll-trigger" href="#about">Acerca de</a>
+            </li>
+              <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="/">Home</a>
             </li>
                         <li class="nav-item">
               <a class="nav-link js-scroll-trigger" href="{{route('admin.login')}}">Iniciar sesión</a>
@@ -297,8 +299,6 @@
                 <script src="{{asset('cms/inicio/vendor/magnific-popup/jquery.magnific-popup.min.js')}}"></script>
                 <script src="{{asset('cms/inicio/js/creative.min.js')}}"></script>
                 <script src="{{asset('cms/inicio/js/grayscale.min.js')}}"></script>
-
-
         <script type="text/javascript" >
             var APP_URL = {!! json_encode(url('/')) !!};
 

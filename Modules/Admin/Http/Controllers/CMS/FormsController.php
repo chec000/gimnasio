@@ -8,7 +8,6 @@ use Modules\CMS\Entities\Block;
 use Modules\CMS\Entities\FormSubmission;
 use Modules\CMS\Entities\Page;
 use Modules\CMS\Entities\PageLang;
-use Modules\CMS\Entities\Template;
 use Modules\CMS\Entities\ThemeTemplate;
 use View;
 

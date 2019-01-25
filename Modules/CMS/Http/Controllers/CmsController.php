@@ -71,6 +71,7 @@ class CmsController extends Controller {
     public function generatePage() {
         // update scheduled versions
         //return PageBuilder::pageId();
+        dd('hola');
         PageVersionSchedule::checkPageVersionIds();        
         try {
 
