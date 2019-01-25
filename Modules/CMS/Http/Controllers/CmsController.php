@@ -10,6 +10,7 @@ use Modules\CMS\Exceptions\CmsPageException;
 use Modules\CMS\Helpers\File\SecureUpload;
 use Modules\CMS\Helpers\Html\DOMDocument;
 use Modules\CMS\Helpers\Page\PageCache;
+use Modules\CMS\Http\Controllers\StartController;
 use Modules\CMS\Entities\Block;
 use Modules\CMS\Entities\PageRedirect;
 use Modules\CMS\Entities\PageVersionSchedule;
@@ -69,9 +70,8 @@ class CmsController extends Controller {
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function generatePage() {
-        // update scheduled versions
-        //return PageBuilder::pageId();
-        dd('hola');
+        $start= new StartController();
+        $start->saveCountryId(12);
         PageVersionSchedule::checkPageVersionIds();        
         try {
 

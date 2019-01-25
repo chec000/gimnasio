@@ -14,7 +14,6 @@ namespace Modules\CMS\Http\Controllers;
  * @author sergio
  */
 use App\Helpers\RestWrapper;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
 use Modules\Admin\Http\Controllers\AdminController as Controller;
 use Modules\Admin\Entities\Country;
@@ -157,8 +156,9 @@ class StartController extends Controller {
 
     public function saveCountry($lat = "", $lon = "") {
 
-    /*$lat=35.114351;
-    $lon=-106.593404;*/
+//    $lat=35.114351;
+//    $lon=-106.593404;
+//     
 
         try {
             //if (session()->has('portal.main.country_id') != true) {
@@ -203,12 +203,6 @@ class StartController extends Controller {
                         'data' => null
                     );
                 }
-            /*} else {
-                return $response = array(
-                    'code' => 300,
-                    'data' => session()->get('portal.main.country_id'),
-                );
-            }*/
         } catch (Exception $ex) {
             return $response = array(
                 'code' => 500,
