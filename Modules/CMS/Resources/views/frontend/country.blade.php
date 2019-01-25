@@ -10,7 +10,7 @@
         <title> @lang('cms::country.title_'.config('cms.brand_css.'.session()->get('portal.main.brand.id')))</title>
         <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Barlow+Semi+Condensed:400,500,600" rel="stylesheet">
-        <link href="{{ asset('themes/omnilife2018/css/master.css') }}" rel="stylesheet">
+        <!--<link href="{{ asset('themes/omnilife2018/css/master.css') }}" rel="stylesheet">-->
         <link href="{{ asset('themes/omnilife2018/css/'.config('cms.brand_css.'.session()->get('portal.main.brand.id')).'.css') }}" rel="stylesheet">
         @php
             $brandName = config('cms.brand_css.'.session()->get('portal.main.brand.id'));
@@ -36,162 +36,270 @@
         <meta name="twitter:site" content="https://twitter.com/omnilife">
         <meta name="twitter:creator" content="Omnilife">
         <meta name="twitter:image" content="{!! asset('themes/omnilife2018/images/logos/' . $brandName . '.png') !!}">   
-            <script async src="https://www.googletagmanager.com/gtag/js?id={!!config('cms.analytics.'.session()->get('portal.main.brand.id'));!!}"></script>
-<script>
-//  window.dataLayer = window.dataLayer || [];
-//  function gtag(){dataLayer.push(arguments);}
-//  gtag('js', new Date());
-//
-//  gtag('config', '{!!config('cms.analytics.'.session()->get('portal.main.brand.id'))!!}');
-</script>
-
     
+     <!-- Custom fonts for this template -->
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    <!-- Plugin CSS -->
+    <!-- Custom fonts for this template -->
+        <link href="{{asset('cms/inicio/vendor/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet" type="text/css">
+          <link href="{{asset('cms/inicio/vendor/fontawesome-free/css/all.min.css')}}" rel="stylesheet" type="text/css">
+          <link href="{{asset('cms/inicio/vendor/magnific-popup/magnific-popup.css')}}" rel="stylesheet" type="text/css">
+           <link href="{{asset('cms/inicio/css/creative.min.css')}}" rel="stylesheet" type="text/css">
+
     </head>
-    <body>
-        @include('themes.omnilife2018.sections.loader')
-        <div class="overlay"></div>
-        <!--<div class="select-country" style="background: url('{{ asset('themes/omnilife2018/images/country-'.$brandName.'.jpg') }}'); background-size: cover;">-->        
-            <div class="select-country" style="background: url({{asset('themes/omnilife2018/images/header-bg.jpg')}}); background-size: cover;">                                                
-                <img src="{{ asset($brand['logo']) }}" alt="" class="brand-country">
-            <div class="select-countries--start sistem has-dropdown">              
-                <div id="productsCategory" class="select-country--form wrapper">
-                    <h1 class="products-desc__title">
-                        @lang('cms::country.title')<br>
-                        <span style="font-size: .8em">@lang('cms::country.subtitle')</span>
-                    </h1>
-                    <p>
-                        @lang('cms::country.description')<br>
-                        <span>@lang('cms::country.subdescription')</span>
-                    </p>
-                    <div class="tools__form-group">
+      <body id="page-top">
 
-                        <div class="select select--categories start">
-                            <div id="div_countries_select" style="display: inline-block">
-                                <select name="country" id="countries_select" class="validate_go">
-                                    <option value="" selected disabled>@lang('cms::country.country_default'):</option>
-                                    @if(!session()->has('portal.main.booleanChangeCountry')
-                                        && session()->has('portal.main.changeCountryId'))
-                                        @foreach ($countries as $c)
-                                            <option id="country-{{$c->id}}" value="{{$c->id}}"
-                                                {{(session()->has('portal.main.changeCountryId')
-                                                && (session()->get('portal.main.changeCountryId')) == $c->id) ? "selected" : ''}}>
-                                                {!!$c->name!!}
-                                            </option>
-                                        @endforeach
-                                    @else
-                                        @foreach ($countries as $c)
-                                            <option id="country-{{$c->id}}" value="{{$c->id}}"
-                                                {{($country_id !== 0 && $country_id == $c->id) ? "selected" : '' }}>
-                                                {!!$c->name!!}
-                                            </option>
-                                        @endforeach
-                                    @endif
-                                </select>
-                                <div id="" class="error-msg div_answer"></div>
-                            </div>
-                            <div id="div_languages_select" style="display: none">
-                                @if(count($languages)>0)
-                                  <select name="language" id="languages_select" style="display: none" class="validate_go">
-                                    <option value="" selected disabled>@lang('cms::country.language_default'):</option>
-                                    @foreach ($languages as $l)
-                                        <option id="language-{{$l->id}}" value="{{$l->id}}">{{$l->language}}</option>
-                                    @endforeach
-                                </select>
-                                @endif
-                                <div id="" class="error-msg div_answer"></div>
-                            </div>
-
-                            @if (config('settings::frontend.webservices') == 1)
-                            <div id="div_states_select" style="display: none">
-                                <select name="state" id="states_select" style="display: none" class="validate_go">
-                                    <option value="" selected disabled>@lang('cms::country.state_default'):</option>
-                                </select>
-                                <div id="" class="error-msg div_answer"></div>
-                            </div>
-
-                            <div id="div_cities_select" style="display: none">
-                                <select name="city" id="cities_select" style="display: none" class="validate_go">
-                                    <option value="" selected disabled>@lang('cms::country.city_default'):</option>
-                                </select>
-                                <div id=" " class="error-msg div_answer"></div>
-                            </div>
-
-                            <div id="div_postal_code" style="display: none">
-                                <label for="postalcode">
-                                    <input id="postalCode" type="text" placeholder="@lang('cms::country.zip_placeholder')"
-                                        style="display:{!!($active_zip==false)?'none':''!!}" maxlength="8" class="validate_go validate_zip">
-                                </label>
-                                <div id="" class="error-msg div_answer"></div>
-                            </div>
-                            @endif
-
-                            <div style="display: inline-block">
-                                <button type="button" class="button small button-country inline_block" id="btn_go" style="color: white;" >@lang('cms::country.go_button')</button>
-                            </div>
-
-                        </div>
-                    </div>
-                    <div class="error__box theme__transparent" style="display: none">
-                        <span class="error__single">
-                            <img src="{{asset('themes/omnilife2018/images/warning.svg')}}"> @lang('cms::country.title_message_error'):</span>
-                        <ul>
-
-                        </ul>
-                    </div>
-                </div>
-                <div class="countries slider select-country--message" id="products-slider4"></div>
-            </div>
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+      <div class="container">
+        <a class="navbar-brand js-scroll-trigger" href="#page-top">Start Bootstrap</a>
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#services">Services</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#portfolio">Portfolio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#contact">Contact</a>
+            </li>
+                        <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#about">Acerca de</a>
+            </li>
+                        <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="{{route('admin.login')}}">Iniciar sesión</a>
+            </li>
+          </ul>
         </div>
-        {{ Form::open(array('url' => 'saveCountry','id'=>'form_country')) }}
-    {{ Form::close() }}
+      </div>
+    </nav>
 
-        {{ Form::open(array('url' => 'getLanguages','id'=>'form_languages')) }}
-      {{ Form::close() }}
-      {{ Form::open(array('url' => 'language','id'=>'form_save_language')) }}
-      {{ Form::close() }}
+    <header class="masthead text-center text-white d-flex">
+      <div class="container my-auto">
+        <div class="row">
+          <div class="col-lg-10 mx-auto">
+            <h1 class="text-uppercase">
+              <strong>Your Favorite Source of Free Bootstrap Themes</strong>
+            </h1>
+            <hr>
+          </div>
+          <div class="col-lg-8 mx-auto">
+            <p class="text-faded mb-5">Start Bootstrap can help you build better websites using the Bootstrap CSS framework! Just download your template and start going, no strings attached!</p>
+            <a class="btn btn-primary btn-xl js-scroll-trigger" href="#about">Find Out More</a>
+          </div>
+        </div>
+      </div>
+    </header>
 
-        <input id="labelCountryDefault" type="hidden" value="@lang('cms::country.country_default')">
-        <input id="labelLanguageDefault" type="hidden" value="@lang('cms::country.language_default')">
-        <input id="labelStateDefault" type="hidden" value="@lang('cms::country.state_default')">
-        <input id="labelCityDefault" type="hidden" value="@lang('cms::country.city_default')">
-        <input id="labelFieldRequired" type="hidden" value="@lang('cms::country.message_required_field')">
-        <input id="labelZipRequired" type="hidden" value="@lang('cms::country.message_required_zip')">
+    <section class="bg-primary" id="about">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center">
+            <h2 class="section-heading text-white">We've got what you need!</h2>
+            <hr class="light my-4">
+            <p class="text-faded mb-4">Start Bootstrap has everything you need to get your new website up and running in no time! All of the templates and themes on Start Bootstrap are open source, free to download, and easy to use. No strings attached!</p>
+            <a class="btn btn-light btn-xl js-scroll-trigger" href="#services">Get Started!</a>
+          </div>
+        </div>
+      </div>
+    </section>
 
+    <section id="services">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+            <h2 class="section-heading">At Your Service</h2>
+            <hr class="my-4">
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-3 col-md-6 text-center">
+            <div class="service-box mt-5 mx-auto">
+              <i class="fas fa-4x fa-gem text-primary mb-3 sr-icon-1"></i>
+              <h3 class="mb-3">Sturdy Templates</h3>
+              <p class="text-muted mb-0">Our templates are updated regularly so they don't break.</p>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 text-center">
+            <div class="service-box mt-5 mx-auto">
+              <i class="fas fa-4x fa-paper-plane text-primary mb-3 sr-icon-2"></i>
+              <h3 class="mb-3">Ready to Ship</h3>
+              <p class="text-muted mb-0">You can use this theme as is, or you can make changes!</p>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 text-center">
+            <div class="service-box mt-5 mx-auto">
+              <i class="fas fa-4x fa-code text-primary mb-3 sr-icon-3"></i>
+              <h3 class="mb-3">Up to Date</h3>
+              <p class="text-muted mb-0">We update dependencies to keep things fresh.</p>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 text-center">
+            <div class="service-box mt-5 mx-auto">
+              <i class="fas fa-4x fa-heart text-primary mb-3 sr-icon-4"></i>
+              <h3 class="mb-3">Made with Love</h3>
+              <p class="text-muted mb-0">You have to make your websites with love these days!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        <script src="{{ asset('themes/omnilife2018/js/main.js')}}"></script>
+    <section class="p-0" id="portfolio">
+      <div class="container-fluid p-0">
+        <div class="row no-gutters popup-gallery">
+          <div class="col-lg-4 col-sm-6">
+            <a class="portfolio-box" href="img/portfolio/fullsize/1.jpg">
+              <img class="img-fluid" src="img/portfolio/thumbnails/1.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="project-category text-faded">
+                    Category
+                  </div>
+                  <div class="project-name">
+                    Project Name
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-4 col-sm-6">
+            <a class="portfolio-box" href="img/portfolio/fullsize/2.jpg">
+              <img class="img-fluid" src="img/portfolio/thumbnails/2.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="project-category text-faded">
+                    Category
+                  </div>
+                  <div class="project-name">
+                    Project Name
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-4 col-sm-6">
+            <a class="portfolio-box" href="img/portfolio/fullsize/3.jpg">
+              <img class="img-fluid" src="img/portfolio/thumbnails/3.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="project-category text-faded">
+                    Category
+                  </div>
+                  <div class="project-name">
+                    Project Name
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-4 col-sm-6">
+            <a class="portfolio-box" href="img/portfolio/fullsize/4.jpg">
+              <img class="img-fluid" src="img/portfolio/thumbnails/4.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="project-category text-faded">
+                    Category
+                  </div>
+                  <div class="project-name">
+                    Project Name
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-4 col-sm-6">
+            <a class="portfolio-box" href="img/portfolio/fullsize/5.jpg">
+              <img class="img-fluid" src="img/portfolio/thumbnails/5.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="project-category text-faded">
+                    Category
+                  </div>
+                  <div class="project-name">
+                    Project Name
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-4 col-sm-6">
+            <a class="portfolio-box" href="img/portfolio/fullsize/6.jpg">
+              <img class="img-fluid" src="img/portfolio/thumbnails/6.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="project-category text-faded">
+                    Category
+                  </div>
+                  <div class="project-name">
+                    Project Name
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-dark text-white">
+      <div class="container text-center">
+        <h2 class="mb-4">Free Download at Start Bootstrap!</h2>
+        <a class="btn btn-light btn-xl sr-button" href="http://startbootstrap.com/template-overviews/creative/">Download Now!</a>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center">
+            <h2 class="section-heading">Let's Get In Touch!</h2>
+            <hr class="my-4">
+            <p class="mb-5">Ready to start your next project with us? That's great! Give us a call or send us an email and we will get back to you as soon as possible!</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4 ml-auto text-center">
+            <i class="fas fa-phone fa-3x mb-3 sr-contact-1"></i>
+            <p>123-456-6789</p>
+          </div>
+          <div class="col-lg-4 mr-auto text-center">
+            <i class="fas fa-envelope fa-3x mb-3 sr-contact-2"></i>
+            <p>
+              <a href="mailto:your-email@your-domain.com">feedback@startbootstrap.com</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+       
+
+        <!--<script src="{{ asset('themes/omnilife2018/js/main.js')}}"></script>-->
 
 <!--<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEp9fyBXuhBis4OfH7o1HAVZjux8xEx3U&callback=initMap"
     async defer></script>-->
         <script src="{{ PageBuilder::js('jquery.min') }}"></script>
         <script src="{{ PageBuilder::js('bootstrap.min') }}"></script>
         <script src="{{ PageBuilder::js('localizacion')}}"></script>
+        
+                <script src="{{asset('cms/inicio/vendor/jquery/jquery.min.js')}}"></script>
+                <script src="{{asset('cms/inicio/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+                <script src="{{asset('cms/inicio/vendor/jquery-easing/jquery.easing.min.js')}}"></script>
+                <script src="{{asset('cms/inicio/vendor/scrollreveal/scrollreveal.min.js')}}"></script>
+                <script src="{{asset('cms/inicio/vendor/magnific-popup/jquery.magnific-popup.min.js')}}"></script>
+                <script src="{{asset('cms/inicio/js/creative.min.js')}}"></script>
+                <script src="{{asset('cms/inicio/js/grayscale.min.js')}}"></script>
+
+
         <script type="text/javascript" >
             var APP_URL = {!! json_encode(url('/')) !!};
-
-            var changeCountryId = "{{ session()->has('portal.main.changeCountryId') ? '1' : '0' }}";
-            var changeLanguageId = "{{ session()->has('portal.main.changeLanguageId') ? '1' : '0' }}";
-
-            var frontend_webservices = "{!! config('settings::frontend.webservices') !!}";
-            var shopping_active = 0;
-            var changeStartLocale = "{!! session()->get('portal.main.varsChangeLangStart.changeStartLocale') !!}";
-            var countryId = "{!! session()->get('portal.main.varsChangeLangStart.newCountry') !!}";
-
-            var app_locale = "{!! app()->getLocale() !!}";
-            var session_locale = "{!! session()->get('portal.main.app_locale') !!}";
-
-            $(document).ready(function(){
-                @if ((config('settings::frontend.webservices') == 1) && session()->has('portal.main.changeCountryId') &&
-                        !session()->has('portal.main.booleanChangeCountry'))
-                    $("#countries_select").trigger("change");
-                    {!! session()->put('portal.main.booleanChangeCountry', true) !!}
-                @else
-                if($("#countries_select").val() !== null){
-                    $("#countries_select").trigger("change");
-                }
-                @endif
-            });
-
-
 
         </script>
 

@@ -52,11 +52,11 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">
                     <h3 class="panel-title">Ventas</h3>
-                    <div class="pull-right">
+<!--                    <div class="pull-right">
                         <span class="clickable filter" data-toggle="tooltip" title="Toggle table filter" data-container="body">
                             <i class="glyphicon glyphicon-filter"></i>
                         </span>
-                    </div>
+                    </div>-->
                 </div>
                 <div class="panel-body" id="panel_ventas">
                     <table class="table table-hover" id="tbl_table">
