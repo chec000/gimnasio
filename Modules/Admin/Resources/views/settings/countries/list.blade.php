@@ -22,7 +22,7 @@
             <th>{{ trans('admin::countries.corbiz_key') }}</th>
             <th>{{ trans('admin::countries.list_name') }}</th>
             <th>{{ trans('admin::countries.list_lang') }}</th>
-            <th>{{ trans('admin::countries.maintenance') }}</th>
+            <!--<th>{{ trans('admin::countries.maintenance') }}</th>-->
             <th>{{ trans('admin::countries.list_active') }}</th>
             @if ($can_edit || $can_delete)
                 <th>{{ trans('admin::countries.list_actions') }}</th>
@@ -38,12 +38,11 @@
                     @foreach($country->languages as $lang)
                         <span class="label label-default">   {!! $lang->language->language !!}</span>
                     @endforeach</td>
-                <td>
-                    <span style="margin-right: 4px;" class="label label-{{ ($country->shopping_active == 1) ? 'success' : 'danger' }}"><span class="glyphicon glyphicon-{{ ($country->shopping_active == 1) ? 'ok' : 'remove' }}"><span class="label label-{{ ($country->inscription_active == 1) ? 'success' : 'danger' }}" ></span> </span> <span>{{ trans('admin::countries.list_shopping') }}</span>  </span>
+                <!--<td>-->
+<!--                    <span style="margin-right: 4px;" class="label label-{{ ($country->shopping_active == 1) ? 'success' : 'danger' }}"><span class="glyphicon glyphicon-{{ ($country->shopping_active == 1) ? 'ok' : 'remove' }}"><span class="label label-{{ ($country->inscription_active == 1) ? 'success' : 'danger' }}" ></span> </span> <span>{{ trans('admin::countries.list_shopping') }}</span>  </span>
                     <span  style="margin-right: 4px;"  class="label label-{{ ($country->inscription_active == 1) ? 'success' : 'danger' }}"><span class="glyphicon glyphicon-{{ ($country->inscription_active == 1) ? 'ok' : 'remove' }}"><span class="label label-{{ ($country->inscription_active == 1) ? 'success' : 'danger' }}" ></span> </span><span style="margin-left: 4px;">{{ trans('admin::countries.list_inscription') }}</span> </span>
-                    <span  style="margin-right: 4px;" class="label label-{{ ($country->customer_active == 1) ? 'success' : 'danger' }}"><span class="glyphicon glyphicon-{{ ($country->customer_active == 1) ? 'ok' : 'remove' }}"><span class="label label-{{ ($country->inscription_active == 1) ? 'success' : 'danger' }}" ></span></span><span style="margin-left: 4px;">{{  trans('admin::countries.add_admirable_customer')  }}</span> </span>
-
-                </td>
+                    <span  style="margin-right: 4px;" class="label label-{{ ($country->customer_active == 1) ? 'success' : 'danger' }}"><span class="glyphicon glyphicon-{{ ($country->customer_active == 1) ? 'ok' : 'remove' }}"><span class="label label-{{ ($country->inscription_active == 1) ? 'success' : 'danger' }}" ></span></span><span style="margin-left: 4px;">{{  trans('admin::countries.add_admirable_customer')  }}</span> </span>-->
+                <!--</td>-->
                 <td>
                     <span class="label label-success cActive" style="display:{{ ($country->active == 1) ? '' : 'none' }}">{{ trans('admin::countries.list_st_active') }}</span>
                     <span class="label label-default cInactive" style="display:{{ ($country->active == 0) ? '' : 'none' }}">{{ trans('admin::countries.list_st_inactive') }}</span>

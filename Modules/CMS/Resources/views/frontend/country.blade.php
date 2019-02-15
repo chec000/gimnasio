@@ -14,7 +14,7 @@
         <link href="{{ asset('themes/omnilife2018/css/'.config('cms.brand_css.'.session()->get('portal.main.brand.id')).'.css') }}" rel="stylesheet">       
         @php
             $brandName = config('cms.brand_css.'.session()->get('portal.main.brand.id'));
-            $brandName = ($brandName == 'master') ? 'omnilife' : $brandName;
+            $brandName = ($brandName == 'master') ? 'gym' : $brandName;
             $metaTitle = PageBuilder::block('meta_title', ['meta' => true]) ?:
                 trans('cms::header.metadata.' . $brandName . '.title');
             $metaDescription = PageBuilder::block('meta_description', ['meta' => true]) ?:

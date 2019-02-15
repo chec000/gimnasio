@@ -15,11 +15,11 @@
     <input type="hidden" name='country_id' value="{{$country->id}}" >
     <!-- country timezone field -->
     <div class="col-md-6">
-            <div class="form-group {!! FormMessage::getErrorClass('corbiz_key') !!}">
+<!--            <div class="form-group {!! FormMessage::getErrorClass('corbiz_key') !!}">
         {!! Form::label('corbiz_key',  trans('admin::countries.corbiz_key') , ['class' => 'control-label']) !!}   
         {!! Form::text('corbiz_key',  old("country_key", $country->corbiz_key), ['required','class' => 'form-control','maxlength'=>8] ) !!}
         <span class="help-block">{!! FormMessage::getErrorMessage('corbiz_key') !!}</span>
-    </div>
+    </div>-->
 
     </div>
 
@@ -66,7 +66,7 @@
     </div>
     </div>
 </div>
-<div class="row">
+<!--<div class="row">
         <div class="col-sm-12">
             <div class="form-group  {!! FormMessage::getErrorClass('webservice') !!}">
         {!! Form::label('webservice',  trans('admin::countries.web_service') , ['required','class' => 'control-label']) !!}
@@ -74,7 +74,7 @@
         <span class="help-block">{!! FormMessage::getErrorMessage('webservice') !!}</span>
     </div>
     </div>
-</div>
+</div>-->
 
 <div class="row">
     <!-- country number_format field -->
@@ -82,7 +82,7 @@
 
     <!-- country default_locale field -->
     <div class="col-md-6">
-               <div class="form-group">
+<!--               <div class="form-group">
         <label>{{ trans('admin::countries.add_flag') }}</label>
         <div class="input-group">
             <input id="flag" class="img_src form-control" value='{{$country->flag}}'  name="flag"  type="text">
@@ -90,11 +90,11 @@
                 <a href="{!! URL::to(config('admin.config.public').'/filemanager/dialog.php?type=1&field_id=flag') !!}" class="btn btn-default iframe-btn">{{ trans('admin::countries.add_btn_image') }}</a>
             </span>
         </div>
-    </div>
+    </div>-->
     </div>
     <div class="col-md-6">
      <div class="form-group">
-        <label for="shopping_active">
+<!--        <label for="shopping_active">
             <input type="checkbox" name="shopping_active" value="1" {!!($country->shopping_active==1)?'checked':''!!} ><span> {{  trans('admin::countries.add_shopping')  }}</span> 
             <span class="help-block">{!! FormMessage::getErrorMessage('shopping_active') !!}</span>
         </label>
@@ -105,7 +105,7 @@
              <label for="admirable_customer">
                  <input type="checkbox" name="admirable_customer" value="1"  {!!($country->customer_active==1)?'checked':''!!}><span>{{  trans('admin::countries.add_admirable_customer')  }}</span> 
             <span class="help-block">{!! FormMessage::getErrorMessage('admirable_customer') !!}</span>
-        </label>
+        </label>-->
          
     </div>
     </div>

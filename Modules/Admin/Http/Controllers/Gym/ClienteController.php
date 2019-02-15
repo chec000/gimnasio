@@ -332,6 +332,7 @@ class ClienteController extends Controller {
             $articulo->setPrecio($m->precio);
             $articulo->setSubtotal($m->precio);
              $articulo->setTipo_producto(TipoProducto::membresia);
+           $articulo->setDuracion_meses($m->duracion_meses);
             $articulo->setTipo(0);
             $this->total_pagar = $this->total_pagar + $articulo->getPrecio();
             $articulo->setImagen($m->imagen);
@@ -346,6 +347,7 @@ class ClienteController extends Controller {
             $articulo->setSubtotal($m->subtotal);
             $articulo->setCantidad($m->cantidad);
             $articulo->setImagen($m->imagen);
+             $articulo->setDuracion_meses($m->duracion_meses);
              $articulo->setTipo_producto(TipoProducto::membresia);
             $articulo->setTipo($m->tipo_id);
             $this->total_pagar = $this->total_pagar + $articulo->getSubtotal();
@@ -393,7 +395,7 @@ class ClienteController extends Controller {
         return false;
     }
 
-    public function generateReport($membresias, $user, $path) {
+    public function generateReport($membresias, $user, $path,$name_report) {
         /**
          * toma en cuenta que para ver los mismos 
          * datos debemos hacer la misma consulta
@@ -404,14 +406,14 @@ class ClienteController extends Controller {
 
             $pdf = PDF::loadView('admin::gym.ventas.factura_venta', ['date' => $date->format('d-M-Y'), "membresias" => $membresias, "user" => $user, "total" => $this->total_pagar]);
 
-            file_put_contents($directorio . '/' . "factura-" . $user->name . ".pdf", $pdf->stream());
+            file_put_contents($directorio . '/' .  $name_report.".pdf", $pdf->stream());
         } else {
             mkdir($directorio, 7777, true);
             $pdf = PDF::loadView('admin::gym.ventas.factura_venta', ['date' => $date->format('d-M-Y')]);
-            file_put_contents($directorio . '/' . "factura-" . $user->name . ".pdf", $pdf->stream());
+            file_put_contents($directorio . '/' . $name_report.".pdf", $pdf->stream());
         }
-        $archivo = $path . '/uploads/facturas/' . 'factura-' . trim($user->name) . '.pdf';
-        $archivoEmail = $directorio . "/" . "factura-" . ($user->name) . ".pdf";
+        $archivo = $path . '/uploads/facturas/' .$name_report . '.pdf';
+        $archivoEmail = $directorio . "/" .$name_report. ".pdf";
 
         return array("archivo" => $archivo, "archivoEmail" => $archivoEmail);
 
@@ -592,13 +594,13 @@ class ClienteController extends Controller {
         try {
             $diferencia = 0;
             DB::beginTransaction();
-         
-        if($request->tipo_producto==1){
+
+        if($request->tipo_producto==2){
             $articulos = $this->buidCheckoutActividades(session()->get('portal.main.gym.cliente.actividades'));            
         }else{
             $articulos = $this->buidCheckout(session()->get('portal.main.gym.cliente.membresias'), $tipo_venta);            
-        }
-            $user = UsuarioCliente::find(session()->get('portal.main.gym.cliente.id'));
+        }                       
+        $user = UsuarioCliente::find(session()->get('portal.main.gym.cliente.id'));
             $actual = $date->format('Y-m-d');
             $venta = new Venta();
             $venta->fecha = $actual;
@@ -609,7 +611,7 @@ class ClienteController extends Controller {
             $venta->total = session()->get('portal.main.gym.cliente.total_pagar');
             $venta->estatus = "terminado";
             $venta->concepto = $request->concepto;
-            $venta->codigo_factura = 89892;
+            $venta->codigo_factura = $this->getCodigoReporte();
             $venta->diferencia = $diferencia;
             $venta->descuento_id = 2;
             $venta->save();
@@ -620,11 +622,14 @@ class ClienteController extends Controller {
                     $diferencia = $request->pago_cliente - $venta->total;
                 }
             }
-            
-            
-            
+                                    
             foreach ($articulos as $m) {
-                $user->membresias()->attach($m->id);
+               
+                if($m->tipo_producto==2){
+                          $user->actividades()->attach($m->id);
+                }else{
+                          $user->membresias()->attach($m->id);
+                }                
                 $cm = new ClienteMembresia;
                 $cm->cliente_id = $user->id;
                 $cm->membresia_id = $m->id;
@@ -632,6 +637,7 @@ class ClienteController extends Controller {
                 $cm->precio = $m->precio;
                 $cm->compra_id = $venta->id;
                 $cm->fecha_compra = $actual;
+                $cm->tipo=$m->tipo_producto;
                 $cm->fecha_proximo_pago = $date->addMonth($m->duracion_meses);
                 $cm->save();
                 $detalle = new DetalleVenta();
@@ -644,7 +650,7 @@ class ClienteController extends Controller {
                 $venta->detalleVenta()->save($detalle);
             }
 
-            $ruta = $this->generateReport($articulos, $user->usuario, $request->getSchemeAndHttpHost());
+            $ruta = $this->generateReport($articulos, $user->usuario, $request->getSchemeAndHttpHost(),  $venta->codigo_factura);
 
             $venta->factura = $ruta['archivo'];
             $venta->save();
@@ -673,6 +679,21 @@ class ClienteController extends Controller {
 
         return false;
     }
+
+    public function getCodigoReporte(){
+        $numero="";
+        $ventas= Venta::get();
+      
+        if(count($ventas)>0){
+           $numero=$ventas->last()->codigo_factura;
+         $numero=$numero+1;
+           
+        }else{
+                $numero= substr(str_shuffle("0123456789"), 0, 6);  
+        }
+        return $numero;
+    }
+
 
     public function confirmarGuardado($request) {
         $date = new \DateTime();

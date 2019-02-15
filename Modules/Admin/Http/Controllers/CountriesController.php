@@ -192,7 +192,7 @@ class CountriesController extends Controller {
         $country = Country::find($countryId);
         $languageSelected = $this->getLanguageCountry($country->languages);
         $languagesList = Language::where('active', '=', 1)->get();
-        $languagesList2 = $this->getTraslationsCountry($country->traslations, $languagesList);
+        $languagesList2 = $this->getTraslationsCountry($country->traslations, $languagesList);   
         $this->layoutData['content'] = View::make('admin::settings.countries.edit', array('languages' => $languagesList,
                     'country' => $country,
                     'languageSelected' => $languageSelected,

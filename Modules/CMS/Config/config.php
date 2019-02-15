@@ -86,8 +86,8 @@ return [
     ],
     'brand_css' => [
         1 => 'master',
-        2 => 'seytu',
-        3 => 'nfuerza'
+        2 => 'master',
+        3 => 'master'
     ],
     'success_stories_filters' => [
         0 => 'cms::get-inspired.success_stories_filters.all',

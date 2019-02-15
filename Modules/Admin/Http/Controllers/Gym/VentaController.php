@@ -31,19 +31,18 @@ class VentaController extends Controller {
                     break;
                 case 1:
                     $ventas = Venta::whereBetween('created_at', [$request->date_start, $request->date_end])->get();
-
                     break;
                 case 2:
                     $ventas = Venta::whereYear('created_at', '=', $date->year)->get();
                     break;
                 case 3:
-                    $ventas = Venta::where('tipo_pago', '=', 'efectivo')->whereBetween('created_at', [$request->date_start, $request->date_end])->get();
+                    $ventas = Venta::where('tipo_pago', '=', 'efectivo')
+                        ->whereBetween('created_at', [$request->date_start, $request->date_end])->get();
                     break;
                 case 4:
-                    $ventas = Venta::where('tipo_pago', '=', 'tarjeta')->whereBetween('created_at', [$request->date_start, $request->date_end])->get();
-
+                    $ventas = Venta::where('tipo_pago', '=', 'tarjeta')
+                        ->whereBetween('created_at', [$request->date_start, $request->date_end])->get();
                     break;
-
                 default:
                     $ventas = Venta::orderBy('tipo_pago', 'ASC')->get();
             }    
@@ -89,7 +88,8 @@ class VentaController extends Controller {
     }
 
     public function updateMembresiaClienteVenta(Request $request) {
-        try {
+        try {            
+            $cc= new ClienteController();
             $usr = User::find($request->cliente_id);
             $membresia = Membresia::find($request->membresia_id);
             $date = Carbon::now();
@@ -103,7 +103,7 @@ class VentaController extends Controller {
             $venta->total = $membresia->precio;
             $venta->estatus = "Renovado";
             $venta->concepto = $request->concepto;
-            $venta->codigo_factura = 89892;
+            $venta->codigo_factura = $cc->getCodigoReporte();
             $venta->descuento_id = 2;
             $venta->save();
             $resultado = $this->detailShopp($venta, $membresia, $request, $date, $actual);

@@ -15,7 +15,7 @@ namespace Modules\Admin\Entities\Gym\Abstractas;
 
 abstract class TipoProducto {
     //put your code here
-   const membresia = 0;
-    const deporte= 1;
+   const membresia = 1;
+    const deporte= 2;
     
 }

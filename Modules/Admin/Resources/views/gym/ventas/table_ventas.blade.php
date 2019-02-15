@@ -7,6 +7,7 @@
             <th>Fecha</th>
             <th>Tipo pago</th>
             <th>Total</th>
+              <th>Factura</th>
             <th>Detalle</th>
         </tr>
     </thead>
@@ -24,6 +25,7 @@
              <td>{{$v->fecha}}</td>   
             <td>{{$v->tipo_pago}}</td>
             <td>${{$v->total}}</td>
+             <td><strong><a href="{{$v-> factura}}" target="_BLANK">{{$v->codigo_factura}}</a></strong></td>                            
             <td>                                                     
                 <a class="fa fa-eye" href="{{ route('admin.venta.detalle', ['id' => $v->id]) }}" title="{{ trans('admin::action.edit_action') }}"></a>
             </td>          
