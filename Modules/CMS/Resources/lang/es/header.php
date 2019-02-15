@@ -15,20 +15,20 @@ return [
     'sign_in'           => 'Ingresar',
     'products'          => 'PRODUCTOS',
     'log_in'            => 'Accede a tu cuenta',
-    'metadata'          =>  [
-        'omnilife' => [
-            'title' => 'Omnilife',
-            'description' => '¡Aquí trabajamos para lograr tus sueños! Si estás aquí es porque buscas mejorar tu
-                vida e iniciar tu Negocio Independiente.',
+   'metadata'          =>  [
+        'gym' => [
+            'title' => 'My Gym',
+            'description' => 'Here we work to achieve your dreams! If you are here, it is because you are looking to
+                improve your life ',
         ],
         'seytu' => [
-            'title' => 'Seytu',
-            'description' => 'Sé lo que quieres ser. Tu belleza es un reflejo de todo lo que eres. De todo lo que te
-                gusta y de todo lo que sientes.',
-        ],
+        'title' => 'My Gym',
+            'description' => 'Here we work to achieve your dreams! If you are here, it is because you are looking to
+                improve your life ', ],
         'nfuerza' => [
-            'title' => 'Nfuerza',
-            'description' => 'Conviértete en una fuerza imparable. Los jóvenes no vemos cómo se mueve el mundo, movemos el mundo.',
-        ]
+         'title' => 'My Gym',
+            'description' => 'Here we work to achieve your dreams! If you are here, it is because you are looking to
+                improve your life ',
+            ]
     ]
 ];

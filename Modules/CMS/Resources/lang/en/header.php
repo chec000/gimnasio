@@ -16,18 +16,19 @@ return [
     'products'          => 'PRODUCTS',
     'log_in'            => 'Login',
     'metadata'          =>  [
-        'omnilife' => [
-            'title' => 'Omnilife',
+        'gym' => [
+            'title' => 'My Gym',
             'description' => 'Here we work to achieve your dreams! If you are here, it is because you are looking to
-                improve your life and start your Independent Business.',
+                improve your life ',
         ],
         'seytu' => [
-            'title' => 'Seytu',
-            'description' => 'Your beauty is a reflection of everything you are. Everything you like and everything you feel.',
-        ],
+        'title' => 'My Gym',
+            'description' => 'Here we work to achieve your dreams! If you are here, it is because you are looking to
+                improve your life ', ],
         'nfuerza' => [
-            'title' => 'Nfuerza',
-            'description' => 'Become an unstoppable force. Young people do not see how the world moves, we move the world.'
-        ]
+         'title' => 'My Gym',
+            'description' => 'Here we work to achieve your dreams! If you are here, it is because you are looking to
+                improve your life ',
+            ]
     ]
 ];

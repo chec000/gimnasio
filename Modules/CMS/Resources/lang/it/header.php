@@ -15,21 +15,20 @@ return [
     'sign_in' => 'Accedi',
     'products' => 'PRODOTTI',
     'log_in' => '',
-    'metadata' =>  [
-        'omnilife' => [
-            'title' => 'Omnilife',
-            'description' => 'Questo è l’ambiente ideale per rendere concreti i tuoi sogni, un luogo in cui non
-                esiste la sconfitta.',
+   'metadata'          =>  [
+        'gym' => [
+            'title' => 'My Gym',
+            'description' => 'Here we work to achieve your dreams! If you are here, it is because you are looking to
+                improve your life ',
         ],
         'seytu' => [
-            'title' => 'Seytu',
-            'description' => 'So cosa vuoi essere. La tua bellezza è un riflesso di tutto ciò che sei. Tutto ciò che
-                ti piace e tutto ciò che senti.',
-        ],
+        'title' => 'My Gym',
+            'description' => 'Here we work to achieve your dreams! If you are here, it is because you are looking to
+                improve your life ', ],
         'nfuerza' => [
-            'title' => 'Nfuerza',
-            'description' => 'Diventa una forza inarrestabile. I giovani non vedono come si muove il mondo,
-                spostiamo il mondo.',
-        ]
+         'title' => 'My Gym',
+            'description' => 'Here we work to achieve your dreams! If you are here, it is because you are looking to
+                improve your life ',
+            ]
     ]
 ];
